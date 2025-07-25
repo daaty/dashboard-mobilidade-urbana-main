@@ -1,0 +1,11 @@
+data,usuario_nome,usuario_telefone,motorista_nome,municipio,status,valor,distancia,tempo_corrida,avaliacao
+2025-01-15 08:30:00,João Silva,(11) 99999-1111,Carlos Santos,São Paulo,concluida,25.50,8.5,25,5
+2025-01-15 09:15:00,Maria Oliveira,(11) 99999-2222,Ana Costa,São Paulo,concluida,18.75,5.2,18,4
+2025-01-15 10:00:00,Pedro Souza,(11) 99999-3333,Carlos Santos,Rio de Janeiro,cancelada,0,0,0,0
+2025-01-15 11:30:00,Ana Lima,(11) 99999-4444,José Silva,São Paulo,concluida,32.00,12.1,35,5
+2025-01-15 14:20:00,Bruno Costa,(11) 99999-5555,Ana Costa,Belo Horizonte,concluida,22.30,7.8,22,4
+2025-01-15 15:45:00,Carla Ferreira,(11) 99999-6666,Roberto Lima,São Paulo,perdida,0,0,0,0
+2025-01-15 16:30:00,Daniel Rocha,(11) 99999-7777,Carlos Santos,Rio de Janeiro,concluida,28.90,9.3,28,5
+2025-01-15 18:00:00,Elena Martins,(11) 99999-8888,José Silva,São Paulo,concluida,15.40,4.2,15,3
+2025-01-15 19:15:00,Felipe Santos,(11) 99999-9999,Ana Costa,Belo Horizonte,concluida,35.60,14.5,40,5
+2025-01-15 20:30:00,Gabriela Dias,(11) 99999-0000,Roberto Lima,São Paulo,cancelada,0,0,0,0

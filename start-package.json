@@ -1,0 +1,13 @@
+{
+  "name": "start-dashboard",
+  "version": "1.0.0",
+  "description": "Script para iniciar o Dashboard de Mobilidade Urbana",
+  "main": "start.js",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "concurrently \"python3 main.py\" \"npm run dev\" --names \"FLASK,VITE\" --prefix-colors \"blue,green\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

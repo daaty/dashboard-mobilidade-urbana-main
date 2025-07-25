@@ -1,0 +1,104 @@
+# 🚀 Docker Compose para Dashboard Mobilidade Urbana
+# Desenvolvimento Local com PostgreSQL + Redis
+
+version: '3.8'
+
+services:
+  # Banco PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: mobilidade_urbana
+      POSTGRES_USER: dashboard_user
+      POSTGRES_PASSWORD: senha_segura_123
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - dashboard_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dashboard_user -d mobilidade_urbana"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Cache Redis
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - dashboard_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+  # Backend FastAPI
+  backend:
+    build: ./backend_fastapi
+    container_name: fastapi-backend
+    environment:
+      - DATABASE_URL=postgresql://dashboard_user:senha_segura_123@postgres:5432/mobilidade_urbana
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=easypanel_dashboard_secret_key_2025
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dashboard_network
+    volumes:
+      - ./backend_fastapi/app:/app/app
+      - ./backend_fastapi/main.py:/app/main.py
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Frontend React
+  frontend:
+    build: ./frontend
+    container_name: react-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: ["npm", "run", "dev"]
+
+  # Nginx Proxy (opcional para desenvolvimento)
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./docker/nginx-dev.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - dashboard_network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  dashboard_network:
+    driver: bridge
