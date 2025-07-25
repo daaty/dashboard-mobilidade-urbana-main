@@ -78,7 +78,10 @@ pip install -r backend/requirements.txt
 # Executar servidor FastAPI (Uvicorn)
 cd backend
 python -m uvicorn main:app --reload
+<<<<<<< HEAD
 ```
+=======
+>>>>>>> b79eb8c1fab2d681c0f2e542b205b8cb7e099b4f
 
 ### **� Deploy com Docker (Easypanel)**
 
