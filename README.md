@@ -75,8 +75,9 @@ npm run build
 # Instalar dependências Python
 pip install -r backend/requirements.txt
 
-# Executar servidor Flask
-python main.py
+# Executar servidor FastAPI (Uvicorn)
+cd backend
+python -m uvicorn main:app --reload
 ```
 
 ### **� Deploy com Docker (Easypanel)**
