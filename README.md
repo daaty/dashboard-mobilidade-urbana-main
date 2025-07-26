@@ -77,7 +77,7 @@ pip install -r backend/requirements.txt
 
 # Executar servidor FastAPI (Uvicorn)
 cd backend
-python -m uvicorn main:app --reload
+python -m uvicorn main:app --host 0.0.0.0 --port 3040 --reload
 <<<<<<< HEAD
 ```
 =======

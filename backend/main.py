@@ -47,6 +47,12 @@ app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"]
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 """
 
+
+# Endpoint de healthcheck para Docker/Easypanel
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}
+
 @app.get("/")
 def root():
     return {"message": "FastAPI backend rodando!"}

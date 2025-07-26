@@ -34,10 +34,15 @@ function App() {
     fetchAlertasData()
   }, [])
 
-  const fetchMetricsData = async () => {
+  const fetchMetricsData = async (period = '7d') => {
     try {
       setLoading(true)
-      const response = await fetch(`${API_URL}/api/metrics/overview`)
+      // Ajusta o valor para o backend: 'hoje', '7d', '30d'
+      let periodoParam = '7d';
+      if (period === 'hoje') periodoParam = 'hoje';
+      else if (period === '30dias' || period === '30d') periodoParam = '30d';
+      else if (period === '7dias' || period === '7d') periodoParam = '7d';
+      const response = await fetch(`${API_URL}/api/metrics/overview?periodo=${periodoParam}`)
       const data = await response.json()
       setMetricsData(data)
     } catch (error) {
@@ -80,6 +85,11 @@ function App() {
     }
   }
 
+  // Handler para troca de período na dashboard
+  const handlePeriodChange = (period) => {
+    fetchMetricsData(period)
+  }
+
   const renderContent = () => {
     const contentVariants = {
       hidden: { opacity: 0, y: 20 },
@@ -90,7 +100,7 @@ function App() {
       case 'overview':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <MetricsOverview data={metricsData} loading={loading} />
+            <MetricsOverview data={metricsData} loading={loading} onPeriodChange={handlePeriodChange} />
           </motion.div>
         )
       case 'metas':

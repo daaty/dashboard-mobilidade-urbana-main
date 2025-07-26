@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 // import { ResumoPerformance } from './ResumoPerformance'
@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const periodOptions = [
   { label: 'Hoje', value: 'hoje' },
-  { label: 'Últimos 7 dias', value: '7dias' },
-  { label: 'Últimos 30 dias', value: '30dias' },
+  { label: '7d', value: '7d' },
+  { label: '30d', value: '30d' },
 ]
 
 
@@ -15,7 +15,15 @@ const periodOptions = [
 export function MetricsOverview({ data, loading = false, onPeriodChange }) {
   // Garante que data nunca será null/undefined
   const safeData = data || {};
-  const [period, setPeriod] = useState('7dias')
+  const [period, setPeriod] = useState('7d')
+
+  // Garante que o botão selecionado sempre reflete o filtro atual
+  useEffect(() => {
+    // Se os dados mudaram por causa do filtro externo, atualiza o botão
+    if (safeData && safeData._period) {
+      setPeriod(safeData._period)
+    }
+  }, [safeData])
 
   // Simulação de dados caso não venha da API
   const metricas = safeData.metricas_principais || {
@@ -47,16 +55,17 @@ export function MetricsOverview({ data, loading = false, onPeriodChange }) {
           <button
             key={opt.value}
             type="button"
-            className={`px-4 py-1 rounded border text-sm transition-colors
+            className={`px-5 py-1.5 rounded-full border text-base font-medium transition-all duration-200
               ${period === opt.value
-                ? 'bg-white border-gray-400 font-semibold shadow text-gray-900'
-                : 'bg-gray-100 border-gray-200 text-gray-500 hover:bg-gray-200'}`}
+                ? 'bg-gradient-to-r from-blue-500 to-blue-700 text-white border-blue-700 shadow-lg scale-105 font-bold'
+                : 'bg-gray-100 border-gray-200 text-gray-500 hover:bg-blue-100 hover:text-blue-700'}`}
+            style={{ minWidth: 64 }}
             onClick={() => {
               setPeriod(opt.value);
               if (onPeriodChange) onPeriodChange(opt.value);
             }}
           >
-            {opt.label === 'Hoje' ? 'Hoje' : opt.label.includes('7') ? '7d' : '30d'}
+            {opt.label}
           </button>
         ))}
       </div>

@@ -11,6 +11,12 @@ DATABASE_URL = os.getenv(
     "postgresql+asyncpg://n8n_user:n8n_pw@148.230.73.27:5432/n8n_db"
 )
 
-engine = create_async_engine(DATABASE_URL, echo=True, future=True)
+# Adiciona pool_pre_ping para evitar conexões fechadas
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=True,
+    future=True,
+    pool_pre_ping=True
+)
 SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 Base = declarative_base()
