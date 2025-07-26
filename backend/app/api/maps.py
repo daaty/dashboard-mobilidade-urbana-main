@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.app.models.maps import HeatmapResponse, RoutesResponse, GeoAnalysisResponse, TrafficResponse
+from app.models.maps import HeatmapResponse, RoutesResponse, GeoAnalysisResponse, TrafficResponse
 
 router = APIRouter()
 

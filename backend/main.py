@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.api import metrics, performance, alert, corrida, ia, sentiment, recommendation, anomaly, llm, maps, dashboard, auth
+from app.api import metrics, performance, alert, corrida, ia, sentiment, recommendation, anomaly, llm, maps, dashboard, auth
 
 
 app = FastAPI()

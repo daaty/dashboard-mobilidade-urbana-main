@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from typing import List
-from backend.app.models.performance import PerformanceMetric
+from app.models.performance import PerformanceMetric
 
 router = APIRouter()
 

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.app.models.llm import LLMChatRequest, LLMChatResponse
+from app.models.llm import LLMChatRequest, LLMChatResponse
 
 router = APIRouter()
 

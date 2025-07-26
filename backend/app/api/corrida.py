@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from typing import List
-from backend.app.models.corrida import CorridaAnalise
+from app.models.corrida import CorridaAnalise
 
 router = APIRouter()
 

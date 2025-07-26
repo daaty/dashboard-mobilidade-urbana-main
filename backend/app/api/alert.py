@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from typing import List
-from backend.app.models.alert import AlertMetric
+from app.models.alert import AlertMetric
 
 router = APIRouter()
 

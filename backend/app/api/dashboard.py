@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.app.models.dashboard import FinanceiroResponse, OperacionalResponse, ExecutivoResponse, PreditivoResponse
+from app.models.dashboard import FinanceiroResponse, OperacionalResponse, ExecutivoResponse, PreditivoResponse
 
 router = APIRouter()
 
