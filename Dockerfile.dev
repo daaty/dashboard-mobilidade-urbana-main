@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y gcc libpq-dev curl && rm -rf /var/lib/a
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY backend ./backend
+COPY backend/.env ./backend/.env
 COPY main.py ./
 COPY dados_exemplo.csv ./
 COPY database ./database
@@ -21,6 +22,7 @@ COPY frontend/tailwind.config.js ./
 COPY frontend/src ./src
 COPY frontend/public ./public
 COPY frontend/index.html ./
+COPY frontend/.env ./frontend/.env
 RUN npm install
 
 # Final stage: multi-process dev
