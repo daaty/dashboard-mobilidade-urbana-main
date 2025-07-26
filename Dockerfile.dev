@@ -40,5 +40,5 @@ RUN mkdir -p /app/logs /app/uploads && chown -R appuser:appuser /app
 USER appuser
 EXPOSE 8080 3000
 
-# Entrypoint: gera .env para backend e frontend e roda ambos
-CMD ["sh", "-c", "printenv | grep -v '^PWD=' | grep -v '^HOME=' | grep -v '^SHLVL=' | grep -v '^_' > backend/.env; printenv | grep -v '^PWD=' | grep -v '^HOME=' | grep -v '^SHLVL=' | grep -v '^_' > frontend/.env; uvicorn backend.main:app --host 0.0.0.0 --port 8080 --reload --log-level debug & cd frontend && npm run dev -- --host 0.0.0.0 --port 3000"]
+# Entrypoint: garante logs no console
+CMD ["sh", "-c", "printenv | grep -v '^PWD=' | grep -v '^HOME=' | grep -v '^SHLVL=' | grep -v '^_' > backend/.env; printenv | grep -v '^PWD=' | grep -v '^HOME=' | grep -v '^SHLVL=' | grep -v '^_' > frontend/.env; uvicorn backend.main:app --host 0.0.0.0 --port 8080 --reload --log-level debug 2>&1 | tee /dev/stdout & cd frontend && npm run dev -- --host 0.0.0.0 --port 3000 2>&1 | tee /dev/stdout"]
