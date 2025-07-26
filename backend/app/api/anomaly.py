@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.models.anomaly import AnomalyDetectionRequest, AnomalyDetectionResponse
+from backend.app.models.anomaly import AnomalyDetectionRequest, AnomalyDetectionResponse
 
 router = APIRouter()
 

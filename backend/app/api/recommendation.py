@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.models.recommendation import RecommendationRequest, RecommendationResponse
+from backend.app.models.recommendation import RecommendationRequest, RecommendationResponse
 
 router = APIRouter()
 

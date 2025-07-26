@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.models.ia import PredictRequest, PredictResponse
+from backend.app.models.ia import PredictRequest, PredictResponse
 
 router = APIRouter()
 

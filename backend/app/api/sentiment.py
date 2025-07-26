@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.models.sentiment import SentimentRequest, SentimentResponse
+from backend.app.models.sentiment import SentimentRequest, SentimentResponse
 
 router = APIRouter()
 

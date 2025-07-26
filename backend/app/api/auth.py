@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.models.auth import LoginRequest, LoginResponse, TwoFARequest, TwoFAResponse, UserResponse
+from backend.app.models.auth import LoginRequest, LoginResponse, TwoFARequest, TwoFAResponse, UserResponse
 
 router = APIRouter()
 

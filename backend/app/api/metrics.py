@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from backend.app.database.db import SessionLocal
-from app.models.rides_data import RidesData
+from backend.app.models.rides_data import RidesData
 import json
 from datetime import datetime, timedelta
 
