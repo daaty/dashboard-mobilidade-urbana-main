@@ -36,6 +36,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 # Garante que uvicorn está instalado no ambiente final
 RUN pip install --no-cache-dir uvicorn
+RUN ln -s /usr/local/bin/uvicorn /usr/bin/uvicorn
 RUN ln -s /usr/local/bin/uvicorn /bin/uvicorn
 # Instala 'concurrently' globalmente no estágio final
 RUN npm install -g concurrently
