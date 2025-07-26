@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "start": "concurrently \"python main.py\" \"npm run dev\" --names \"🐍 FLASK,⚡ VITE\" --prefix-colors \"blue,green\" --kill-others-on-fail"
+    "start": "concurrently \"uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug\" \"npm run dev\" --names \"⚡ API,⚡ VITE\" --prefix-colors \"blue,green\" --kill-others-on-fail"
   },
   "dependencies": {
     "chart.js": "^4.5.0",
