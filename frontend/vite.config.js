@@ -11,6 +11,7 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0',
     port: 3000,
     proxy: {
       '/api': {
@@ -18,7 +19,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       }
-    }
+    },
   },
     allowedHosts: ['localhost', '127.0.0.1', 'dashbord.urbanmt.com.br'],
   build: {
