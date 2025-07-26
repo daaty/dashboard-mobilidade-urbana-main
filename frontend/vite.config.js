@@ -20,8 +20,8 @@ export default defineConfig({
         secure: false,
       }
     },
-  },
     allowedHosts: ['localhost', '127.0.0.1', 'dashbord.urbanmt.com.br', 'n8n-dashbord.ajljmq.easypanel.host'],
+  },
   build: {
     outDir: 'dist',
     sourcemap: true,
