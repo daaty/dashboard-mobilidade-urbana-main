@@ -29,7 +29,11 @@ WORKDIR /app
 COPY --from=backend-dev /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=backend-dev /app /app
 COPY --from=frontend-dev /app /app/frontend
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y curl nodejs npm gcc libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+# Garante que uvicorn está instalado no ambiente final
+RUN pip install --no-cache-dir uvicorn
 RUN adduser --system --group appuser
 RUN mkdir -p /app/logs /app/uploads && chown -R appuser:appuser /app
 USER appuser
