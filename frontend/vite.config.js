@@ -21,7 +21,7 @@ export default defineConfig({
       }
     },
   },
-    allowedHosts: ['localhost', '127.0.0.1', 'dashbord.urbanmt.com.br'],
+    allowedHosts: ['localhost', '127.0.0.1', 'dashbord.urbanmt.com.br', 'n8n-dashbord.ajljmq.easypanel.host'],
   build: {
     outDir: 'dist',
     sourcemap: true,
