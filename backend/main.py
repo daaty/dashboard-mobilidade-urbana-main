@@ -1,20 +1,27 @@
 
 
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import metrics, performance, alert, corrida, ia, sentiment, recommendation, anomaly, llm, maps, dashboard, auth
 
-
 app = FastAPI()
 
-# Adicionar CORS para permitir frontend local
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+# CORS_ORIGINS do .env ou fallback hardcoded
+cors_origins_env = os.getenv("CORS_ORIGINS")
+if cors_origins_env:
+    cors_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+else:
+    cors_origins = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://8tzcwd83-3000.brs.devtunnels.ms"
-    ],
+        "https://8tzcwd83-3000.brs.devtunnels.ms",
+        "https://dashbord.urbanmt.com.br"
+    ]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
