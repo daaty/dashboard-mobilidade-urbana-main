@@ -38,5 +38,5 @@ EXPOSE 8080
 # Healthcheck (crie endpoint /api/health no FastAPI)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8080/api/health || exit 1
-# Start FastAPI with Uvicorn (log detalhado e reload para debug)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--log-level", "debug", "--reload", "--use-colors"]
+# Start FastAPI com path correto do app
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080", "--log-level", "debug", "--reload", "--use-colors"]

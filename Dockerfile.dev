@@ -1,0 +1,39 @@
+# Dockerfile.dev para desenvolvimento (API + Frontend em modo dev)
+
+# Backend (FastAPI)
+FROM python:3.11-slim AS backend-dev
+WORKDIR /app
+RUN apt-get update && apt-get install -y gcc libpq-dev curl && rm -rf /var/lib/apt/lists/*
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY backend ./backend
+COPY main.py ./
+COPY dados_exemplo.csv ./
+COPY database ./database
+
+# Frontend (Vite dev server)
+FROM node:18-alpine AS frontend-dev
+WORKDIR /app
+COPY frontend/package*.json ./
+COPY frontend/vite.config.js ./
+COPY frontend/postcss.config.* ./
+COPY frontend/tailwind.config.js ./
+COPY frontend/src ./src
+COPY frontend/public ./public
+COPY frontend/index.html ./
+RUN npm install
+
+# Final stage: multi-process dev
+FROM python:3.11-slim
+WORKDIR /app
+COPY --from=backend-dev /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=backend-dev /app /app
+COPY --from=frontend-dev /app /app/frontend
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN adduser --system --group appuser
+RUN mkdir -p /app/logs /app/uploads && chown -R appuser:appuser /app
+USER appuser
+EXPOSE 8080 3000
+
+# Entrypoint: roda API e Frontend dev juntos
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port 8080 --reload --log-level debug & cd frontend && npm run dev -- --host 0.0.0.0 --port 3000"]
