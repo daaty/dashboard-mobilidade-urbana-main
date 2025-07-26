@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 // import { ResumoPerformance } from './ResumoPerformance'
@@ -16,14 +16,6 @@ export function MetricsOverview({ data, loading = false, onPeriodChange }) {
   // Garante que data nunca será null/undefined
   const safeData = data || {};
   const [period, setPeriod] = useState('7d')
-
-  // Garante que o botão selecionado sempre reflete o filtro atual
-  useEffect(() => {
-    // Se os dados mudaram por causa do filtro externo, atualiza o botão
-    if (safeData && safeData._period) {
-      setPeriod(safeData._period)
-    }
-  }, [safeData])
 
   // Simulação de dados caso não venha da API
   const metricas = safeData.metricas_principais || {

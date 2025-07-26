@@ -8,7 +8,7 @@ COPY frontend/tailwind.config.js ./
 COPY frontend/src ./src
 COPY frontend/public ./public
 COPY frontend/index.html ./
-RUN npm ci --only=production
+RUN npm install
 RUN npm run build
 
 ### STAGE 2: Build Backend (FastAPI)
