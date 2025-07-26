@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text
-from backend.app.database.db import Base
+from app.database.db import Base
 import os
 from dotenv import load_dotenv
 
