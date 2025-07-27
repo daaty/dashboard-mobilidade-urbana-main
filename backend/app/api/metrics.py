@@ -134,10 +134,142 @@ async def get_metrics_overview(
                     perdidas.append(item)
                 elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant:
                     perdidas_ant.append(item)
-        # Scheduled Rides (considerar como canceladas ou agendadas)
+    # Utilizar set para evitar duplicidade pelo id da corrida e data
+    ids_concluidas = set()
+    ids_canceladas = set()
+    ids_perdidas = set()
+    for r in rides:
+        ride_data = r.ride_data
+        scraped_at = r.scraped_at if hasattr(r, 'scraped_at') else None
+        if isinstance(ride_data, str):
+            try:
+                ride_data = json.loads(ride_data)
+            except Exception:
+                continue
+        table_name = ride_data.get("tableName", "")
+        new_records = ride_data.get("newRecords", [])
+        # Completed Rides
+        if table_name == "Completed Rides":
+            for rec in new_records:
+                id_corrida = rec[0] if len(rec) > 0 else None
+                nome = rec[3] if len(rec) > 3 else None  # passageiro
+                hora = rec[7] if len(rec) > 7 else None
+                dt_corrida = None
+                hora_formatada = None
+                if hora:
+                    import re
+                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
+                    if match:
+                        dt_str = match.group(1)
+                        try:
+                            dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            hora_formatada = dt_str
+                        except Exception:
+                            dt_corrida = None
+                            hora_formatada = None
+                    else:
+                        hora_formatada = hora  # fallback
+                item = {
+                    "id_corrida": id_corrida,
+                    "nome": nome,
+                    "avatar": gerar_avatar(nome),
+                    "hora": hora_formatada,
+                    "dt_corrida": dt_corrida,
+                    "grupo": rec[9] if len(rec) > 9 else None,
+                    "local": rec[5] if len(rec) > 5 else None,
+                    "destino": rec[6] if len(rec) > 6 else None,
+                    "cidade": None,
+                    "tempo": None
+                }
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_concluidas:
+                    concluidas.append(item)
+                    ids_concluidas.add((id_corrida, hora_formatada))
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_concluidas:
+                    concluidas_ant.append(item)
+                    ids_concluidas.add((id_corrida, hora_formatada))
+        # Missed Rides
+        elif table_name == "Missed Rides":
+            for rec in new_records:
+                id_corrida = rec[0] if len(rec) > 0 else None
+                nome = rec[3] if len(rec) > 3 else None  # passageiro
+                hora = rec[6] if len(rec) > 6 else None
+                dt_corrida = None
+                hora_formatada = None
+                if hora:
+                    import re
+                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
+                    if match:
+                        dt_str = match.group(1)
+                        try:
+                            dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            hora_formatada = dt_str
+                        except Exception:
+                            dt_corrida = None
+                            hora_formatada = None
+                    else:
+                        hora_formatada = hora
+                item = {
+                    "id_corrida": id_corrida,
+                    "nome": nome,
+                    "avatar": gerar_avatar(nome),
+                    "hora": hora_formatada,
+                    "dt_corrida": dt_corrida,
+                    "grupo": rec[4] if len(rec) > 4 else None,
+                    "local": rec[3] if len(rec) > 3 else None,
+                    "destino": None,
+                    "cidade": None,
+                    "tempo": None
+                }
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_perdidas:
+                    perdidas.append(item)
+                    ids_perdidas.add((id_corrida, hora_formatada))
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_perdidas:
+                    perdidas_ant.append(item)
+                    ids_perdidas.add((id_corrida, hora_formatada))
+        # Cancelled Rides (prioritário para canceladas)
+        elif table_name == "Cancelled Rides":
+            for rec in new_records:
+                id_corrida = rec[0] if len(rec) > 0 else None
+                nome = rec[3] if len(rec) > 3 else None  # passageiro
+                hora = rec[9] if len(rec) > 9 else None
+                dt_corrida = None
+                hora_formatada = None
+                if hora:
+                    import re
+                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
+                    if match:
+                        dt_str = match.group(1)
+                        try:
+                            dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            hora_formatada = dt_str
+                        except Exception:
+                            dt_corrida = None
+                            hora_formatada = None
+                    else:
+                        hora_formatada = hora
+                item = {
+                    "id_corrida": id_corrida,
+                    "nome": nome,
+                    "avatar": gerar_avatar(nome),
+                    "hora": hora_formatada,
+                    "dt_corrida": dt_corrida,
+                    "grupo": rec[4] if len(rec) > 4 else None,
+                    "local": rec[5] if len(rec) > 5 else None,
+                    "destino": rec[6] if len(rec) > 6 else None,
+                    "cidade": None,
+                    "tempo": None
+                }
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_canceladas:
+                    canceladas.append(item)
+                    ids_canceladas.add((id_corrida, hora_formatada))
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_canceladas:
+                    canceladas_ant.append(item)
+                    ids_canceladas.add((id_corrida, hora_formatada))
+        # Scheduled Rides (fallback para canceladas)
         elif table_name == "Scheduled Rides":
             for rec in new_records:
-                nome = rec[1] if len(rec) > 1 else None
+                id_corrida = rec[0] if len(rec) > 0 else None
+                nome = rec[3] if len(rec) > 3 else None  # passageiro
                 hora = rec[10] if len(rec) > 10 else None
                 dt_corrida = None
                 hora_formatada = None
@@ -155,6 +287,7 @@ async def get_metrics_overview(
                     else:
                         hora_formatada = hora
                 item = {
+                    "id_corrida": id_corrida,
                     "nome": nome,
                     "avatar": gerar_avatar(nome),
                     "hora": hora_formatada,
@@ -165,43 +298,9 @@ async def get_metrics_overview(
                     "cidade": None,
                     "tempo": None
                 }
-                if dt_corrida and dt_ini <= dt_corrida <= dt_fim:
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_canceladas:
                     canceladas.append(item)
-                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant:
+                    ids_canceladas.add((id_corrida, hora_formatada))
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_canceladas:
                     canceladas_ant.append(item)
-        # Ongoing Rides (não contabiliza para métricas principais)
-        # elif table_name == "Ongoing Rides":
-        #     ...
-
-    def calc_variacao(atual, anterior):
-        if anterior == 0:
-            return 100.0 if atual > 0 else 0.0
-        return round(((atual - anterior) / anterior) * 100, 2)
-
-    metricas_principais = {
-        "corridas_concluidas": len(concluidas),
-        "corridas_canceladas": len(canceladas),
-        "corridas_perdidas": len(perdidas),
-        "variacao_concluidas": calc_variacao(len(concluidas), len(concluidas_ant)),
-        "variacao_canceladas": calc_variacao(len(canceladas), len(canceladas_ant)),
-        "variacao_perdidas": calc_variacao(len(perdidas), len(perdidas_ant)),
-    }
-
-    # Ordena as listas por data/hora (dt_corrida) do mais recente para o mais antigo
-    def ordenar_por_data(lista):
-        return sorted(lista, key=lambda x: x.get("dt_corrida", datetime.min), reverse=True)
-
-    concluidas = ordenar_por_data(concluidas)
-    canceladas = ordenar_por_data(canceladas)
-    perdidas = ordenar_por_data(perdidas)
-
-    atividade_recente = {
-        "concluidas": concluidas[:3],
-        "canceladas": canceladas[:3],
-        "perdidas": perdidas[:3]
-    }
-
-    return {
-        "metricas_principais": metricas_principais,
-        "atividade_recente": atividade_recente
-    }
+                    ids_canceladas.add((id_corrida, hora_formatada))
