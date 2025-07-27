@@ -1,10 +1,12 @@
-
-
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.database.db import SessionLocal
 from app.models.rides_data import RidesData
+    # Função para ordenar por data
+    def ordenar_por_data(lista):
+        return sorted(lista, key=lambda x: x.get("dt_corrida", datetime.min), reverse=True)
+
 import json
 from datetime import datetime, timedelta
 
@@ -395,3 +397,32 @@ async def get_metrics_overview(
                 elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_canceladas:
                     canceladas_ant.append(item)
                     ids_canceladas.add((id_corrida, hora_formatada))
+
+    concluidas = ordenar_por_data(concluidas)
+    canceladas = ordenar_por_data(canceladas)
+    perdidas = ordenar_por_data(perdidas)
+
+    def calc_variacao(atual, anterior):
+        if anterior == 0:
+            return 100.0 if atual > 0 else 0.0
+        return round(((atual - anterior) / anterior) * 100, 2)
+
+    atividade_recente = {
+        "concluidas": concluidas[:3],
+        "canceladas": canceladas[:3],
+        "perdidas": perdidas[:3]
+    }
+
+    metricas_principais = {
+        "corridas_concluidas": len(concluidas),
+        "corridas_canceladas": len(canceladas),
+        "corridas_perdidas": len(perdidas),
+        "variacao_concluidas": calc_variacao(len(concluidas), len(concluidas_ant)),
+        "variacao_canceladas": calc_variacao(len(canceladas), len(canceladas_ant)),
+        "variacao_perdidas": calc_variacao(len(perdidas), len(perdidas_ant)),
+    }
+
+    return {
+        "metricas_principais": metricas_principais,
+        "atividade_recente": atividade_recente
+    }
