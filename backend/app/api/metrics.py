@@ -110,7 +110,7 @@ async def get_metrics_overview(
         elif table_name == "Missed Rides":
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
-                nome = rec[3] if len(rec) > 3 else None  # passageiro
+                nome = rec[1] if len(rec) > 1 else None  # passageiro correto
                 hora = rec[6] if len(rec) > 6 else None
                 motivo = rec[7] if len(rec) > 7 else None
                 dt_corrida = None
@@ -151,7 +151,7 @@ async def get_metrics_overview(
         elif table_name == "Cancelled Rides":
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
-                nome = rec[3] if len(rec) > 3 else None  # passageiro
+                nome = rec[1] if len(rec) > 1 else None  # passageiro correto
                 hora = rec[9] if len(rec) > 9 else None
                 motivo = rec[10] if len(rec) > 10 else None
                 dt_corrida = None
@@ -192,7 +192,7 @@ async def get_metrics_overview(
         elif table_name == "Scheduled Rides":
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
-                nome = rec[3] if len(rec) > 3 else None  # passageiro
+                nome = rec[1] if len(rec) > 1 else None  # passageiro correto
                 hora = rec[10] if len(rec) > 10 else None
                 dt_corrida = None
                 hora_formatada = None
