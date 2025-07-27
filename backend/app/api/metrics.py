@@ -159,6 +159,14 @@ async def get_metrics_overview(
         "variacao_perdidas": calc_variacao(len(perdidas), len(perdidas_ant)),
     }
 
+    # Ordena as listas por data/hora (dt_corrida) do mais recente para o mais antigo
+    def ordenar_por_data(lista):
+        return sorted(lista, key=lambda x: x.get("dt_corrida", datetime.min), reverse=True)
+
+    concluidas = ordenar_por_data(concluidas)
+    canceladas = ordenar_por_data(canceladas)
+    perdidas = ordenar_por_data(perdidas)
+
     atividade_recente = {
         "concluidas": concluidas[:3],
         "canceladas": canceladas[:3],
