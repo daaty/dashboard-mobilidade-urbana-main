@@ -151,7 +151,7 @@ async def get_metrics_overview(
         elif table_name == "Cancelled Rides":
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
-                nome = rec[1] if len(rec) > 1 else None  # passageiro correto
+                nome = rec[2] if len(rec) > 2 else None  # passageiro correto (índice 2)
                 hora = rec[9] if len(rec) > 9 else None
                 motivo = rec[10] if len(rec) > 10 else None
                 dt_corrida = None
