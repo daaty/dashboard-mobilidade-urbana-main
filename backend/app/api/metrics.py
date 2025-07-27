@@ -69,18 +69,26 @@ async def get_metrics_overview(
                 hora = rec[7] if len(rec) > 7 else None
                 # Extrai a parte da data no formato correto
                 dt_corrida = None
+                hora_formatada = None
                 if hora:
-                    # Tenta extrair a substring no formato 'YYYY-MM-DD HH:MM:SS'
-                    if len(hora) >= 19 and '-' in hora:
+                    # Tenta encontrar a substring no formato 'YYYY-MM-DD HH:MM:SS'
+                    import re
+                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
+                    if match:
+                        dt_str = match.group(1)
                         try:
-                            dt_str = hora[-19:]
                             dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            hora_formatada = dt_str
                         except Exception:
                             dt_corrida = None
+                            hora_formatada = None
+                    else:
+                        hora_formatada = hora  # fallback
                 item = {
                     "nome": nome,
                     "avatar": gerar_avatar(nome),
-                    "hora": hora,
+                    "hora": hora_formatada,
+                    "dt_corrida": dt_corrida,
                     "grupo": rec[9] if len(rec) > 9 else None,
                     "local": rec[5] if len(rec) > 5 else None,
                     "destino": rec[6] if len(rec) > 6 else None,
@@ -96,14 +104,26 @@ async def get_metrics_overview(
             for rec in new_records:
                 nome = rec[1] if len(rec) > 1 else None
                 hora = rec[6] if len(rec) > 6 else None
-                try:
-                    dt_corrida = datetime.strptime(hora, "%Y-%m-%d %H:%M:%S") if hora else None
-                except Exception:
-                    dt_corrida = None
+                dt_corrida = None
+                hora_formatada = None
+                if hora:
+                    import re
+                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
+                    if match:
+                        dt_str = match.group(1)
+                        try:
+                            dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            hora_formatada = dt_str
+                        except Exception:
+                            dt_corrida = None
+                            hora_formatada = None
+                    else:
+                        hora_formatada = hora
                 item = {
                     "nome": nome,
                     "avatar": gerar_avatar(nome),
-                    "hora": hora,
+                    "hora": hora_formatada,
+                    "dt_corrida": dt_corrida,
                     "grupo": rec[4] if len(rec) > 4 else None,
                     "local": rec[3] if len(rec) > 3 else None,
                     "destino": None,
@@ -120,17 +140,25 @@ async def get_metrics_overview(
                 nome = rec[1] if len(rec) > 1 else None
                 hora = rec[10] if len(rec) > 10 else None
                 dt_corrida = None
+                hora_formatada = None
                 if hora:
-                    if len(hora) >= 19 and '-' in hora:
+                    import re
+                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
+                    if match:
+                        dt_str = match.group(1)
                         try:
-                            dt_str = hora[-19:]
                             dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            hora_formatada = dt_str
                         except Exception:
                             dt_corrida = None
+                            hora_formatada = None
+                    else:
+                        hora_formatada = hora
                 item = {
                     "nome": nome,
                     "avatar": gerar_avatar(nome),
-                    "hora": hora,
+                    "hora": hora_formatada,
+                    "dt_corrida": dt_corrida,
                     "grupo": rec[6] if len(rec) > 6 else None,
                     "local": rec[8] if len(rec) > 8 else None,
                     "destino": rec[9] if len(rec) > 9 else None,
