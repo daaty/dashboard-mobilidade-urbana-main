@@ -51,7 +51,10 @@ async def get_metrics_overview(
         nome_url = nome.replace(" ", "+")
         return f"https://ui-avatars.com/api/?name={nome_url}&background=random"
 
-    # Extrair e processar os dados do campo ride_data (JSON)
+    # Extrair e processar os dados do campo ride_data (JSON) - apenas UMA vez, com deduplicação e nome do passageiro
+    ids_concluidas = set()
+    ids_canceladas = set()
+    ids_perdidas = set()
     for r in rides:
         ride_data = r.ride_data
         scraped_at = r.scraped_at if hasattr(r, 'scraped_at') else None
@@ -65,13 +68,12 @@ async def get_metrics_overview(
         # Completed Rides
         if table_name == "Completed Rides":
             for rec in new_records:
-                nome = rec[2] if len(rec) > 2 else None
+                id_corrida = rec[0] if len(rec) > 0 else None
+                nome = rec[3] if len(rec) > 3 else None  # passageiro
                 hora = rec[7] if len(rec) > 7 else None
-                # Extrai a parte da data no formato correto
                 dt_corrida = None
                 hora_formatada = None
                 if hora:
-                    # Tenta encontrar a substring no formato 'YYYY-MM-DD HH:MM:SS'
                     import re
                     match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
                     if match:
@@ -85,6 +87,7 @@ async def get_metrics_overview(
                     else:
                         hora_formatada = hora  # fallback
                 item = {
+                    "id_corrida": id_corrida,
                     "nome": nome,
                     "avatar": gerar_avatar(nome),
                     "hora": hora_formatada,
@@ -95,14 +98,17 @@ async def get_metrics_overview(
                     "cidade": None,
                     "tempo": None
                 }
-                if dt_corrida and dt_ini <= dt_corrida <= dt_fim:
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_concluidas:
                     concluidas.append(item)
-                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant:
+                    ids_concluidas.add((id_corrida, hora_formatada))
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_concluidas:
                     concluidas_ant.append(item)
+                    ids_concluidas.add((id_corrida, hora_formatada))
         # Missed Rides
         elif table_name == "Missed Rides":
             for rec in new_records:
-                nome = rec[1] if len(rec) > 1 else None
+                id_corrida = rec[0] if len(rec) > 0 else None
+                nome = rec[3] if len(rec) > 3 else None  # passageiro
                 hora = rec[6] if len(rec) > 6 else None
                 dt_corrida = None
                 hora_formatada = None
@@ -120,6 +126,7 @@ async def get_metrics_overview(
                     else:
                         hora_formatada = hora
                 item = {
+                    "id_corrida": id_corrida,
                     "nome": nome,
                     "avatar": gerar_avatar(nome),
                     "hora": hora_formatada,
@@ -130,10 +137,90 @@ async def get_metrics_overview(
                     "cidade": None,
                     "tempo": None
                 }
-                if dt_corrida and dt_ini <= dt_corrida <= dt_fim:
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_perdidas:
                     perdidas.append(item)
-                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant:
+                    ids_perdidas.add((id_corrida, hora_formatada))
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_perdidas:
                     perdidas_ant.append(item)
+                    ids_perdidas.add((id_corrida, hora_formatada))
+        # Cancelled Rides (prioritário para canceladas)
+        elif table_name == "Cancelled Rides":
+            for rec in new_records:
+                id_corrida = rec[0] if len(rec) > 0 else None
+                nome = rec[3] if len(rec) > 3 else None  # passageiro
+                hora = rec[9] if len(rec) > 9 else None
+                dt_corrida = None
+                hora_formatada = None
+                if hora:
+                    import re
+                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
+                    if match:
+                        dt_str = match.group(1)
+                        try:
+                            dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            hora_formatada = dt_str
+                        except Exception:
+                            dt_corrida = None
+                            hora_formatada = None
+                    else:
+                        hora_formatada = hora
+                item = {
+                    "id_corrida": id_corrida,
+                    "nome": nome,
+                    "avatar": gerar_avatar(nome),
+                    "hora": hora_formatada,
+                    "dt_corrida": dt_corrida,
+                    "grupo": rec[4] if len(rec) > 4 else None,
+                    "local": rec[5] if len(rec) > 5 else None,
+                    "destino": rec[6] if len(rec) > 6 else None,
+                    "cidade": None,
+                    "tempo": None
+                }
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_canceladas:
+                    canceladas.append(item)
+                    ids_canceladas.add((id_corrida, hora_formatada))
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_canceladas:
+                    canceladas_ant.append(item)
+                    ids_canceladas.add((id_corrida, hora_formatada))
+        # Scheduled Rides (fallback para canceladas)
+        elif table_name == "Scheduled Rides":
+            for rec in new_records:
+                id_corrida = rec[0] if len(rec) > 0 else None
+                nome = rec[3] if len(rec) > 3 else None  # passageiro
+                hora = rec[10] if len(rec) > 10 else None
+                dt_corrida = None
+                hora_formatada = None
+                if hora:
+                    import re
+                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
+                    if match:
+                        dt_str = match.group(1)
+                        try:
+                            dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            hora_formatada = dt_str
+                        except Exception:
+                            dt_corrida = None
+                            hora_formatada = None
+                    else:
+                        hora_formatada = hora
+                item = {
+                    "id_corrida": id_corrida,
+                    "nome": nome,
+                    "avatar": gerar_avatar(nome),
+                    "hora": hora_formatada,
+                    "dt_corrida": dt_corrida,
+                    "grupo": rec[6] if len(rec) > 6 else None,
+                    "local": rec[8] if len(rec) > 8 else None,
+                    "destino": rec[9] if len(rec) > 9 else None,
+                    "cidade": None,
+                    "tempo": None
+                }
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_canceladas:
+                    canceladas.append(item)
+                    ids_canceladas.add((id_corrida, hora_formatada))
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_canceladas:
+                    canceladas_ant.append(item)
+                    ids_canceladas.add((id_corrida, hora_formatada))
     # Utilizar set para evitar duplicidade pelo id da corrida e data
     ids_concluidas = set()
     ids_canceladas = set()
