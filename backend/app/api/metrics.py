@@ -110,6 +110,7 @@ async def get_metrics_overview(
                 id_corrida = rec[0] if len(rec) > 0 else None
                 nome = rec[3] if len(rec) > 3 else None  # passageiro
                 hora = rec[6] if len(rec) > 6 else None
+                motivo = rec[7] if len(rec) > 7 else None
                 dt_corrida = None
                 hora_formatada = None
                 if hora:
@@ -135,7 +136,8 @@ async def get_metrics_overview(
                     "local": rec[3] if len(rec) > 3 else None,
                     "destino": None,
                     "cidade": None,
-                    "tempo": None
+                    "tempo": None,
+                    "motivo": motivo
                 }
                 if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_perdidas:
                     perdidas.append(item)
@@ -149,6 +151,7 @@ async def get_metrics_overview(
                 id_corrida = rec[0] if len(rec) > 0 else None
                 nome = rec[3] if len(rec) > 3 else None  # passageiro
                 hora = rec[9] if len(rec) > 9 else None
+                motivo = rec[10] if len(rec) > 10 else None
                 dt_corrida = None
                 hora_formatada = None
                 if hora:
@@ -174,7 +177,8 @@ async def get_metrics_overview(
                     "local": rec[5] if len(rec) > 5 else None,
                     "destino": rec[6] if len(rec) > 6 else None,
                     "cidade": None,
-                    "tempo": None
+                    "tempo": None,
+                    "motivo": motivo
                 }
                 if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_canceladas:
                     canceladas.append(item)
