@@ -12,6 +12,9 @@ from datetime import datetime, timedelta
 
 router = APIRouter()
 
+def ordenar_por_data(lista):
+    return sorted(lista, key=lambda x: x.get("dt_corrida", datetime.min), reverse=True)
+
 async def get_db():
     async with SessionLocal() as session:
         yield session
