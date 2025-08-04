@@ -8,7 +8,9 @@ import {
   Menu,
   X,
   Home,
-  AlertCircle
+  AlertCircle,
+  Users,
+  Wallet
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -17,6 +19,8 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
   const menuItems = [
     { id: 'overview', label: 'Visão Geral', icon: Home },
     { id: 'analises', label: 'Análise de Corridas', icon: PieChart },
+    { id: 'drivers', label: 'Motoristas', icon: Users },
+    { id: 'financeiro', label: 'Financeiro', icon: Wallet },
     { id: 'performance', label: 'Performance', icon: TrendingUp },
     { id: 'metas', label: 'Metas por Cidade', icon: Target },
     { id: 'comparativo', label: 'Comparativo Temporal', icon: TrendingUp },
