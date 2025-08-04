@@ -17,6 +17,12 @@ import { SistemaAlertas } from './SistemaAlertas'
 import { ResumoPerformance } from './ResumoPerformance'
 import '../App.css'
 
+// Configuração da URL da API baseada no ambiente
+const API_URL = import.meta.env.VITE_API_URL || 
+               (import.meta.env.PROD 
+                 ? 'https://fastapi.urbanmt.com.br' 
+                 : 'http://localhost:8000')
+
 
 function App() {
   const [activeTab, setActiveTab] = useState('overview')

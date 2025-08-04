@@ -239,17 +239,18 @@ if __name__ == '__main__':
                 sys.exit(1)
             sys.exit(0)
         elif command in ['production', '--production']:
-            print("Modo: PRODUÇÃO")
-            if setup_database() and sync_initial_data():
-                run_production_server()
-            else:
-                sys.exit(1)
         else:
             print(f"❌ Comando desconhecido: {command}")
             print("💡 Use 'python main.py --help' para ver comandos disponíveis")
             sys.exit(1)
+    
+    # Inicializar aplicação
+        print("Modo: PRODUÇÃO")
+        if setup_database() and sync_initial_data():
+            run_production_server()
+        else:
+            sys.exit(1)
     else:
-        # Modo desenvolvimento (padrão)
         print("Modo: DESENVOLVIMENTO")
         if setup_database() and sync_initial_data():
             run_development_server()

@@ -7,19 +7,25 @@ from app.api import metrics, drivers, dashboard, financeiro
 
 app = FastAPI(title="Dashboard Mobilidade Urbana API")
 
-# CORS_ORIGINS do .env ou fallback hardcoded
+# CORS_ORIGINS do .env ou fallback com domínios de produção
 cors_origins_env = os.getenv("CORS_ORIGINS")
 if cors_origins_env:
     cors_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
 else:
+    # Fallback para desenvolvimento e produção
     cors_origins = [
         "http://localhost:3000",
         "http://localhost:3001", 
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3001",
         "https://8tzcwd83-3000.brs.devtunnels.ms",
-        "https://dashbord.urbanmt.com.br"
+        "https://dashbord.urbanmt.com.br",
+        "https://fastapi.urbanmt.com.br"
     ]
+
+# Em desenvolvimento, permite qualquer origem
+if os.getenv("ENVIRONMENT", "development") == "development":
+    cors_origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,

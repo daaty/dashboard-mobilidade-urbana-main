@@ -33,17 +33,17 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
     periodo_dias: 30
   }
 
-  // Calcular KPIs avançados
+  // Calcular KPIs avançados com verificações de segurança
   const kpis = {
-    activationRate: driversData.total_drivers > 0 ? (driversData.active_drivers / driversData.total_drivers) * 100 : 0,
-    onlineRate: driversData.active_drivers > 0 ? ((driversData.online_drivers || 0) / driversData.active_drivers) * 100 : 0,
-    excellenceRate: driversData.total_drivers > 0 ? (driversData.performance_metrics.excellent_drivers / driversData.total_drivers) * 100 : 0,
-    avgRatingTrend: driversData.average_rating >= 4.0 ? 'positive' : driversData.average_rating >= 3.5 ? 'neutral' : 'negative',
+    activationRate: driversData?.total_drivers > 0 ? (driversData.active_drivers / driversData.total_drivers) * 100 : 0,
+    onlineRate: driversData?.active_drivers > 0 ? ((driversData.online_drivers || 0) / driversData.active_drivers) * 100 : 0,
+    excellenceRate: driversData?.total_drivers > 0 ? ((driversData?.performance_metrics?.excellent_drivers || 0) / driversData.total_drivers) * 100 : 0,
+    avgRatingTrend: (driversData?.average_rating || 0) >= 4.0 ? 'positive' : (driversData?.average_rating || 0) >= 3.5 ? 'neutral' : 'negative',
     performanceDistribution: {
-      excellent: driversData.performance_metrics.excellent_drivers,
-      good: driversData.performance_metrics.good_drivers,
-      average: driversData.performance_metrics.average_drivers,
-      below: driversData.performance_metrics.below_average_drivers
+      excellent: driversData?.performance_metrics?.excellent_drivers || 0,
+      good: driversData?.performance_metrics?.good_drivers || 0,
+      average: driversData?.performance_metrics?.average_drivers || 0,
+      below: driversData?.performance_metrics?.below_average_drivers || 0
     }
   }
 
@@ -242,7 +242,7 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
                 </div>
                 <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  {driversData.performance_metrics.excellent_drivers || 0} com nota ≥ 4.5
+                  {driversData?.performance_metrics?.excellent_drivers || 0} com nota ≥ 4.5
                 </p>
               </CardContent>
             </Card>
@@ -423,12 +423,12 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
                         <div 
                           className="h-3 bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-1000 ease-out shadow-lg" 
                           style={{ 
-                            width: `${driversData.total_drivers > 0 ? (driversData.performance_metrics.excellent_drivers / driversData.total_drivers) * 100 : 0}%` 
+                            width: `${driversData?.total_drivers > 0 ? ((driversData?.performance_metrics?.excellent_drivers || 0) / driversData.total_drivers) * 100 : 0}%` 
                           }}
                         ></div>
                       </div>
                       <span className="text-xl font-bold text-green-600 dark:text-green-400 min-w-[2rem]">
-                        {driversData.performance_metrics.excellent_drivers}
+                        {driversData?.performance_metrics?.excellent_drivers || 0}
                       </span>
                     </div>
                   </div>
@@ -440,12 +440,12 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
                         <div 
                           className="h-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-1000 ease-out shadow-lg" 
                           style={{ 
-                            width: `${driversData.total_drivers > 0 ? (driversData.performance_metrics.good_drivers / driversData.total_drivers) * 100 : 0}%` 
+                            width: `${driversData?.total_drivers > 0 ? ((driversData?.performance_metrics?.good_drivers || 0) / driversData.total_drivers) * 100 : 0}%` 
                           }}
                         ></div>
                       </div>
                       <span className="text-xl font-bold text-blue-600 dark:text-blue-400 min-w-[2rem]">
-                        {driversData.performance_metrics.good_drivers}
+                        {driversData?.performance_metrics?.good_drivers || 0}
                       </span>
                     </div>
                   </div>
@@ -457,12 +457,12 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
                         <div 
                           className="h-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full transition-all duration-1000 ease-out shadow-lg" 
                           style={{ 
-                            width: `${driversData.total_drivers > 0 ? (driversData.performance_metrics.average_drivers / driversData.total_drivers) * 100 : 0}%` 
+                            width: `${driversData?.total_drivers > 0 ? ((driversData?.performance_metrics?.average_drivers || 0) / driversData.total_drivers) * 100 : 0}%` 
                           }}
                         ></div>
                       </div>
                       <span className="text-xl font-bold text-yellow-600 dark:text-yellow-400 min-w-[2rem]">
-                        {driversData.performance_metrics.average_drivers}
+                        {driversData?.performance_metrics?.average_drivers || 0}
                       </span>
                     </div>
                   </div>
@@ -474,12 +474,12 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
                         <div 
                           className="h-3 bg-gradient-to-r from-red-500 to-red-600 rounded-full transition-all duration-1000 ease-out shadow-lg" 
                           style={{ 
-                            width: `${driversData.total_drivers > 0 ? (driversData.performance_metrics.below_average_drivers / driversData.total_drivers) * 100 : 0}%` 
+                            width: `${driversData?.total_drivers > 0 ? ((driversData?.performance_metrics?.below_average_drivers || 0) / driversData.total_drivers) * 100 : 0}%` 
                           }}
                         ></div>
                       </div>
                       <span className="text-xl font-bold text-red-600 dark:text-red-400 min-w-[2rem]">
-                        {driversData.performance_metrics.below_average_drivers}
+                        {driversData?.performance_metrics?.below_average_drivers || 0}
                       </span>
                     </div>
                   </div>
