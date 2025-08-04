@@ -38,8 +38,6 @@ function App() {
   const [loadingPerformance, setLoadingPerformance] = useState(true)
   const [loadingAlertas, setLoadingAlertas] = useState(true)
 
-  const API_URL = 'http://localhost:8000';
-
   useEffect(() => {
     fetchMetricsData()
     fetchDriversData()

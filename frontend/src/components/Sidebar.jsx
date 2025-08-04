@@ -9,7 +9,8 @@ import {
   X,
   Home,
   AlertCircle,
-  Users
+  Users,
+  DollarSign
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -19,6 +20,7 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
     { id: 'overview', label: 'Visão Geral', icon: Home },
     { id: 'analises', label: 'Análise de Corridas', icon: PieChart },
     { id: 'drivers', label: 'Motoristas', icon: Users },
+    { id: 'financeiro', label: 'Financeiro', icon: DollarSign },
     { id: 'performance', label: 'Performance', icon: TrendingUp },
     { id: 'metas', label: 'Metas por Cidade', icon: Target },
     { id: 'comparativo', label: 'Comparativo Temporal', icon: TrendingUp },
