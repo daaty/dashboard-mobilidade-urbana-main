@@ -1,11 +1,11 @@
-
-
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import metrics, performance, alert, corrida, ia, sentiment, recommendation, anomaly, llm, maps, dashboard, auth
 
-app = FastAPI()
+# Importar módulos da API principais
+from app.api import metrics, drivers, dashboard, financeiro
+
+app = FastAPI(title="Dashboard Mobilidade Urbana API")
 
 # CORS_ORIGINS do .env ou fallback hardcoded
 cors_origins_env = os.getenv("CORS_ORIGINS")
@@ -14,7 +14,9 @@ if cors_origins_env:
 else:
     cors_origins = [
         "http://localhost:3000",
+        "http://localhost:3001", 
         "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
         "https://8tzcwd83-3000.brs.devtunnels.ms",
         "https://dashbord.urbanmt.com.br"
     ]
@@ -24,42 +26,23 @@ app.add_middleware(
     allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
-
+# Incluir rotas principais
 app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
-app.include_router(performance.router, prefix="/api/metrics", tags=["metrics"])
-app.include_router(alert.router, prefix="/api/metrics", tags=["metrics"])
-app.include_router(corrida.router, prefix="/api/metrics", tags=["metrics"])
-app.include_router(ia.router, prefix="/api/ia", tags=["ia"])
-app.include_router(sentiment.router, prefix="/api/ia", tags=["ia"])
-app.include_router(recommendation.router, prefix="/api/ia", tags=["ia"])
-app.include_router(anomaly.router, prefix="/api/ia", tags=["ia"])
-app.include_router(llm.router, prefix="/api/ia", tags=["ia"])
-app.include_router(maps.router, prefix="/api/maps", tags=["maps"])
+app.include_router(drivers.router, prefix="/api/drivers", tags=["drivers"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-"""
-app.include_router(performance.router, prefix="/api/metrics", tags=["metrics"])
-app.include_router(alert.router, prefix="/api/metrics", tags=["metrics"])
-app.include_router(corrida.router, prefix="/api/metrics", tags=["metrics"])
-app.include_router(ia.router, prefix="/api/ia", tags=["ia"])
-app.include_router(sentiment.router, prefix="/api/ia", tags=["ia"])
-app.include_router(recommendation.router, prefix="/api/ia", tags=["ia"])
-app.include_router(anomaly.router, prefix="/api/ia", tags=["ia"])
-app.include_router(llm.router, prefix="/api/ia", tags=["ia"])
-app.include_router(maps.router, prefix="/api/maps", tags=["maps"])
-app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-"""
-
-
-# Endpoint de healthcheck para Docker/Easypanel
-@app.get("/api/health")
-def health():
-    return {"status": "ok"}
+app.include_router(financeiro.router, prefix="/api/financeiro", tags=["financeiro"])
 
 @app.get("/")
-def root():
-    return {"message": "FastAPI backend rodando!"}
+async def root():
+    return {"message": "Dashboard Mobilidade Urbana API", "status": "running"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "message": "API is running correctly"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)

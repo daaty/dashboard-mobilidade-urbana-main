@@ -4,6 +4,8 @@ import { motion } from 'framer-motion'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { MetricsOverview } from './MetricsOverview'
+import { DriversOverview } from './DriversOverview'
+import { FinanceiroOverview } from './FinanceiroOverview'
 import { MetasCidades } from './MetasCidades'
 import { AnaliseCorreidas } from './AnaliseCorreidas'
 import { ComparativoTemporal } from './ComparativoTemporal'
@@ -20,16 +22,22 @@ function App() {
   const [activeTab, setActiveTab] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [metricsData, setMetricsData] = useState(null)
+  const [driversData, setDriversData] = useState(null)
+  const [financeiroData, setFinanceiroData] = useState(null)
   const [performanceData, setPerformanceData] = useState(null)
   const [alertasData, setAlertasData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadingDrivers, setLoadingDrivers] = useState(true)
+  const [loadingFinanceiro, setLoadingFinanceiro] = useState(true)
   const [loadingPerformance, setLoadingPerformance] = useState(true)
   const [loadingAlertas, setLoadingAlertas] = useState(true)
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const API_URL = 'http://localhost:8000';
 
   useEffect(() => {
     fetchMetricsData()
+    fetchDriversData()
+    fetchFinanceiroData()
     fetchPerformanceData()
     fetchAlertasData()
   }, [])
@@ -49,6 +57,47 @@ function App() {
       console.error('Erro ao buscar métricas:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchDriversData = async (period = 30) => {
+    try {
+      setLoadingDrivers(true)
+      // Converte período para número de dias
+      let periodoDias = 30;
+      if (period === 'hoje') periodoDias = 1;
+      else if (period === '7d') periodoDias = 7;
+      else if (period === '30d') periodoDias = 30;
+      
+      const response = await fetch(`${API_URL}/api/drivers/overview?periodo=${periodoDias}`)
+      const data = await response.json()
+      setDriversData(data)
+    } catch (error) {
+      console.error('Erro ao buscar dados dos motoristas:', error)
+    } finally {
+      setLoadingDrivers(false)
+    }
+  }
+
+  const fetchFinanceiroData = async (period = '365d') => {
+    try {
+      setLoadingFinanceiro(true)
+      // Converte período para número de dias
+      let periodoDias = 365; // Padrão 365 dias pois os dados são de maio
+      if (period === 'hoje') periodoDias = 1;
+      else if (period === '7d') periodoDias = 7;
+      else if (period === '30d') periodoDias = 90; // Aumenta para 90 para pegar dados de maio
+      else if (period === '90d') periodoDias = 120; // Aumenta para 120 para pegar dados de maio
+      else if (period === '365d') periodoDias = 365;
+      
+      const response = await fetch(`${API_URL}/api/financeiro/overview?periodo=${periodoDias}`)
+      const data = await response.json()
+      setFinanceiroData(data)
+      console.log('Dados financeiros recebidos:', data) // Debug
+    } catch (error) {
+      console.error('Erro ao buscar dados financeiros:', error)
+    } finally {
+      setLoadingFinanceiro(false)
     }
   }
 
@@ -90,6 +139,16 @@ function App() {
     fetchMetricsData(period)
   }
 
+  // Handler para troca de período dos motoristas
+  const handleDriversPeriodChange = (period) => {
+    fetchDriversData(period)
+  }
+
+  // Handler para troca de período financeiro
+  const handleFinanceiroPeriodChange = (period) => {
+    fetchFinanceiroData(period)
+  }
+
   const renderContent = () => {
     const contentVariants = {
       hidden: { opacity: 0, y: 20 },
@@ -113,6 +172,12 @@ function App() {
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
             <AnaliseCorreidas />
+          </motion.div>
+        )
+      case 'drivers':
+        return (
+          <motion.div variants={contentVariants} initial="hidden" animate="visible">
+            <DriversOverview data={driversData} loading={loadingDrivers} onPeriodChange={handleDriversPeriodChange} />
           </motion.div>
         )
       case 'comparativo':
@@ -155,6 +220,12 @@ function App() {
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
             <ConfiguracaoSheets />
+          </motion.div>
+        )
+      case 'financeiro':
+        return (
+          <motion.div variants={contentVariants} initial="hidden" animate="visible">
+            <FinanceiroOverview data={financeiroData} loading={loadingFinanceiro} onPeriodChange={handleFinanceiroPeriodChange} />
           </motion.div>
         )
       default:
