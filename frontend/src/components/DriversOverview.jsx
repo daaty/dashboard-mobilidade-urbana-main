@@ -151,10 +151,10 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{driversData.total_drivers || 0}</div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Cadastrados na plataforma
-                </p>
+                  <span>Cadastrados na plataforma</span>
+                </div>
               </CardContent>
             </Card>
 
@@ -168,10 +168,10 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">{driversData.active_drivers || 0}</div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  {kpis.activationRate.toFixed(1)}% do total
-                </p>
+                  <span>{kpis.activationRate.toFixed(1)}% do total</span>
+                </div>
               </CardContent>
             </Card>
 
@@ -187,10 +187,10 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">{driversData.online_drivers || 0}</div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  {kpis.onlineRate.toFixed(1)}% dos ativos
-                </p>
+                  <span>{kpis.onlineRate.toFixed(1)}% dos ativos</span>
+                </div>
               </CardContent>
             </Card>
 
@@ -240,10 +240,10 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
                 <div className={`text-3xl font-bold mb-2 ${getKpiColor(kpis.excellenceRate)}`}>
                   {kpis.excellenceRate.toFixed(1)}%
                 </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  {driversData?.performance_metrics?.excellent_drivers || 0} com nota ≥ 4.5
-                </p>
+                  <span>{driversData?.performance_metrics?.excellent_drivers || 0} com nota ≥ 4.5</span>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -371,10 +371,10 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
                           <p className="font-bold text-gray-900 dark:text-white text-lg">
                             {driver.name.replace("Motorista ", "")}
                           </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                          <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            {driver.total_rides} corridas realizadas
-                          </p>
+                            <span>{driver.total_rides} corridas realizadas</span>
+                          </div>
                         </div>
                       </div>
                       <div className="text-right">
