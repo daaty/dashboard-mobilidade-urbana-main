@@ -6,6 +6,10 @@ from app.models.rides_data import RidesData
 
 import json
 from datetime import datetime, timedelta
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from services.city_service import get_cities_from_rides_data
 
 router = APIRouter()
 
@@ -16,10 +20,31 @@ async def get_db():
     async with SessionLocal() as session:
         yield session
 
+@router.get("/cities")
+async def get_cities():
+    """Retorna lista de cidades extraídas dos dados reais"""
+    try:
+        cities = get_cities_from_rides_data()
+        return {
+            "success": True,
+            "cities": cities
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "cities": [],
+            "error": str(e)
+        }
+
+@router.get("/test")
+async def test_endpoint():
+    """Endpoint de teste simples"""
+    return {"status": "ok", "message": "Backend funcionando"}
+
 @router.get("/overview")
 async def get_metrics_overview(
     db: AsyncSession = Depends(get_db),
-    periodo: str = Query("hoje", enum=["hoje", "7d", "30d"], description="Período do filtro: hoje, 7d, 30d")
+    periodo: str = Query("30d", enum=["hoje", "7d", "30d", "3m", "6m", "12m"], description="Período do filtro: hoje, 7d, 30d, 3m, 6m, 12m")
 ):
     # Buscar todos os registros da tabela rides_data
     result = await db.execute(select(RidesData))
@@ -40,17 +65,32 @@ async def get_metrics_overview(
         dt_fim = now
         dt_ini_ant = dt_ini - timedelta(days=7)
         dt_fim_ant = dt_ini
-    else:  # "30d"
+    elif periodo == "30d":
         dt_ini = now - timedelta(days=30)
         dt_fim = now
         dt_ini_ant = dt_ini - timedelta(days=30)
         dt_fim_ant = dt_ini
+    elif periodo == "3m":
+        dt_ini = now - timedelta(days=90)
+        dt_fim = now
+        dt_ini_ant = dt_ini - timedelta(days=90)
+        dt_fim_ant = dt_ini
+    elif periodo == "6m":
+        dt_ini = now - timedelta(days=180)
+        dt_fim = now
+        dt_ini_ant = dt_ini - timedelta(days=180)
+        dt_fim_ant = dt_ini
+    else:  # "12m"
+        dt_ini = now - timedelta(days=365)
+        dt_fim = now
+        dt_ini_ant = dt_ini - timedelta(days=365)
+        dt_fim_ant = dt_ini
 
     # Função para gerar avatar fictício baseado no nome
     def gerar_avatar(nome):
-        if not nome:
+        if not nome or not isinstance(nome, str):
             return "https://ui-avatars.com/api/?name=User&background=random"
-        nome_url = nome.replace(" ", "+")
+        nome_url = str(nome).replace(" ", "+")
         return f"https://ui-avatars.com/api/?name={nome_url}&background=random"
 
     # Extrair e processar os dados do campo ride_data (JSON) - apenas UMA vez, com deduplicação e nome do passageiro
@@ -67,11 +107,17 @@ async def get_metrics_overview(
                 continue
         table_name = ride_data.get("tableName", "")
         new_records = ride_data.get("newRecords", [])
-        # Completed Rides
-        if table_name == "Completed Rides":
+        # Completed Rides (aceita nomes em português e inglês)
+        if table_name in ["Completed Rides", "corridas_concluidas"]:
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
-                nome = rec[3] if len(rec) > 3 else None  # passageiro
+                nome_motorista = rec[1] if len(rec) > 1 else None  # Driver Name
+                nome_passageiro = rec[2] if len(rec) > 2 else None  # User Name
+                telefone = rec[3] if len(rec) > 3 else None  # User Phone No
+                
+                # Usar nome do passageiro como principal, motorista como fallback
+                nome = nome_passageiro or nome_motorista or "Usuário"
+                
                 hora = rec[7] if len(rec) > 7 else None
                 dt_corrida = None
                 hora_formatada = None
@@ -106,8 +152,8 @@ async def get_metrics_overview(
                 elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_concluidas:
                     concluidas_ant.append(item)
                     ids_concluidas.add((id_corrida, hora_formatada))
-        # Missed Rides
-        elif table_name == "Missed Rides":
+        # Missed Rides (aceita nomes em português e inglês)
+        elif table_name in ["Missed Rides", "corridas_perdidas"]:
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
                 nome = rec[1] if len(rec) > 1 else None  # passageiro correto
@@ -147,8 +193,8 @@ async def get_metrics_overview(
                 elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_perdidas:
                     perdidas_ant.append(item)
                     ids_perdidas.add((id_corrida, hora_formatada))
-        # Cancelled Rides (prioritário para canceladas)
-        elif table_name == "Cancelled Rides":
+        # Cancelled Rides (aceita nomes em português e inglês)
+        elif table_name in ["Cancelled Rides", "corridas_canceladas"]:
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
                 nome = rec[2] if len(rec) > 2 else None  # passageiro correto (índice 2)
@@ -188,8 +234,8 @@ async def get_metrics_overview(
                 elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_canceladas:
                     canceladas_ant.append(item)
                     ids_canceladas.add((id_corrida, hora_formatada))
-        # Scheduled Rides (fallback para canceladas)
-        elif table_name == "Scheduled Rides":
+        # Scheduled Rides (aceita nomes em português e inglês)
+        elif table_name in ["Scheduled Rides", "corridas_agendadas"]:
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
                 nome = rec[1] if len(rec) > 1 else None  # passageiro correto
@@ -252,7 +298,137 @@ async def get_metrics_overview(
         "variacao_perdidas": calc_variacao(len(perdidas), len(perdidas_ant)),
     }
 
+    # --- NOVAS AGREGAÇÕES PARA DASHBOARD ---
+    from collections import Counter, defaultdict
+    # Evolução temporal (por dia)
+    evolucao = defaultdict(lambda: {"concluidas":0, "canceladas":0, "perdidas":0})
+    for item in concluidas:
+        if item["dt_corrida"]:
+            dia = item["dt_corrida"].date().isoformat()
+            evolucao[dia]["concluidas"] += 1
+    for item in canceladas:
+        if item["dt_corrida"]:
+            dia = item["dt_corrida"].date().isoformat()
+            evolucao[dia]["canceladas"] += 1
+    for item in perdidas:
+        if item["dt_corrida"]:
+            dia = item["dt_corrida"].date().isoformat()
+            evolucao[dia]["perdidas"] += 1
+    evolucao_list = []
+    for dia in sorted(evolucao.keys()):
+        total = evolucao[dia]["concluidas"] + evolucao[dia]["canceladas"] + evolucao[dia]["perdidas"]
+        evolucao_list.append({
+            "data": dia,
+            "concluidas": evolucao[dia]["concluidas"],
+            "canceladas": evolucao[dia]["canceladas"],
+            "perdidas": evolucao[dia]["perdidas"],
+            "taxa_conclusao": (evolucao[dia]["concluidas"] / total * 100) if total else 0,
+            "taxa_cancelamento": (evolucao[dia]["canceladas"] / total * 100) if total else 0,
+            "taxa_perda": (evolucao[dia]["perdidas"] / total * 100) if total else 0
+        })
+
+    # Distribuição de status
+    distribuicao_status = [
+        {"status": "concluida", "quantidade": len(concluidas)},
+        {"status": "cancelada", "quantidade": len(canceladas)},
+        {"status": "perdida", "quantidade": len(perdidas)}
+    ]
+
+    # Motivos de cancelamento/perda
+    motivos_cancelamento = Counter([c.get("motivo") for c in canceladas if c.get("motivo")])
+    motivos_perda = Counter([p.get("motivo") for p in perdidas if p.get("motivo")])
+    motivos_cancelamento_list = [{"motivo": k, "quantidade": v} for k, v in motivos_cancelamento.items()]
+    motivos_perda_list = [{"motivo": k, "quantidade": v} for k, v in motivos_perda.items()]
+
+    # Comparativo por cidade
+    cidades = set()
+    for c in concluidas+canceladas+perdidas:
+        if c.get("cidade"): cidades.add(c["cidade"])
+    comparativo_cidades = []
+    for cidade in cidades:
+        concl = [c for c in concluidas if c.get("cidade") == cidade]
+        canc = [c for c in canceladas if c.get("cidade") == cidade]
+        perd = [c for c in perdidas if c.get("cidade") == cidade]
+        total = len(concl) + len(canc) + len(perd)
+        comparativo_cidades.append({
+            "cidade": cidade,
+            "concluidas": len(concl),
+            "canceladas": len(canc),
+            "perdidas": len(perd),
+            "taxa_conclusao": (len(concl)/total*100) if total else 0,
+            "taxa_cancelamento": (len(canc)/total*100) if total else 0,
+            "taxa_perda": (len(perd)/total*100) if total else 0
+        })
+
+    # Comparativo por categoria (grupo)
+    categorias = set()
+    for c in concluidas+canceladas+perdidas:
+        if c.get("grupo"): categorias.add(c["grupo"])
+    comparativo_categorias = []
+    for cat in categorias:
+        concl = [c for c in concluidas if c.get("grupo") == cat]
+        canc = [c for c in canceladas if c.get("grupo") == cat]
+        perd = [c for c in perdidas if c.get("grupo") == cat]
+        total = len(concl) + len(canc) + len(perd)
+        comparativo_categorias.append({
+            "categoria": cat,
+            "concluidas": len(concl),
+            "canceladas": len(canc),
+            "perdidas": len(perd),
+            "taxa_conclusao": (len(concl)/total*100) if total else 0,
+            "taxa_cancelamento": (len(canc)/total*100) if total else 0,
+            "taxa_perda": (len(perd)/total*100) if total else 0
+        })
+
+    # Comparativo por horário (hora do dia)
+    horarios = defaultdict(lambda: {"concluidas":0, "canceladas":0, "perdidas":0})
+    for c in concluidas:
+        if c["dt_corrida"]:
+            h = c["dt_corrida"].strftime("%H")
+            horarios[h]["concluidas"] += 1
+    for c in canceladas:
+        if c["dt_corrida"]:
+            h = c["dt_corrida"].strftime("%H")
+            horarios[h]["canceladas"] += 1
+    for c in perdidas:
+        if c["dt_corrida"]:
+            h = c["dt_corrida"].strftime("%H")
+            horarios[h]["perdidas"] += 1
+    comparativo_horarios = []
+    for h in sorted(horarios.keys()):
+        total = horarios[h]["concluidas"] + horarios[h]["canceladas"] + horarios[h]["perdidas"]
+        comparativo_horarios.append({
+            "hora": h,
+            "concluidas": horarios[h]["concluidas"],
+            "canceladas": horarios[h]["canceladas"],
+            "perdidas": horarios[h]["perdidas"],
+            "taxa_conclusao": (horarios[h]["concluidas"]/total*100) if total else 0,
+            "taxa_cancelamento": (horarios[h]["canceladas"]/total*100) if total else 0,
+            "taxa_perda": (horarios[h]["perdidas"]/total*100) if total else 0
+        })
+
+    # Tempos operacionais (placeholders, pois não há campo tempo)
+    tempos_operacionais = {
+        "tempo_medio_espera": None,
+        "tempo_medio_chegada": None
+    }
+
+    # Filtros disponíveis
+    filtros_disponiveis = {
+        "cidades": sorted(list(cidades)),
+        "categorias": sorted(list(categorias))
+    }
+
     return {
         "metricas_principais": metricas_principais,
+        "evolucao": evolucao_list,
+        "distribuicao_status": distribuicao_status,
+        "motivos_cancelamento": motivos_cancelamento_list,
+        "motivos_perda": motivos_perda_list,
+        "comparativo_cidades": comparativo_cidades,
+        "comparativo_categorias": comparativo_categorias,
+        "comparativo_horarios": comparativo_horarios,
+        "tempos_operacionais": tempos_operacionais,
+        "filtros_disponiveis": filtros_disponiveis,
         "atividade_recente": atividade_recente
     }
