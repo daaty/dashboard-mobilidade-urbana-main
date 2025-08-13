@@ -34,7 +34,8 @@ export default function MapaCalorProblemas() {
   useEffect(() => {
     async function fetchAndGeocode() {
       setLoading(true);
-      const resp = await fetch("/api/mapa-calor-problemas");
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const resp = await fetch(`${API_URL}/api/mapa-calor-problemas`);
       const json = await resp.json();
       const pontosApi = json.pontos || [];
       const cache = JSON.parse(localStorage.getItem("geocode_cache") || "{}")

@@ -71,8 +71,9 @@ export function ConfiguracaoSheets() {
       setLoading(true)
       setSaveResult(null)
 
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       // Atualizar para usar nossa nova API
-      const response = await fetch('http://localhost:8000/api/sync/google-sheets', {
+      const response = await fetch(`${API_URL}/api/sync/google-sheets`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -125,7 +126,8 @@ export function ConfiguracaoSheets() {
       formData.append('file', uploadFile)
       formData.append('import_type', 'corridas')
 
-      const response = await fetch('http://localhost:8000/api/import/upload', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${API_URL}/api/import/upload`, {
         method: 'POST',
         body: formData
       })
@@ -159,7 +161,8 @@ export function ConfiguracaoSheets() {
       // Usar mapeamento automático detectado
       const columnMapping = uploadPreview.detected_mapping
 
-      const response = await fetch('http://localhost:8000/api/import/execute', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${API_URL}/api/import/execute`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -25,7 +25,8 @@ export function ComparativoTemporal() {
   const fetchComparativoTemporal = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:5002/api/metrics/comparativo-temporal?periodo=${periodo}`)
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${API_URL}/api/metrics/comparativo-temporal?periodo=${periodo}`)
       const result = await response.json()
       setData(result)
     } catch (error) {
