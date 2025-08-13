@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Importar módulos da API principais
 from app.api import metrics, drivers, dashboard, financeiro, performance, alert
 from app.api import import_ridesdata
+from app.api import analise_operacional
 
 app = FastAPI(title="Dashboard Mobilidade Urbana API")
 
@@ -38,6 +39,7 @@ app.add_middleware(
 
 # Incluir rotas principais
 
+
 app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
 app.include_router(drivers.router, prefix="/api/drivers", tags=["drivers"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
@@ -45,6 +47,7 @@ app.include_router(financeiro.router, prefix="/api/financeiro", tags=["financeir
 app.include_router(performance.router, prefix="/api/metrics", tags=["performance"])
 app.include_router(alert.router, prefix="/api/metrics", tags=["alerts"])
 app.include_router(import_ridesdata.router, prefix="/api", tags=["importação"])
+app.include_router(analise_operacional.router, prefix="/api", tags=["analise-operacional"])
 
 @app.get("/")
 async def root():

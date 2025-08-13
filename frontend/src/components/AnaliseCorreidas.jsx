@@ -1,5 +1,6 @@
 
 import React from "react"
+import MapaCalorProblemas from "./MapaCalorProblemas"
 import { motion } from "framer-motion"
 import { Select, SelectOption } from '@/components/ui/select'
 import { TrendingUp, CheckCircle, XCircle, AlertTriangle, Clock, BarChart3, Activity, Filter } from 'lucide-react'
@@ -655,6 +656,26 @@ export default function AnaliseCorreidas() {
           </div>
         </motion.div>
 
+        {/* Mapa de Calor de Problemas */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-orange-600 rounded-xl">
+                <BarChart3 className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-orange-800">
+                Mapa de Problemas Operacionais
+              </h3>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200">
+              <MapaCalorProblemas />
+            </div>
+          </div>
+        </motion.div>
         {/* Insights e Recomendações (placeholder) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
