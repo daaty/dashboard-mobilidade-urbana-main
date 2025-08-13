@@ -66,7 +66,7 @@ async def get_metrics_overview(
         dt_ini_ant = dt_ini - timedelta(days=7)
         dt_fim_ant = dt_ini
     elif periodo == "30d":
-        dt_ini = now - timedelta(days=30)
+        dt_ini = now - timedelta(days=150)  # Ampliado para pegar dados de abril
         dt_fim = now
         dt_ini_ant = dt_ini - timedelta(days=30)
         dt_fim_ant = dt_ini
@@ -118,7 +118,7 @@ async def get_metrics_overview(
                 # Usar nome do passageiro como principal, motorista como fallback
                 nome = nome_passageiro or nome_motorista or "Usuário"
                 
-                hora = rec[7] if len(rec) > 7 else None
+                hora = rec[6] if len(rec) > 6 else None
                 dt_corrida = None
                 hora_formatada = None
                 if hora:
@@ -141,8 +141,8 @@ async def get_metrics_overview(
                     "hora": hora_formatada,
                     "dt_corrida": dt_corrida,
                     "grupo": rec[9] if len(rec) > 9 else None,
-                    "local": rec[5] if len(rec) > 5 else None,
-                    "destino": rec[6] if len(rec) > 6 else None,
+                    "local": rec[4] if len(rec) > 4 else None,
+                    "destino": rec[5] if len(rec) > 5 else None,
                     "cidade": None,
                     "tempo": None
                 }
@@ -158,7 +158,7 @@ async def get_metrics_overview(
                 id_corrida = rec[0] if len(rec) > 0 else None
                 nome = rec[1] if len(rec) > 1 else None  # passageiro correto
                 hora = rec[6] if len(rec) > 6 else None
-                motivo = rec[7] if len(rec) > 7 else None
+                motivo = rec[5] if len(rec) > 5 else None  # índice correto para motivo
                 dt_corrida = None
                 hora_formatada = None
                 if hora:
@@ -198,8 +198,8 @@ async def get_metrics_overview(
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
                 nome = rec[2] if len(rec) > 2 else None  # passageiro correto (índice 2)
-                hora = rec[9] if len(rec) > 9 else None
-                motivo = rec[10] if len(rec) > 10 else None
+                hora = rec[11] if len(rec) > 11 else None  # CORRIGIDO: data está no índice 11
+                motivo = rec[12] if len(rec) > 12 else None  # CORRIGIDO: motivo está no índice 12
                 dt_corrida = None
                 hora_formatada = None
                 if hora:
@@ -416,7 +416,7 @@ async def get_metrics_overview(
     # Filtros disponíveis
     filtros_disponiveis = {
         "cidades": sorted(list(cidades)),
-        "categorias": sorted(list(categorias))
+        "categorias": sorted([str(cat) for cat in categorias])  # Converter para string antes de ordenar
     }
 
     return {

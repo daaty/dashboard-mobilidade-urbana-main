@@ -17,6 +17,11 @@ export function MetricsOverview({ data, loading = false, onPeriodChange }) {
   const safeData = data || {};
   const [period, setPeriod] = useState('7d')
 
+  // DEBUG: Verificar dados recebidos
+  console.log('📊 MetricsOverview - data recebida:', data);
+  console.log('📊 MetricsOverview - safeData:', safeData);
+  console.log('📊 MetricsOverview - atividade_recente:', safeData.atividade_recente);
+
   // Simulação de dados caso não venha da API
   const metricas = safeData.metricas_principais || {
     corridas_concluidas: 0,

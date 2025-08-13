@@ -56,6 +56,13 @@ function App() {
       else if (period === '7dias' || period === '7d') periodoParam = '7d';
       const response = await fetch(`${API_URL}/api/metrics/overview?periodo=${periodoParam}`)
       const data = await response.json()
+      
+      // DEBUG: Verificar se os dados de canceladas estão chegando
+      console.log('🔍 Dados recebidos da API:', data);
+      console.log('🔍 Atividade recente:', data.atividade_recente);
+      console.log('🔍 Canceladas:', data.atividade_recente?.canceladas);
+      console.log('🔍 Métricas principais:', data.metricas_principais);
+      
       setMetricsData(data)
     } catch (error) {
       console.error('Erro ao buscar métricas:', error)
