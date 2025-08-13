@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import CampanhasFormList from './CampanhasFormList'
 import { motion } from 'framer-motion'
 import { Target, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -94,7 +95,11 @@ export function MetasCidades() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
+      {/* Cadastro e listagem de campanhas */}
+      <CampanhasFormList />
+
+      {/* Cards de metas por cidade */}
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

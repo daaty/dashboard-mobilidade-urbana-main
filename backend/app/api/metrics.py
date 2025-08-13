@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.database.db import SessionLocal
@@ -14,12 +15,356 @@ from services.city_service import get_cities_from_rides_data
 
 router = APIRouter()
 
+async def get_db():
+    async with SessionLocal() as session:
+        yield session
+
+# Endpoint de metas por cidade (dados reais)
+@router.get("/metas-cidades")
+async def get_metas_cidades(db: AsyncSession = Depends(get_db)):
+    """Endpoint para retornar metas por cidade usando dados reais das 3 cidades disponíveis."""
+    
+    # Usar o city_service para obter apenas as cidades reais
+    cidades_reais = get_cities_from_rides_data()
+    
+    # Buscar todos os registros da tabela rides_data
+    result = await db.execute(select(RidesData))
+    rides = result.scalars().all()
+
+    # Inicializar dados para as 3 cidades reais
+    corridas_por_cidade = {}
+    for cidade in cidades_reais:
+        corridas_por_cidade[cidade] = {"concluidas": 0, "canceladas": 0, "perdidas": 0}
+    
+    for r in rides:
+        ride_data = r.ride_data
+        if isinstance(ride_data, str):
+            try:
+                ride_data = json.loads(ride_data)
+            except Exception:
+                continue
+        
+        table_name = ride_data.get("tableName", "")
+        new_records = ride_data.get("newRecords", [])
+        
+        # Processar corridas concluídas
+        if table_name in ["Completed Rides", "corridas_concluidas"]:
+            for rec in new_records:
+                cidade = rec[15] if len(rec) > 15 else None
+                if cidade and str(cidade).strip() in cidades_reais:
+                    corridas_por_cidade[str(cidade).strip()]["concluidas"] += 1
+        
+        # Processar corridas canceladas
+        elif table_name in ["Cancelled Rides", "corridas_canceladas"]:
+            for rec in new_records:
+                cidade = rec[17] if len(rec) > 17 else None  # Usar índice correto do city_service
+                if cidade and str(cidade).strip() in cidades_reais:
+                    corridas_por_cidade[str(cidade).strip()]["canceladas"] += 1
+        
+        # Processar corridas perdidas
+        elif table_name in ["Missed Rides", "corridas_perdidas"]:
+            for rec in new_records:
+                cidade = rec[8] if len(rec) > 8 else None  # Usar índice correto do city_service
+                if cidade and str(cidade).strip() in cidades_reais:
+                    corridas_por_cidade[str(cidade).strip()]["perdidas"] += 1
+
+    # Definir metas por cidade (configuração para as 3 cidades reais)
+    metas_cidades = {
+        "GUARANTA DO NORTE": {"meta": 500, "publico_alvo": 2000},
+        "MATUPA": {"meta": 500, "publico_alvo": 2000},
+        "PEIXOTO": {"meta": 500, "publico_alvo": 2000}
+    }
+    
+    # Construir resposta apenas com as 3 cidades reais
+    cidades = []
+    for cidade_nome, dados in corridas_por_cidade.items():
+        realizado = dados["concluidas"]
+        meta_info = metas_cidades.get(cidade_nome, {"meta": 500, "publico_alvo": 2000})
+        meta = meta_info["meta"]
+        
+        # Calcular percentual
+        percentual = (realizado / meta * 100) if meta > 0 else 0
+        
+        # Determinar status
+        if percentual >= 100:
+            status = "success"
+        elif percentual >= 80:
+            status = "warning"
+        else:
+            status = "danger"
+        
+        cidade_data = {
+            "cidade": cidade_nome,
+            "status": status,
+            "meta_corridas": meta,
+            "meta_receita": meta * 25.0,  # Assumindo R$ 25 por corrida
+            "publico_alvo": meta_info["publico_alvo"],
+            "progresso_atual": percentual,
+            "realizado": realizado,
+            "meta": meta,
+            "percentual": percentual,
+            "concluidas": dados["concluidas"],
+            "canceladas": dados["canceladas"],
+            "perdidas": dados["perdidas"],
+            "metas_mensais": [
+                {"mes": "Jan", "valor": int(meta/12)},
+                {"mes": "Fev", "valor": int(meta/12)},
+                {"mes": "Mar", "valor": int(meta/12)},
+                {"mes": "Abr", "valor": int(meta/12)},
+                {"mes": "Mai", "valor": int(meta/12)},
+                {"mes": "Jun", "valor": int(meta/12)}
+            ]
+        }
+        cidades.append(cidade_data)
+    
+    # Se não há dados, retornar estrutura básica para as 3 cidades principais
+    if not cidades:
+        cidades = []
+        for cidade_nome, meta_info in metas_cidades.items():
+            cidades.append({
+                "cidade": cidade_nome,
+                "status": "danger",
+                "meta_corridas": meta_info["meta"],
+                "meta_receita": meta_info["meta"] * 25.0,
+                "publico_alvo": meta_info["publico_alvo"],
+                "progresso_atual": 0.0,
+                "realizado": 0,
+                "meta": meta_info["meta"],
+                "percentual": 0.0,
+                "concluidas": 0,
+                "canceladas": 0,
+                "perdidas": 0,
+                "metas_mensais": [
+                    {"mes": "Jan", "valor": int(meta_info["meta"]/12)},
+                    {"mes": "Fev", "valor": int(meta_info["meta"]/12)},
+                    {"mes": "Mar", "valor": int(meta_info["meta"]/12)},
+                    {"mes": "Abr", "valor": int(meta_info["meta"]/12)},
+                    {"mes": "Mai", "valor": int(meta_info["meta"]/12)},
+                    {"mes": "Jun", "valor": int(meta_info["meta"]/12)}
+                ]
+            })
+    
+    return JSONResponse(content=cidades)
+    # Garantir que todos os campos numéricos estejam presentes e válidos
+    for c in cidades:
+        if c.get("progresso_atual") is None:
+            c["progresso_atual"] = 0.0
+        if c.get("meta_corridas") is None:
+            c["meta_corridas"] = 0
+        if c.get("meta_receita") is None:
+            c["meta_receita"] = 0.0
+        if c.get("publico_alvo") is None:
+            c["publico_alvo"] = 0
+        if c.get("realizado") is None:
+            c["realizado"] = 0
+        if c.get("meta") is None:
+            c["meta"] = c.get("meta_corridas", 0)
+        
+        # Calcular percentual com base no realizado/meta
+        if c["meta"] > 0:
+            c["percentual"] = (c["realizado"] / c["meta"]) * 100
+        else:
+            c["percentual"] = 0.0
+            
+        # Ajustar status baseado no percentual
+        if c["percentual"] >= 100:
+            c["status"] = "success"
+        elif c["percentual"] >= 80:
+            c["status"] = "warning"
+        else:
+            c["status"] = "danger"
+            
+    return JSONResponse(content=cidades)
+
+@router.get("/metas-cidades")
+async def get_metas_cidades():
+    """Endpoint para retornar metas por cidade (mock inicial)."""
+    cidades = [
+        {
+            "cidade": "Monte Verde",
+            "status": "success",
+            "meta_corridas": 1200,
+            "meta_receita": 30000,
+            "publico_alvo": 5000,
+            "progresso_atual": 80.5,
+            "metas_mensais": [
+                {"mes": "Jan", "valor": 200},
+                {"mes": "Fev", "valor": 250},
+                {"mes": "Mar", "valor": 300},
+                {"mes": "Abr", "valor": 250},
+                {"mes": "Mai", "valor": 100},
+                {"mes": "Jun", "valor": 100}
+            ]
+        },
+        {
+            "cidade": "Colíder",
+            "status": "warning",
+            "meta_corridas": 900,
+            "meta_receita": 18000,
+            "publico_alvo": 4000,
+            "progresso_atual": 65.2,
+            "metas_mensais": [
+                {"mes": "Jan", "valor": 150},
+                {"mes": "Fev", "valor": 180},
+                {"mes": "Mar", "valor": 200},
+                {"mes": "Abr", "valor": 180},
+                {"mes": "Mai", "valor": 100},
+                {"mes": "Jun", "valor": 90}
+            ]
+        },
+        {
+            "cidade": "Alta Floresta",
+            "status": "danger",
+            "meta_corridas": 700,
+            "meta_receita": 12000,
+            "publico_alvo": 3500,
+            "progresso_atual": 40.0,
+            "metas_mensais": [
+                {"mes": "Jan", "valor": 100},
+                {"mes": "Fev", "valor": 120},
+                {"mes": "Mar", "valor": 150},
+                {"mes": "Abr", "valor": 130},
+                {"mes": "Mai", "valor": 100},
+                {"mes": "Jun", "valor": 100}
+            ]
+        }
+    ]
+    return JSONResponse(content=cidades)
+    return JSONResponse(content=cidades)
+
 def ordenar_por_data(lista):
     return sorted(lista, key=lambda x: x.get("dt_corrida", datetime.min), reverse=True)
 
 async def get_db():
     async with SessionLocal() as session:
         yield session
+
+# Redefinir endpoint de metas por cidade com dados reais
+@router.get("/metas-cidades-real")
+async def get_metas_cidades_real(db: AsyncSession = Depends(get_db)):
+    """Endpoint para retornar metas por cidade usando dados reais das 3 cidades disponíveis."""
+    
+    # Usar o city_service para obter apenas as cidades reais
+    cidades_reais = get_cities_from_rides_data()
+    
+    # Buscar todos os registros da tabela rides_data
+    result = await db.execute(select(RidesData))
+    rides = result.scalars().all()
+
+    # Inicializar dados para as 3 cidades reais
+    corridas_por_cidade = {}
+    for cidade in cidades_reais:
+        corridas_por_cidade[cidade] = {"concluidas": 0, "canceladas": 0, "perdidas": 0}
+    
+    for r in rides:
+        ride_data = r.ride_data
+        if isinstance(ride_data, str):
+            try:
+                ride_data = json.loads(ride_data)
+            except Exception:
+                continue
+        
+        table_name = ride_data.get("tableName", "")
+        new_records = ride_data.get("newRecords", [])
+        
+        # Processar corridas concluídas
+        if table_name in ["Completed Rides", "corridas_concluidas"]:
+            for rec in new_records:
+                cidade = rec[15] if len(rec) > 15 else None
+                if cidade and str(cidade).strip() in cidades_reais:
+                    corridas_por_cidade[str(cidade).strip()]["concluidas"] += 1
+        
+        # Processar corridas canceladas
+        elif table_name in ["Cancelled Rides", "corridas_canceladas"]:
+            for rec in new_records:
+                cidade = rec[17] if len(rec) > 17 else None  # Usar índice correto do city_service
+                if cidade and str(cidade).strip() in cidades_reais:
+                    corridas_por_cidade[str(cidade).strip()]["canceladas"] += 1
+        
+        # Processar corridas perdidas
+        elif table_name in ["Missed Rides", "corridas_perdidas"]:
+            for rec in new_records:
+                cidade = rec[8] if len(rec) > 8 else None  # Usar índice correto do city_service
+                if cidade and str(cidade).strip() in cidades_reais:
+                    corridas_por_cidade[str(cidade).strip()]["perdidas"] += 1
+
+    # Definir metas por cidade (configuração para as 3 cidades reais)
+    metas_cidades = {
+        "GUARANTA DO NORTE": {"meta": 500, "publico_alvo": 2000},
+        "MATUPA": {"meta": 500, "publico_alvo": 2000},
+        "PEIXOTO": {"meta": 500, "publico_alvo": 2000}
+    }
+    
+    # Construir resposta apenas com as 3 cidades reais
+    cidades = []
+    for cidade_nome, dados in corridas_por_cidade.items():
+        realizado = dados["concluidas"]
+        meta_info = metas_cidades.get(cidade_nome, {"meta": 500, "publico_alvo": 2000})
+        meta = meta_info["meta"]
+        
+        # Calcular percentual
+        percentual = (realizado / meta * 100) if meta > 0 else 0
+        
+        # Determinar status
+        if percentual >= 100:
+            status = "success"
+        elif percentual >= 80:
+            status = "warning"
+        else:
+            status = "danger"
+        
+        cidade_data = {
+            "cidade": cidade_nome,
+            "status": status,
+            "meta_corridas": meta,
+            "meta_receita": meta * 25.0,  # Assumindo R$ 25 por corrida
+            "publico_alvo": meta_info["publico_alvo"],
+            "progresso_atual": percentual,
+            "realizado": realizado,
+            "meta": meta,
+            "percentual": percentual,
+            "concluidas": dados["concluidas"],
+            "canceladas": dados["canceladas"],
+            "perdidas": dados["perdidas"],
+            "metas_mensais": [
+                {"mes": "Jan", "valor": int(meta/12)},
+                {"mes": "Fev", "valor": int(meta/12)},
+                {"mes": "Mar", "valor": int(meta/12)},
+                {"mes": "Abr", "valor": int(meta/12)},
+                {"mes": "Mai", "valor": int(meta/12)},
+                {"mes": "Jun", "valor": int(meta/12)}
+            ]
+        }
+        cidades.append(cidade_data)
+    
+    # Se não há dados, retornar estrutura básica para as 3 cidades principais
+    if not cidades:
+        cidades = []
+        for cidade_nome, meta_info in metas_cidades.items():
+            cidades.append({
+                "cidade": cidade_nome,
+                "status": "danger",
+                "meta_corridas": meta_info["meta"],
+                "meta_receita": meta_info["meta"] * 25.0,
+                "publico_alvo": meta_info["publico_alvo"],
+                "progresso_atual": 0.0,
+                "realizado": 0,
+                "meta": meta_info["meta"],
+                "percentual": 0.0,
+                "concluidas": 0,
+                "canceladas": 0,
+                "perdidas": 0,
+                "metas_mensais": [
+                    {"mes": "Jan", "valor": int(meta_info["meta"]/12)},
+                    {"mes": "Fev", "valor": int(meta_info["meta"]/12)},
+                    {"mes": "Mar", "valor": int(meta_info["meta"]/12)},
+                    {"mes": "Abr", "valor": int(meta_info["meta"]/12)},
+                    {"mes": "Mai", "valor": int(meta_info["meta"]/12)},
+                    {"mes": "Jun", "valor": int(meta_info["meta"]/12)}
+                ]
+            })
+    
+    return JSONResponse(content=cidades)
 
 @router.get("/cities")
 async def get_cities():
