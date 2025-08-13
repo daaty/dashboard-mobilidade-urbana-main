@@ -343,7 +343,7 @@ export default function AnaliseCorreidas() {
                 Distribuição por Status das Corridas
               </h3>
             </div>
-            <div className="h-80">
+            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-200 p-4">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -356,11 +356,34 @@ export default function AnaliseCorreidas() {
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   >
                     {statusData.map((entry, idx) => (
-                      <Cell key={`cell-${idx}`} fill={Object.values(COLORS)[idx % Object.values(COLORS).length]} />
+                      <Cell key={`cell-${idx}`} fill={
+                        entry.status === 'Concluídas' ? COLORS.concluidas :
+                        entry.status === 'Canceladas' ? COLORS.canceladas :
+                        entry.status === 'Perdidas' ? COLORS.perdidas :
+                        Object.values(COLORS)[idx % Object.values(COLORS).length]
+                      } />
                     ))}
                   </Pie>
-                  <Tooltip />
-                  <Legend />
+                  <Tooltip 
+                    formatter={(value, name) => [`${value} corridas`, name]} 
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px'
+                    }}
+                  />
+                  <Legend 
+                    formatter={(value) => (
+                      <span style={{ 
+                        color: value === 'Concluídas' ? COLORS.concluidas :
+                               value === 'Canceladas' ? COLORS.canceladas :
+                               value === 'Perdidas' ? COLORS.perdidas : '#374151'
+                      }}>
+                        {value}
+                      </span>
+                    )}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -373,20 +396,46 @@ export default function AnaliseCorreidas() {
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-emerald-800">
-                Evolução das Taxas de Performance (%)
+                Evolução das Taxas de Performance
               </h3>
             </div>
-            <div className="h-80">
+            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-emerald-200 p-4">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={evolucaoData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <LineChart data={evolucaoData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="data" />
                   <YAxis />
-                  <Tooltip />
+                  <Tooltip 
+                    formatter={(value, name) => [`${value}%`, name]}
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px'
+                    }}
+                  />
                   <Legend />
-                  <Line type="monotone" dataKey="taxa_conclusao" stroke={COLORS.success} name="Conclusão (%)" />
-                  <Line type="monotone" dataKey="taxa_cancelamento" stroke={COLORS.danger} name="Cancelamento (%)" />
-                  <Line type="monotone" dataKey="taxa_perda" stroke={COLORS.warning} name="Perda (%)" />
+                  <Line 
+                    type="monotone" 
+                    dataKey="taxa_conclusao" 
+                    stroke={COLORS.concluidas} 
+                    strokeWidth={2}
+                    name="Concluídas"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="taxa_cancelamento" 
+                    stroke={COLORS.canceladas} 
+                    strokeWidth={2}
+                    name="Canceladas"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="taxa_perda" 
+                    stroke={COLORS.perdidas} 
+                    strokeWidth={2}
+                    name="Perdidas"
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
