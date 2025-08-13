@@ -52,7 +52,8 @@ export default function CampanhasFormList() {
 
   const fetchCampanhas = async () => {
     setLoading(true);
-    const resp = await fetch("/api/campanhas");
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const resp = await fetch(`${API_URL}/api/campanhas`);
     const data = await resp.json();
     setCampanhas(data);
     setLoading(false);
@@ -69,8 +70,9 @@ export default function CampanhasFormList() {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
     const method = editId ? "PUT" : "POST";
-    const url = editId ? `/api/campanhas/${editId}` : "/api/campanhas";
+    const url = editId ? `${API_URL}/api/campanhas/${editId}` : `${API_URL}/api/campanhas`;
     const body = { ...form };
     if (body.meta_quantidade) body.meta_quantidade = parseInt(body.meta_quantidade);
     if (body.orcamento_previsto) body.orcamento_previsto = parseFloat(body.orcamento_previsto);
@@ -92,7 +94,8 @@ export default function CampanhasFormList() {
 
   const handleDelete = async id => {
     if (!window.confirm("Confirma remover esta campanha?")) return;
-    await fetch(`/api/campanhas/${id}`, { method: "DELETE" });
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    await fetch(`${API_URL}/api/campanhas/${id}`, { method: "DELETE" });
     fetchCampanhas();
   };
 
