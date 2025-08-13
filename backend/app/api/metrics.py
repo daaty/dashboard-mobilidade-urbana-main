@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.database.db import SessionLocal
 from app.models.rides_data import RidesData
+from typing import Optional
 
 import json
 from datetime import datetime, timedelta
@@ -44,7 +45,8 @@ async def test_endpoint():
 @router.get("/overview")
 async def get_metrics_overview(
     db: AsyncSession = Depends(get_db),
-    periodo: str = Query("30d", enum=["hoje", "7d", "30d", "3m", "6m", "12m"], description="Período do filtro: hoje, 7d, 30d, 3m, 6m, 12m")
+    periodo: str = Query("30d", enum=["hoje", "7d", "30d", "3m", "6m", "12m"], description="Período do filtro: hoje, 7d, 30d, 3m, 6m, 12m"),
+    cidade: Optional[str] = Query(None, description="Filtrar por cidade específica")
 ):
     # Buscar todos os registros da tabela rides_data
     result = await db.execute(select(RidesData))
@@ -111,6 +113,11 @@ async def get_metrics_overview(
         if table_name in ["Completed Rides", "corridas_concluidas"]:
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
+                
+                # DEDUPLICAÇÃO: Pular se ID já foi processado
+                if id_corrida in ids_concluidas:
+                    continue
+                    
                 nome_motorista = rec[1] if len(rec) > 1 else None  # Driver Name
                 nome_passageiro = rec[2] if len(rec) > 2 else None  # User Name
                 telefone = rec[3] if len(rec) > 3 else None  # User Phone No
@@ -143,19 +150,29 @@ async def get_metrics_overview(
                     "grupo": rec[9] if len(rec) > 9 else None,
                     "local": rec[4] if len(rec) > 4 else None,
                     "destino": rec[5] if len(rec) > 5 else None,
-                    "cidade": None,
+                    "cidade": rec[15] if len(rec) > 15 else None,  # Cidade no índice 15 para corridas concluídas
                     "tempo": None
                 }
-                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_concluidas:
+                # Verificar filtro de cidade
+                cidade_item = item.get("cidade")
+                if cidade and cidade_item != cidade:
+                    continue  # Pular se não corresponde ao filtro de cidade
+                    
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim:
                     concluidas.append(item)
-                    ids_concluidas.add((id_corrida, hora_formatada))
-                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_concluidas:
+                    ids_concluidas.add(id_corrida)
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant:
                     concluidas_ant.append(item)
-                    ids_concluidas.add((id_corrida, hora_formatada))
+                    ids_concluidas.add(id_corrida)
         # Missed Rides (aceita nomes em português e inglês)
         elif table_name in ["Missed Rides", "corridas_perdidas"]:
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
+                
+                # DEDUPLICAÇÃO: Pular se ID já foi processado
+                if id_corrida in ids_perdidas:
+                    continue
+                    
                 nome = rec[1] if len(rec) > 1 else None  # passageiro correto
                 hora = rec[6] if len(rec) > 6 else None
                 motivo = rec[5] if len(rec) > 5 else None  # índice correto para motivo
@@ -183,20 +200,30 @@ async def get_metrics_overview(
                     "grupo": rec[4] if len(rec) > 4 else None,
                     "local": rec[3] if len(rec) > 3 else None,
                     "destino": None,
-                    "cidade": None,
+                    "cidade": rec[8] if len(rec) > 8 else None,  # Cidade no índice 8 para corridas perdidas
                     "tempo": None,
                     "motivo": motivo
                 }
-                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_perdidas:
+                # Verificar filtro de cidade
+                cidade_item = item.get("cidade")
+                if cidade and cidade_item != cidade:
+                    continue  # Pular se não corresponde ao filtro de cidade
+                    
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim:
                     perdidas.append(item)
-                    ids_perdidas.add((id_corrida, hora_formatada))
-                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_perdidas:
+                    ids_perdidas.add(id_corrida)
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant:
                     perdidas_ant.append(item)
-                    ids_perdidas.add((id_corrida, hora_formatada))
+                    ids_perdidas.add(id_corrida)
         # Cancelled Rides (aceita nomes em português e inglês)
         elif table_name in ["Cancelled Rides", "corridas_canceladas"]:
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
+                
+                # DEDUPLICAÇÃO: Pular se ID já foi processado
+                if id_corrida in ids_canceladas:
+                    continue
+                    
                 nome = rec[2] if len(rec) > 2 else None  # passageiro correto (índice 2)
                 hora = rec[11] if len(rec) > 11 else None  # CORRIGIDO: data está no índice 11
                 motivo = rec[12] if len(rec) > 12 else None  # CORRIGIDO: motivo está no índice 12
@@ -224,16 +251,21 @@ async def get_metrics_overview(
                     "grupo": rec[4] if len(rec) > 4 else None,
                     "local": rec[5] if len(rec) > 5 else None,
                     "destino": rec[6] if len(rec) > 6 else None,
-                    "cidade": None,
+                    "cidade": rec[17] if len(rec) > 17 else None,  # Cidade no índice 17 para corridas canceladas
                     "tempo": None,
                     "motivo": motivo
                 }
-                if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_canceladas:
+                # Verificar filtro de cidade
+                cidade_item = item.get("cidade")
+                if cidade and cidade_item != cidade:
+                    continue  # Pular se não corresponde ao filtro de cidade
+                    
+                if dt_corrida and dt_ini <= dt_corrida <= dt_fim:
                     canceladas.append(item)
-                    ids_canceladas.add((id_corrida, hora_formatada))
-                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant and (id_corrida, hora_formatada) not in ids_canceladas:
+                    ids_canceladas.add(id_corrida)
+                elif dt_corrida and dt_ini_ant <= dt_corrida < dt_fim_ant:
                     canceladas_ant.append(item)
-                    ids_canceladas.add((id_corrida, hora_formatada))
+                    ids_canceladas.add(id_corrida)
         # Scheduled Rides (aceita nomes em português e inglês)
         elif table_name in ["Scheduled Rides", "corridas_agendadas"]:
             for rec in new_records:
@@ -264,9 +296,14 @@ async def get_metrics_overview(
                     "grupo": rec[6] if len(rec) > 6 else None,
                     "local": rec[8] if len(rec) > 8 else None,
                     "destino": rec[9] if len(rec) > 9 else None,
-                    "cidade": None,
+                    "cidade": rec[17] if len(rec) > 17 else None,  # Cidade no índice 17 para corridas canceladas
                     "tempo": None
                 }
+                # Verificar filtro de cidade
+                cidade_item = item.get("cidade")
+                if cidade and cidade_item != cidade:
+                    continue  # Pular se não corresponde ao filtro de cidade
+                    
                 if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_canceladas:
                     canceladas.append(item)
                     ids_canceladas.add((id_corrida, hora_formatada))

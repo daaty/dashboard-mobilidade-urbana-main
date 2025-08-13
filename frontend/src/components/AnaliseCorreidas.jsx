@@ -66,7 +66,18 @@ export default function AnaliseCorreidas() {
       try {
         setLoading(true)
         const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${API_URL}/api/metrics/overview?periodo=${filters.periodo}`)
+        
+        // Construir parâmetros da query
+        const params = new URLSearchParams({
+          periodo: filters.periodo
+        });
+        
+        // Adicionar filtro de cidade se selecionado
+        if (filters.cidade) {
+          params.append('cidade', filters.cidade);
+        }
+        
+        const response = await fetch(`${API_URL}/api/metrics/overview?${params.toString()}`)
         if (response.ok) {
           const result = await response.json()
           setData(result)
@@ -80,7 +91,7 @@ export default function AnaliseCorreidas() {
       }
     }
     fetchData()
-  }, [filters.periodo])
+  }, [filters.periodo, filters.cidade])
 
   const formatNumber = (num) => {
     return new Intl.NumberFormat('pt-BR').format(num)
@@ -394,11 +405,46 @@ export default function AnaliseCorreidas() {
                 Análise de Causa Raiz - Cancelamentos
               </h3>
             </div>
-            <div className="h-80 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-xl border border-red-200">
-              <div className="text-center">
-                <div className="text-red-600 text-lg font-medium">Gráfico de cancelamentos</div>
-                <div className="text-red-500 text-sm mt-1">(em breve)</div>
-              </div>
+            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-red-200 p-4">
+              {data?.motivos_cancelamento && data.motivos_cancelamento.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={data.motivos_cancelamento}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="quantidade"
+                      nameKey="motivo"
+                    >
+                      {data.motivos_cancelamento.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={`hsl(${index * 360 / data.motivos_cancelamento.length}, 70%, 50%)`} 
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value, name) => [`${value} cancelamentos`, name]} 
+                      labelFormatter={(motivo) => `Motivo: ${motivo}`}
+                      contentStyle={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="text-red-600 text-lg font-medium">Sem dados de cancelamentos</div>
+                    <div className="text-red-500 text-sm mt-1">Nenhum cancelamento encontrado no período</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           
@@ -412,11 +458,58 @@ export default function AnaliseCorreidas() {
                 Análise de Tempos Operacionais
               </h3>
             </div>
-            <div className="h-80 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-xl border border-amber-200">
-              <div className="text-center">
-                <div className="text-amber-600 text-lg font-medium">Gráfico de tempos</div>
-                <div className="text-amber-500 text-sm mt-1">(em breve)</div>
-              </div>
+            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-amber-200 p-4">
+              {data?.comparativo_horarios && data.comparativo_horarios.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data.comparativo_horarios}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="hora" 
+                      label={{ value: 'Hora do Dia', position: 'insideBottom', offset: -5 }}
+                    />
+                    <YAxis 
+                      label={{ value: 'Quantidade', angle: -90, position: 'insideLeft' }}
+                    />
+                    <Tooltip 
+                      formatter={(value, name) => [
+                        `${value} corridas`, 
+                        name === 'concluidas' ? 'Concluídas' : 
+                        name === 'canceladas' ? 'Canceladas' : 'Perdidas'
+                      ]}
+                      labelFormatter={(hora) => `${hora}:00h`}
+                    />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="concluidas" 
+                      stroke={COLORS.concluidas} 
+                      strokeWidth={2}
+                      name="Concluídas"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="canceladas" 
+                      stroke={COLORS.canceladas} 
+                      strokeWidth={2}
+                      name="Canceladas"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="perdidas" 
+                      stroke={COLORS.perdidas} 
+                      strokeWidth={2}
+                      name="Perdidas"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="text-amber-600 text-lg font-medium">Sem dados de horários</div>
+                    <div className="text-amber-500 text-sm mt-1">Nenhum dado encontrado no período</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -529,9 +622,132 @@ export default function AnaliseCorreidas() {
               </h3>
             </div>
             <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
-              <div className="text-center text-purple-600 font-medium">
-                Em breve: recomendações automáticas baseadas nos dados reais.
-              </div>
+              {data ? (
+                <div className="space-y-4">
+                  {/* Insights baseados nos dados reais */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    {/* Insight de Performance */}
+                    <div className="bg-white rounded-lg p-4 border border-purple-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="font-medium text-gray-800">Performance Geral</span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {(() => {
+                          const total = (data.metricas_principais?.corridas_concluidas || 0) + 
+                                      (data.metricas_principais?.corridas_canceladas || 0) + 
+                                      (data.metricas_principais?.corridas_perdidas || 0);
+                          const taxa_sucesso = total > 0 ? ((data.metricas_principais?.corridas_concluidas || 0) / total * 100).toFixed(1) : 0;
+                          
+                          return taxa_sucesso > 70 ? 
+                            `Excelente! Taxa de sucesso de ${taxa_sucesso}% está acima da média.` :
+                            taxa_sucesso > 50 ?
+                            `Taxa de sucesso de ${taxa_sucesso}% pode ser melhorada.` :
+                            `Taxa de sucesso de ${taxa_sucesso}% necessita atenção urgente.`;
+                        })()}
+                      </div>
+                    </div>
+
+                    {/* Insight de Cancelamentos */}
+                    <div className="bg-white rounded-lg p-4 border border-purple-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <XCircle className="w-4 h-4 text-red-600" />
+                        <span className="font-medium text-gray-800">Principal Causa de Cancelamento</span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {data.motivos_cancelamento && data.motivos_cancelamento.length > 0 ? (
+                          `"${data.motivos_cancelamento[0].motivo}" representa ${data.motivos_cancelamento[0].quantidade} cancelamentos.`
+                        ) : (
+                          "Nenhum cancelamento registrado no período."
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Insight de Horários */}
+                    <div className="bg-white rounded-lg p-4 border border-purple-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Clock className="w-4 h-4 text-blue-600" />
+                        <span className="font-medium text-gray-800">Horário de Pico</span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {(() => {
+                          if (!data.comparativo_horarios || data.comparativo_horarios.length === 0) {
+                            return "Sem dados de horários disponíveis.";
+                          }
+                          
+                          const horario_pico = data.comparativo_horarios.reduce((max, curr) => 
+                            (curr.concluidas > max.concluidas) ? curr : max
+                          );
+                          
+                          return `Maior atividade às ${horario_pico.hora}:00h com ${horario_pico.concluidas} corridas concluídas.`;
+                        })()}
+                      </div>
+                    </div>
+
+                    {/* Insight de Perdas */}
+                    <div className="bg-white rounded-lg p-4 border border-purple-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                        <span className="font-medium text-gray-800">Oportunidades Perdidas</span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {data.motivos_perda && data.motivos_perda.length > 0 ? (
+                          `${data.metricas_principais?.corridas_perdidas || 0} corridas perdidas. Principal motivo: "${data.motivos_perda[0].motivo}".`
+                        ) : (
+                          "Nenhuma corrida perdida no período."
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recomendações */}
+                  <div className="mt-6 p-4 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-lg">
+                    <h4 className="font-medium text-purple-800 mb-3 flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4" />
+                      Recomendações Inteligentes
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      {(() => {
+                        const recomendacoes = [];
+                        const total = (data.metricas_principais?.corridas_concluidas || 0) + 
+                                    (data.metricas_principais?.corridas_canceladas || 0) + 
+                                    (data.metricas_principais?.corridas_perdidas || 0);
+                        const taxa_cancelamento = total > 0 ? ((data.metricas_principais?.corridas_canceladas || 0) / total * 100) : 0;
+                        const taxa_perda = total > 0 ? ((data.metricas_principais?.corridas_perdidas || 0) / total * 100) : 0;
+
+                        if (taxa_cancelamento > 20) {
+                          recomendacoes.push("🎯 Focar na redução de cancelamentos - taxa acima de 20%");
+                        }
+                        
+                        if (taxa_perda > 15) {
+                          recomendacoes.push("⚡ Melhorar tempo de resposta - muitas corridas perdidas por timeout");
+                        }
+
+                        if (data.motivos_cancelamento && data.motivos_cancelamento[0]?.motivo.includes("motorista")) {
+                          recomendacoes.push("👥 Treinamento para motoristas sobre pontualidade");
+                        }
+
+                        if (data.comparativo_horarios && data.comparativo_horarios.some(h => h.perdidas > h.concluidas)) {
+                          recomendacoes.push("📱 Aumentar disponibilidade de motoristas nos horários de pico");
+                        }
+
+                        if (recomendacoes.length === 0) {
+                          recomendacoes.push("✅ Operação funcionando bem! Continue monitorando as métricas.");
+                        }
+
+                        return recomendacoes.map((rec, idx) => (
+                          <div key={idx} className="text-purple-700">{rec}</div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-purple-600 font-medium">
+                  Carregando insights...
+                </div>
+              )}
             </div>
           </div>
         </motion.div>

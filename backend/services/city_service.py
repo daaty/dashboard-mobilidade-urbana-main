@@ -12,36 +12,49 @@ DATABASE_URL = os.getenv(
 ).replace("postgresql+asyncpg://", "postgresql://")
 
 def get_cities_from_rides_data():
-    """Extrai cidades reais dos dados importados"""
+    """Extrai cidades reais dos dados importados de todos os tipos de corrida"""
     try:
         engine = create_engine(DATABASE_URL)
         
         with engine.connect() as conn:
-            # Buscar dados mais recentes
-            result = conn.execute(text("SELECT ride_data FROM rides_data ORDER BY scraped_at DESC LIMIT 1"))
-            row = result.fetchone()
+            # Buscar todos os dados
+            result = conn.execute(text("SELECT ride_data FROM rides_data"))
+            rows = result.fetchall()
             
-            if not row:
+            if not rows:
                 return []
             
-            # Parse do JSON
-            data = json.loads(row[0])
-            records = data.get('newRecords', [])
-            
-            if not records:
-                return []
-            
-            # A coluna "City" está na posição 15 (último índice) dos dados do Excel
-            # Como vimos no script: ['MATUPA', 'PEIXOTO', 'GUARANTA DO NORTE']
-            city_column_index = 15  # Último campo é a cidade
-            
-            # Extrair cidades únicas
             cities = set()
-            for record in records:
-                if len(record) > city_column_index and record[city_column_index]:
-                    city = str(record[city_column_index]).strip()
-                    if city and city.upper() != 'NAN' and city != '':
-                        cities.add(city)
+            
+            for row in rows:
+                try:
+                    # Parse do JSON
+                    data = json.loads(row[0])
+                    table_name = data.get('tableName', '')
+                    records = data.get('newRecords', [])
+                    
+                    if not records:
+                        continue
+                    
+                    # Extrair cidades baseado no tipo de corrida
+                    for record in records:
+                        city = None
+                        
+                        if table_name == "Completed Rides" and len(record) > 15:
+                            city = record[15]  # Índice 15 para corridas concluídas
+                        elif table_name == "Cancelled Rides" and len(record) > 17:
+                            city = record[17]  # Índice 17 para corridas canceladas
+                        elif table_name == "Missed Rides" and len(record) > 8:
+                            city = record[8]   # Índice 8 para corridas perdidas
+                        
+                        if city:
+                            city = str(city).strip()
+                            if city and city.upper() != 'NAN' and city != '' and city != '--' and city != 'Unnamed':
+                                cities.add(city)
+                                
+                except Exception as e:
+                    print(f"Erro ao processar registro: {e}")
+                    continue
             
             return sorted(list(cities))
             
