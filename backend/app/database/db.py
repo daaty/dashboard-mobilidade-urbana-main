@@ -20,3 +20,21 @@ engine = create_async_engine(
 )
 SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 Base = declarative_base()
+
+# Adiciona função get_db síncrona para uso em endpoints que usam SQLAlchemy síncrono
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker as sync_sessionmaker
+
+SYNC_DATABASE_URL = os.getenv(
+    "SYNC_DATABASE_URL",
+    "postgresql://n8n_user:n8n_pw@148.230.73.27:5432/n8n_db"
+)
+sync_engine = create_engine(SYNC_DATABASE_URL, pool_pre_ping=True)
+SyncSessionLocal = sync_sessionmaker(autocommit=False, autoflush=False, bind=sync_engine)
+
+def get_db():
+    db = SyncSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

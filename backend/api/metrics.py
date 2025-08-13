@@ -6,24 +6,112 @@ import logging
 logger = logging.getLogger(__name__)
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from services.city_service import get_cities_from_rides_data
 
 router = APIRouter()
+
+# Endpoint para obter cidades reais dos dados importados
+@router.get("/cities")
+async def get_cities():
+    """Retorna lista de cidades extraídas dos dados reais"""
+    try:
+        cities = get_cities_from_rides_data()
+        return JSONResponse({
+            "success": True,
+            "cities": cities
+        })
+    except Exception as e:
+        logger.error(f"Erro ao obter cidades: {e}")
+        return JSONResponse({
+            "success": False,
+            "cities": [],
+            "error": str(e)
+        })
 
 # Endpoint compatível com frontend React
 @router.get("/overview")
 async def metrics_overview():
-    # Simulação de dados, ajuste conforme necessário
+    # Simulação de dados reais para análise operacional de corridas
     data = {
-        "total_corridas": 1234,
-        "corridas_concluidas": 1200,
-        "corridas_canceladas": 34,
-        "receita_total": 50000.0,
-        "ticket_medio": 40.3,
-        "taxa_conclusao_media": 97.2,
-        "avaliacao_media": 4.8,
-        "motoristas_ativos_media": 85
+        "metricas_principais": {
+            "corridas_concluidas": 1847,
+            "corridas_canceladas": 89,
+            "corridas_perdidas": 124,
+            "variacao_concluidas": 12.5,
+            "variacao_canceladas": -8.2,
+            "variacao_perdidas": -15.3
+        },
+        "analise_temporal": {
+            "dados_diarios": [
+                {"data": "2024-08-05", "concluidas": 267, "canceladas": 12, "perdidas": 18},
+                {"data": "2024-08-06", "concluidas": 289, "canceladas": 15, "perdidas": 21},
+                {"data": "2024-08-07", "concluidas": 245, "canceladas": 8, "perdidas": 16},
+                {"data": "2024-08-08", "concluidas": 298, "canceladas": 14, "perdidas": 19},
+                {"data": "2024-08-09", "concluidas": 276, "canceladas": 11, "perdidas": 17},
+                {"data": "2024-08-10", "concluidas": 234, "canceladas": 16, "perdidas": 15},
+                {"data": "2024-08-11", "concluidas": 238, "canceladas": 13, "perdidas": 18}
+            ]
+        },
+        "analise_cancelamentos": {
+            "por_responsavel": [
+                {"categoria": "Motorista", "quantidade": 52, "percentual": 58.4},
+                {"categoria": "Passageiro", "quantidade": 28, "percentual": 31.5},
+                {"categoria": "Sistema", "quantidade": 9, "percentual": 10.1}
+            ],
+            "principais_motivos": [
+                {"motivo": "Trânsito intenso", "quantidade": 23, "percentual": 25.8},
+                {"motivo": "Passageiro não encontrado", "quantidade": 18, "percentual": 20.2},
+                {"motivo": "Problema no veículo", "quantidade": 15, "percentual": 16.9},
+                {"motivo": "Local perigoso", "quantidade": 12, "percentual": 13.5},
+                {"motivo": "Outros", "quantidade": 21, "percentual": 23.6}
+            ]
+        },
+        "metricas_tempo": {
+            "tempo_medio_espera": 4.2,
+            "tempo_medio_chegada": 8.7,
+            "tempo_medio_corrida": 18.5,
+            "variacao_tempo_espera": -12.3,
+            "variacao_tempo_chegada": 5.8,
+            "variacao_tempo_corrida": 2.1
+        },
+        "analise_geografica": {
+            "cidades_performance": [
+                {"cidade": "São Paulo", "taxa_conclusao": 89.7, "total_corridas": 1245},
+                {"cidade": "Rio de Janeiro", "taxa_conclusao": 91.2, "total_corridas": 567},
+                {"cidade": "Belo Horizonte", "taxa_conclusao": 88.3, "total_corridas": 248}
+            ]
+        },
+        "analise_categorias": [
+            {"categoria": "Econômico", "concluidas": 1124, "canceladas": 56, "perdidas": 78, "taxa_conclusao": 89.3},
+            {"categoria": "Conforto", "concluidas": 512, "canceladas": 23, "perdidas": 32, "taxa_conclusao": 90.3},
+            {"categoria": "Premium", "concluidas": 211, "canceladas": 10, "perdidas": 14, "taxa_conclusao": 89.8}
+        ],
+        "insights_automaticos": [
+            {
+                "tipo": "alerta",
+                "titulo": "Taxa de perda elevada em horário de pico",
+                "descricao": "Entre 17h-19h, a taxa de perda aumentou 23% na última semana",
+                "acao_sugerida": "Incentivar mais motoristas online no período"
+            },
+            {
+                "tipo": "sucesso", 
+                "titulo": "Melhoria na taxa de conclusão",
+                "descricao": "Taxa de conclusão geral aumentou 2.3% comparado ao mês anterior",
+                "acao_sugerida": "Manter estratégias atuais de retenção"
+            },
+            {
+                "tipo": "oportunidade",
+                "titulo": "Potencial de crescimento aos finais de semana", 
+                "descricao": "Demanda reprimida identificada nos sábados à noite",
+                "acao_sugerida": "Criar promoções para motoristas no período"
+            }
+        ],
+        "cidades": ["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Brasília", "Salvador"]
     }
-    return JSONResponse(content={"success": True, "data": data})
+    return JSONResponse(content=data)
 bp = Blueprint('metrics', __name__)
 
 @bp.route('/kpis', methods=['GET'])
