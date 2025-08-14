@@ -1,10 +1,13 @@
+
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.database.db import get_db
 from app.models.cidades_demografia import CidadesDemografia
 from app.models.campanha import Campanha
 from sqlalchemy import func
+import json
 
 router = APIRouter()
 
@@ -12,7 +15,26 @@ router = APIRouter()
 async def get_all_cidades(db: Session = Depends(get_db)):
     """Retorna todas as cidades com dados demográficos"""
     cidades = db.query(CidadesDemografia).all()
-    return cidades
+    
+    # Converte para dict e força encoding UTF-8
+    cidades_dict = []
+    for cidade in cidades:
+        cidade_data = {
+            "id": cidade.id,
+            "cidade": cidade.cidade,
+            "populacao_censo_2022": cidade.populacao_censo_2022,
+            "populacao_estimada_2024": cidade.populacao_estimada_2024,
+            "densidade_demografica": cidade.densidade_demografica,
+            "publico_alvo_15_44_anos": cidade.publico_alvo_15_44_anos,
+            "publico_homens": cidade.publico_homens,
+            "publico_mulheres": cidade.publico_mulheres
+        }
+        cidades_dict.append(cidade_data)
+    
+    return JSONResponse(
+        content=cidades_dict,
+        headers={"Content-Type": "application/json; charset=utf-8"}
+    )
 
 @router.get("/cidades/{cidade_id}")
 async def get_cidade_by_id(cidade_id: int, db: Session = Depends(get_db)):

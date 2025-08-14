@@ -16,7 +16,12 @@ engine = create_async_engine(
     DATABASE_URL,
     echo=True,
     future=True,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    connect_args={
+        "server_settings": {
+            "client_encoding": "utf8"
+        }
+    }
 )
 SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 Base = declarative_base()
@@ -29,7 +34,14 @@ SYNC_DATABASE_URL = os.getenv(
     "SYNC_DATABASE_URL",
     "postgresql://n8n_user:n8n_pw@148.230.73.27:5432/n8n_db"
 )
-sync_engine = create_engine(SYNC_DATABASE_URL, pool_pre_ping=True)
+sync_engine = create_engine(
+    SYNC_DATABASE_URL, 
+    pool_pre_ping=True,
+    connect_args={
+        "client_encoding": "utf8",
+        "options": "-c timezone=UTC"
+    }
+)
 SyncSessionLocal = sync_sessionmaker(autocommit=False, autoflush=False, bind=sync_engine)
 
 def get_db():

@@ -280,3 +280,67 @@ async def get_drivers_overview(
     except Exception as e:
         print(f"Erro no endpoint drivers overview: {e}")
         raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
+
+@router.get("/by-city")
+async def get_drivers_by_city(
+    cidade: Optional[str] = Query(None, description="Nome da cidade para filtrar motoristas"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Buscar motoristas por cidade específica usando campo driver_ratings
+    """
+    try:
+        if not cidade:
+            raise HTTPException(status_code=400, detail="Parâmetro cidade é obrigatório")
+            
+        # Normalizar entrada da cidade
+        cidade_busca = cidade.strip()
+        
+        # Buscar todos os registros da tabela drivers_data
+        result = await db.execute(select(DriversData))
+        rows = result.scalars().all()
+        
+        # Processar registros e filtrar por cidade
+        motoristas = {"active": 0, "enrollment": 0, "leaderboard": 0, "total": 0}
+        
+        for row in rows:
+            try:
+                # Parse do JSON do additional_data (pode ser string ou dict)
+                if isinstance(row.additional_data, str):
+                    additional_data = json.loads(row.additional_data)
+                else:
+                    additional_data = row.additional_data
+                
+                cidade_motorista = additional_data.get('driver_ratings', '')
+                
+                # Verificar se a cidade bate (case insensitive)
+                if cidade_busca.upper() in cidade_motorista.upper() or cidade_motorista.upper() in cidade_busca.upper():
+                    data_type = row.data_type
+                    
+                    if data_type in motoristas:
+                        motoristas[data_type] += 1
+                        motoristas["total"] += 1
+                        
+            except (json.JSONDecodeError, AttributeError, TypeError):
+                continue
+        
+        return {
+            "success": True,
+            "cidade": cidade,
+            "motoristas": motoristas,
+            "total_ativos": motoristas["active"],
+            "total_cadastrados": motoristas["total"]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Erro no endpoint drivers by city: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "cidade": cidade or "N/A",
+            "motoristas": {"active": 0, "enrollment": 0, "leaderboard": 0, "total": 0},
+            "total_ativos": 0,
+            "total_cadastrados": 0
+        }
