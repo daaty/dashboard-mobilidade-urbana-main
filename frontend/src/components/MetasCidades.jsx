@@ -1161,10 +1161,7 @@ function normalizarCidade(nome) {
         // 1. CAMPANHAS das tabelas
         fetch(`${API_URL}/api/dashboard-executivo/campanhas`),
         // 2. CIDADES da tabela CidadesDemografia
-        fetch(`${API_URL}/api/cidades`).catch(err => {
-          console.warn('Erro ao buscar cidades:', err)
-          return { ok: false, json: () => Promise.resolve([]) }
-        })
+        fetch(`${API_URL}/api/cidades`)
       ])
 
       // 🎯 BUSCAR CAMPANHAS (continua como estava)
@@ -1179,9 +1176,16 @@ function normalizarCidade(nome) {
 
       // 🔥 BUSCAR CIDADES REAIS DA API (com fallback para cidades das campanhas)
       let cidadesReais = []
-      if (cidadesRes.ok) {
-        cidadesReais = await cidadesRes.json()
-      } else {
+      
+      try {
+        if (cidadesRes.ok) {
+          cidadesReais = await cidadesRes.json()
+          console.log('✅ CIDADES REAIS da API carregadas:', cidadesReais.length)
+        } else {
+          throw new Error('API cidades não disponível')
+        }
+      } catch (error) {
+        console.warn('⚠️ Erro ao buscar cidades da API, usando fallback:', error)
         // Fallback: extrair cidades únicas das campanhas
         const cidadesUnicas = [...new Set(campanhasList
           .map(c => c.cidade?.nome)
@@ -1198,7 +1202,7 @@ function normalizarCidade(nome) {
           publico_alvo_15_44_anos: 6500
         }))
         
-        console.log('📊 CIDADES extraídas das campanhas:', cidadesReais)
+        console.log('📊 CIDADES extraídas das campanhas (fallback):', cidadesReais)
       }
       
       // 🔥 GARANTIR que as cidades com dados reais sempre estejam incluídas
@@ -1208,6 +1212,7 @@ function normalizarCidade(nome) {
       // Adicionar cidades com dados reais se não estiverem presentes
       cidadesComDadosReais.forEach((cidade, index) => {
         if (!cidadesExistentes.includes(cidade)) {
+          console.log(`➕ Adicionando cidade com dados reais: ${cidade}`)
           cidadesReais.push({
             id: 1000 + index, // ID único
             cidade: cidade,
@@ -1220,7 +1225,7 @@ function normalizarCidade(nome) {
         }
       })
       
-      console.log('📊 CIDADES FINAIS (com dados reais garantidos):', cidadesReais)
+      console.log('📊 CIDADES FINAIS (com dados reais garantidos):', cidadesReais.length)
       setCidadesData(cidadesReais)
 
       // 🔥 BUSCAR DADOS REAIS DE MOTORISTAS POR CIDADE

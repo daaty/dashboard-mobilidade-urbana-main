@@ -1,14 +1,38 @@
 # 🚀 PLANO DE REFATORAÇÃO: MetasCidades.jsx → Dashboard Inteligente
 
 **Data de criação:** 14 de Agosto de 2025  
+**Data de atualização:** 14 de Agosto de 2025 - 23:00  
 **Objetivo:** Eliminar dados hardcoded e implementar sistema dinâmico alinhado aos documentos estratégicos  
 **Prazo estimado:** 3-4 semanas  
+**Status:** 🎯 **FASE 2 EM ANDAMENTO** (Fase 1 Frontend concluída)
 
 ---
 
-## 📋 **FASE 1: BACKEND - ESTRUTURA DE DADOS (Semana 1)**
+## ✅ **CONCLUÍDO - FASE 1: FRONTEND DINÂMICO (14/08)**
 
-### **🗄️ 1.1 Modelos de Dados**
+### **🎯 1.1 Eliminação de Hardcode** ✅ COMPLETO
+- [x] **Substituído PLANO_EXECUCAO** por `buildPlanoDinamico()` baseado na API
+- [x] **Implementada geração automática** de fases a partir das campanhas
+- [x] **Garantida inclusão** das cidades com dados reais (PEIXOTO, MATUPA, GUARANTA DO NORTE)
+- [x] **Corrigido mapeamento** de cidades entre API e dados reais
+
+### **🎯 1.2 Integração com APIs** ✅ COMPLETO
+- [x] **31 campanhas dinâmicas** carregadas de `/api/dashboard-executivo/campanhas`
+- [x] **Corridas reais** integradas de `/api/metrics/overview`
+- [x] **Motoristas reais** integrados de `/api/drivers/by-city`
+- [x] **Cruzamento inteligente** de dados API + Demografia + Execução
+
+### **🎯 1.3 Estado Dinâmico** ✅ COMPLETO
+- [x] **planoExecucao** gerado automaticamente (não mais hardcoded)
+- [x] **corridasReais** e **motoristasReais** carregados da API
+- [x] **cidadesData** combinando API + cidades com dados garantidas
+- [x] **Estados reativos** atualizando interface automaticamente
+
+---
+
+## 📋 **FASE 2: BACKEND - ESTRUTURA DE DADOS (Semana 1)** 🎯 ATUAL
+
+### **🗄️ 2.1 Modelos de Dados**
 
 - [ ] **Criar model `CidadesDemografia`**
   ```python
