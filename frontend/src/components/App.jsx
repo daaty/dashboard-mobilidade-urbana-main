@@ -6,7 +6,8 @@ import { Header } from './Header'
 import { MetricsOverview } from './MetricsOverview'
 import { DriversOverview } from './DriversOverview'
 import { FinanceiroOverview } from './FinanceiroOverview'
-import { MetasCidades } from './MetasCidades'
+import MetasCidades from './MetasCidades'
+import DashboardExecutivoIntegrado from './DashboardExecutivoIntegradoSimple'
 import AnaliseCorreidas from './AnaliseCorreidas'
 import { ComparativoTemporal } from './ComparativoTemporal'
 import { ConfiguracaoSheets } from './ConfiguracaoSheets'
@@ -177,6 +178,12 @@ function App() {
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
             <MetasCidades />
+          </motion.div>
+        )
+      case 'executivo':
+        return (
+          <motion.div variants={contentVariants} initial="hidden" animate="visible">
+            <DashboardExecutivoIntegrado />
           </motion.div>
         )
       case 'analises':

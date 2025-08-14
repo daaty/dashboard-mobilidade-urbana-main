@@ -8,6 +8,8 @@ from app.api import import_ridesdata
 from app.api import analise_operacional
 from app.api import campanha
 from app.api import metas_performance
+from routes import cidades_demografia
+from routes import dashboard_executivo
 
 app = FastAPI(title="Dashboard Mobilidade Urbana API")
 
@@ -53,6 +55,8 @@ app.include_router(import_ridesdata.router, prefix="/api", tags=["importação"]
 app.include_router(analise_operacional.router, prefix="/api", tags=["analise-operacional"])
 app.include_router(campanha.router, prefix="/api", tags=["campanhas"])
 app.include_router(metas_performance.router, prefix="/api/metrics", tags=["metas-performance"])
+app.include_router(cidades_demografia.router, prefix="/api", tags=["cidades-demografia"])
+app.include_router(dashboard_executivo.router, prefix="/api", tags=["dashboard-executivo"])
 
 @app.get("/")
 async def root():
