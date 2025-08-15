@@ -16,8 +16,9 @@ class CidadesDemografia(Base):
     publico_mulheres = Column(Integer)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    # Relacionamento com campanhas
+    # Relacionamentos
     campanhas = relationship("Campanha", back_populates="cidade_dados")
+    metas_progressivas = relationship("MetasProgressivas", back_populates="cidade")
 
 # Exemplo de script de inserção (para usar em migration ou seed)
 cidades = [
