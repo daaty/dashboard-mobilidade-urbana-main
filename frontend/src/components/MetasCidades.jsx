@@ -28,9 +28,148 @@ import {
   Zap,
   FileText,
   Download,
-  Share2
+  Share2,
+  Car // 📝 NOVO: Para o formulário de edição
 } from 'lucide-react'
+
 import GerenciadorMetasEstrategicas from './GerenciadorMetasEstrategicas' // 🎯 NOVO: Gerenciador separado
+
+// 📝 COMPONENTE DE FORMULÁRIO PARA EDITAR FASE
+const EditFaseForm = ({ fase, onSave, onCancel }) => {
+  const [formData, setFormData] = React.useState({
+    nome: fase.nome,
+    periodo: fase.periodo,
+    status: fase.status,
+    orcamento: {
+      empenhado: fase.orcamento?.empenhado || 0,
+      pagamento: fase.orcamento?.pagamento || 0,
+      liquidacao: fase.orcamento?.liquidacao || 0,
+      previsto: fase.orcamento?.previsto || 0
+    }
+  })
+
+  const handleInputChange = (section, field, value) => {
+    if (section) {
+      setFormData(prev => ({
+        ...prev,
+        [section]: { ...prev[section], [field]: value }
+      }))
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }))
+    }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    onSave(formData)
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Informações Básicas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Nome da Fase
+          </label>
+          <input
+            type="text"
+            value={formData.nome}
+            onChange={(e) => handleInputChange(null, 'nome', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Status
+          </label>
+          <select
+            value={formData.status}
+            onChange={(e) => handleInputChange(null, 'status', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="planejada">Planejada</option>
+            <option value="em_execucao">Em Execução</option>
+            <option value="pausada">Pausada</option>
+            <option value="concluida">Concluída</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Período da Fase
+        </label>
+        <input
+          type="text"
+          value={formData.periodo}
+          onChange={(e) => handleInputChange(null, 'periodo', e.target.value)}
+          placeholder="Ex: 01/ago a 14/set"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      {/* Orçamento simplificado */}
+      <div className="bg-purple-50 rounded-lg p-4">
+        <h4 className="font-medium text-purple-800 mb-3 flex items-center gap-2">
+          <DollarSign className="w-4 h-4" />
+          Orçamento da Fase
+        </h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Empenhado (R$)
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.orcamento.empenhado}
+              onChange={(e) => handleInputChange('orcamento', 'empenhado', parseFloat(e.target.value) || 0)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Pago (R$)
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.orcamento.pagamento}
+              onChange={(e) => handleInputChange('orcamento', 'pagamento', parseFloat(e.target.value) || 0)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Botões de Ação */}
+      <div className="flex gap-3 pt-4 border-t border-gray-200">
+        <button 
+          type="button"
+          onClick={onCancel}
+          className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button 
+          type="submit"
+          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+        >
+          <Save className="w-4 h-4" />
+          Salvar Alterações
+        </button>
+      </div>
+    </form>
+  )
+}
 
 // 🔥 COMPONENTE DINÂMICO - SEM HARDCODE!
 // Todos os dados vêm das APIs/Tabelas que criamos
@@ -184,7 +323,7 @@ const getPartStatus = (fase, part) => {
 }
 
 // Componente para Status da Fase - DINÂMICO
-const StatusFase = ({ fase, dadosFase }) => {
+const StatusFase = ({ fase, dadosFase, onVerDetalhes }) => {
   const getStatusColor = (status) => {
     switch(status) {
       case 'em_execucao': return 'bg-green-500'
@@ -338,7 +477,10 @@ const StatusFase = ({ fase, dadosFase }) => {
           }`}>
             {dadosFase.cidades.length} cidade{dadosFase.cidades.length !== 1 ? 's' : ''}
           </span>
-          <button className="text-blue-600 hover:text-blue-800 text-xs font-medium transition-colors">
+          <button 
+            onClick={() => onVerDetalhes && onVerDetalhes(fase, dadosFase)}
+            className="text-blue-600 hover:text-blue-800 text-xs font-medium transition-colors"
+          >
             Ver detalhes →
           </button>
         </div>
@@ -1159,6 +1301,513 @@ const TabelaExecucaoComCruzamento = ({ dadosCruzados, onEditar }) => {
   )
 }
 
+// � COMPONENTE DE DETALHES DA FASE
+const FaseDetailsContent = ({ fase, onEditFase }) => {
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'em_execucao': return 'bg-green-500'
+      case 'concluida': return 'bg-gray-500'
+      case 'pausada': return 'bg-yellow-500'
+      case 'planejada': return 'bg-blue-500'
+      default: return 'bg-gray-400'
+    }
+  }
+
+  const progressoOrcamento = fase.orcamento?.empenhado > 0 
+    ? (fase.orcamento.pagamento / fase.orcamento.empenhado) * 100 
+    : 0
+
+  return (
+    <div className="space-y-6">
+      {/* Status e Período */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-gray-50 rounded-xl p-4">
+          <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Informações Gerais
+          </h4>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Status:</span>
+              <span className={`px-2 py-1 rounded-full text-white text-xs ${getStatusColor(fase.status)}`}>
+                {fase.status === 'em_execucao' ? 'Em Execução' :
+                 fase.status === 'concluida' ? 'Concluída' :
+                 fase.status === 'pausada' ? 'Pausada' : 'Planejada'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Período:</span>
+              <span className="font-medium">{fase.periodo}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Cidades Envolvidas:</span>
+              <span className="font-medium">{fase.cidades?.length || 0}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 rounded-xl p-4">
+          <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <DollarSign className="w-4 h-4" />
+            Resumo Financeiro
+          </h4>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Empenhado:</span>
+              <span className="font-medium text-blue-600">R$ {fase.orcamento?.empenhado?.toLocaleString() || '0'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Pago:</span>
+              <span className="font-medium text-green-600">R$ {fase.orcamento?.pagamento?.toLocaleString() || '0'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Execução:</span>
+              <span className="font-bold text-purple-600">{progressoOrcamento.toFixed(1)}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Lista de Cidades */}
+      <div className="bg-gray-50 rounded-xl p-4">
+        <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <MapPin className="w-4 h-4" />
+          Cidades da Fase ({fase.cidades?.length || 0})
+        </h4>
+        {fase.cidades && fase.cidades.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {fase.cidades.map((cidade, index) => (
+              <div key={index} className="bg-white rounded-lg p-3 border border-gray-200">
+                <div className="font-medium text-gray-800">{cidade}</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Região: {cidade.includes('NORTE') ? 'Norte' : cidade.includes('SUL') ? 'Sul' : 'Centro'}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-4">Nenhuma cidade definida para esta fase</p>
+        )}
+      </div>
+
+      {/* Detalhes das Parts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Part 1 - Motoristas */}
+        <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+          <h4 className="font-semibold text-blue-800 mb-4 flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Part 1 - Motoristas
+          </h4>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-blue-600">Período:</span>
+              <span className="font-medium text-blue-800">{fase.part1?.periodo || 'A definir'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-blue-600">Status:</span>
+              <span className="font-medium text-blue-800">{fase.part1?.status || 'Aguardando'}</span>
+            </div>
+            <div className="bg-white rounded-lg p-3">
+              <div className="text-sm text-blue-600 mb-2">Metas por Cidade:</div>
+              {fase.part1?.metas && Object.keys(fase.part1.metas).length > 0 ? (
+                <div className="space-y-1">
+                  {Object.entries(fase.part1.metas).map(([cidade, meta]) => (
+                    <div key={cidade} className="flex justify-between text-xs">
+                      <span className="text-gray-600">{cidade}:</span>
+                      <span className="font-medium text-blue-700">{meta} motoristas</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">Nenhuma meta definida</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Part 2 - Corridas */}
+        <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+          <h4 className="font-semibold text-green-800 mb-4 flex items-center gap-2">
+            <Activity className="w-4 h-4" />
+            Part 2 - Corridas
+          </h4>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-green-600">Período:</span>
+              <span className="font-medium text-green-800">{fase.part2?.periodo || 'A definir'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-green-600">Status:</span>
+              <span className="font-medium text-green-800">{fase.part2?.status || 'Aguardando'}</span>
+            </div>
+            <div className="bg-white rounded-lg p-3">
+              <div className="text-sm text-green-600 mb-2">Metas por Cidade:</div>
+              {fase.part2?.metas && Object.keys(fase.part2.metas).length > 0 ? (
+                <div className="space-y-1">
+                  {Object.entries(fase.part2.metas).map(([cidade, meta]) => (
+                    <div key={cidade} className="flex justify-between text-xs">
+                      <span className="text-gray-600">{cidade}:</span>
+                      <span className="font-medium text-green-700">{meta} corridas</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">Nenhuma meta definida</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Análise Detalhada do Orçamento */}
+      <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6 border border-purple-200">
+        <h4 className="font-semibold text-purple-800 mb-4 flex items-center gap-2">
+          <BarChart3 className="w-4 h-4" />
+          Análise Orçamentária Detalhada
+        </h4>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-purple-700">R$ {fase.orcamento?.empenhado?.toLocaleString() || '0'}</div>
+            <div className="text-xs text-purple-600">Empenhado</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-700">R$ {fase.orcamento?.pagamento?.toLocaleString() || '0'}</div>
+            <div className="text-xs text-green-600">Pago</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-blue-700">R$ {fase.orcamento?.liquidacao?.toLocaleString() || '0'}</div>
+            <div className="text-xs text-blue-600">Liquidado</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-red-700">
+              R$ {fase.orcamento?.empenhado && fase.orcamento?.pagamento 
+                ? (fase.orcamento.empenhado - fase.orcamento.pagamento).toLocaleString()
+                : '0'
+              }
+            </div>
+            <div className="text-xs text-red-600">Restante</div>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-purple-600">Progresso de Execução</span>
+            <span className="font-bold text-purple-800">{progressoOrcamento.toFixed(1)}%</span>
+          </div>
+          <div className="w-full bg-purple-200 rounded-full h-3">
+            <div 
+              className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(progressoOrcamento, 100)}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Ações */}
+      <div className="flex gap-3 pt-4 border-t border-gray-200">
+        <button 
+          onClick={() => console.log('Exportar relatório da fase:', fase.nome)}
+          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+        >
+          <Download className="w-4 h-4" />
+          Exportar Relatório
+        </button>
+        <button 
+          onClick={() => onEditFase && onEditFase(fase)}
+          className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-2"
+        >
+          <Edit className="w-4 h-4" />
+          Editar Fase
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// �📝 COMPONENTE DE FORMULÁRIO PARA EDITAR META PROGRESSIVA
+const EditMetaForm = ({ meta, onSave, onCancel }) => {
+  const [formData, setFormData] = useState({
+    id: meta.id,
+    cidade_nome: meta.cidade_nome,
+    tipo_meta: meta.tipo_meta,
+    meta_corridas: meta.meta_corridas || 0,
+    meta_motoristas: meta.meta_motoristas || 0,
+    meta_receita: meta.meta_receita || 0,
+    mes: meta.mes || 1,
+    ano: meta.ano || new Date().getFullYear(),
+    observacoes: meta.observacoes || ''
+  })
+
+  const [errors, setErrors] = useState({})
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+    // Limpar erro do campo quando o usuário começar a digitar
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: undefined
+      }))
+    }
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+
+    if (!formData.cidade_nome?.trim()) {
+      newErrors.cidade_nome = 'Nome da cidade é obrigatório'
+    }
+    if (!formData.tipo_meta) {
+      newErrors.tipo_meta = 'Tipo de meta é obrigatório'
+    }
+    if (formData.meta_corridas < 0) {
+      newErrors.meta_corridas = 'Meta de corridas deve ser maior ou igual a 0'
+    }
+    if (formData.meta_motoristas < 0) {
+      newErrors.meta_motoristas = 'Meta de motoristas deve ser maior ou igual a 0'
+    }
+    if (formData.meta_receita < 0) {
+      newErrors.meta_receita = 'Meta de receita deve ser maior ou igual a 0'
+    }
+    if (formData.mes < 1 || formData.mes > 12) {
+      newErrors.mes = 'Mês deve estar entre 1 e 12'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (validateForm()) {
+      onSave(formData)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Informações Básicas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Cidade
+          </label>
+          <input
+            type="text"
+            value={formData.cidade_nome}
+            onChange={(e) => handleInputChange('cidade_nome', e.target.value)}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+              errors.cidade_nome ? 'border-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.cidade_nome && (
+            <p className="text-red-500 text-xs mt-1">{errors.cidade_nome}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Tipo de Meta
+          </label>
+          <select
+            value={formData.tipo_meta}
+            onChange={(e) => handleInputChange('tipo_meta', e.target.value)}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+              errors.tipo_meta ? 'border-red-500' : 'border-gray-300'
+            }`}
+          >
+            <option value="">Selecione...</option>
+            <option value="muito_baixa">Muito Baixa</option>
+            <option value="baixa">Baixa</option>
+            <option value="media">Média</option>
+            <option value="alta">Alta</option>
+            <option value="agressiva">Agressiva</option>
+          </select>
+          {errors.tipo_meta && (
+            <p className="text-red-500 text-xs mt-1">{errors.tipo_meta}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Metas Numéricas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="flex items-center gap-2">
+              <Car className="w-4 h-4" />
+              Meta de Corridas
+            </div>
+          </label>
+          <input
+            type="number"
+            min="0"
+            value={formData.meta_corridas}
+            onChange={(e) => handleInputChange('meta_corridas', parseInt(e.target.value) || 0)}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+              errors.meta_corridas ? 'border-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.meta_corridas && (
+            <p className="text-red-500 text-xs mt-1">{errors.meta_corridas}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Meta de Motoristas
+            </div>
+          </label>
+          <input
+            type="number"
+            min="0"
+            value={formData.meta_motoristas}
+            onChange={(e) => handleInputChange('meta_motoristas', parseInt(e.target.value) || 0)}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+              errors.meta_motoristas ? 'border-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.meta_motoristas && (
+            <p className="text-red-500 text-xs mt-1">{errors.meta_motoristas}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4" />
+              Meta de Receita (R$)
+            </div>
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={formData.meta_receita}
+            onChange={(e) => handleInputChange('meta_receita', parseFloat(e.target.value) || 0)}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+              errors.meta_receita ? 'border-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.meta_receita && (
+            <p className="text-red-500 text-xs mt-1">{errors.meta_receita}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Período */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Mês
+          </label>
+          <select
+            value={formData.mes}
+            onChange={(e) => handleInputChange('mes', parseInt(e.target.value))}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+              errors.mes ? 'border-red-500' : 'border-gray-300'
+            }`}
+          >
+            {Array.from({ length: 12 }, (_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {new Date(2025, i, 1).toLocaleDateString('pt-BR', { month: 'long' })}
+              </option>
+            ))}
+          </select>
+          {errors.mes && (
+            <p className="text-red-500 text-xs mt-1">{errors.mes}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Ano
+          </label>
+          <input
+            type="number"
+            min="2024"
+            max="2030"
+            value={formData.ano}
+            onChange={(e) => handleInputChange('ano', parseInt(e.target.value) || new Date().getFullYear())}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      {/* Observações */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Observações
+        </label>
+        <textarea
+          rows="3"
+          value={formData.observacoes}
+          onChange={(e) => handleInputChange('observacoes', e.target.value)}
+          placeholder="Adicione observações sobre esta meta..."
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      {/* Prévia dos dados calculados */}
+      <div className="bg-gray-50 rounded-lg p-4">
+        <h4 className="font-medium text-gray-800 mb-3">Prévia dos Resultados</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <span className="text-gray-600">Eficiência:</span>
+            <span className="font-medium ml-2">
+              {formData.meta_motoristas > 0 
+                ? `${(formData.meta_corridas / formData.meta_motoristas).toFixed(1)} corridas/motorista`
+                : 'N/A'
+              }
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600">ROI Estimado:</span>
+            <span className="font-medium ml-2">
+              {formData.meta_corridas > 0 
+                ? `${((formData.meta_receita / (formData.meta_corridas * 10)) * 100).toFixed(0)}%`
+                : '0%'
+              }
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600">Receita por Corrida:</span>
+            <span className="font-medium ml-2">
+              {formData.meta_corridas > 0 
+                ? `R$ ${(formData.meta_receita / formData.meta_corridas).toFixed(2)}`
+                : 'R$ 0,00'
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Botões de Ação */}
+      <div className="flex gap-3 pt-4 border-t border-gray-200">
+        <button 
+          type="button"
+          onClick={onCancel}
+          className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button 
+          type="submit"
+          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+        >
+          <Save className="w-4 h-4" />
+          Salvar Alterações
+        </button>
+      </div>
+    </form>
+  )
+}
+
 // Componente principal com DADOS DINÂMICOS DAS APIS/TABELAS
 const MetasCidades = () => {
   const [campanhaEditando, setCampanhaEditando] = useState(null)
@@ -1240,6 +1889,14 @@ function normalizarCidade(nome) {
   const [showAllMetasProgressivas, setShowAllMetasProgressivas] = useState(false)
   const [metaSelectedForDetails, setMetaSelectedForDetails] = useState(null)
   const [showMetaDetailsModal, setShowMetaDetailsModal] = useState(false)
+  const [showEditMetaModal, setShowEditMetaModal] = useState(false)
+  const [metaSelectedForEdit, setMetaSelectedForEdit] = useState(null)
+  
+  // Estados para funcionalidade de detalhes das fases
+  const [showFaseDetailsModal, setShowFaseDetailsModal] = useState(false)
+  const [faseSelectedForDetails, setFaseSelectedForDetails] = useState(null)
+  const [showEditFaseModal, setShowEditFaseModal] = useState(false)
+  const [faseSelectedForEdit, setFaseSelectedForEdit] = useState(null)
   
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
   
@@ -1257,9 +1914,84 @@ function normalizarCidade(nome) {
     setShowMetaDetailsModal(true)
   }
   
+  const handleVerDetalhesFase = (fase, dadosFase) => {
+    setFaseSelectedForDetails({ nome: fase, ...dadosFase })
+    setShowFaseDetailsModal(true)
+  }
+  
+  const handleEditFase = (fase) => {
+    setFaseSelectedForEdit(fase)
+    setShowFaseDetailsModal(false)
+    setShowEditFaseModal(true)
+  }
+  
   const filtrarMetasProgressivas = (metas) => {
     if (filtroMetasProgressivas === 'todas') return metas
     return metas.filter(meta => meta.tipo_meta === filtroMetasProgressivas)
+  }
+
+  // 📝 FUNÇÃO PARA SALVAR META EDITADA
+  const handleSaveEditedMeta = async (updatedMeta) => {
+    try {
+      console.log('💾 SALVANDO META EDITADA:', updatedMeta)
+      
+      const response = await fetch(`${API_URL}/api/metas-progressivas/${updatedMeta.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedMeta)
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao salvar meta editada')
+      }
+
+      const result = await response.json()
+      console.log('✅ Meta editada com sucesso:', result)
+      
+      // Atualizar lista local de metas
+      setMetasEstrategicas(prev => prev.map(meta => 
+        meta.id === updatedMeta.id ? { ...meta, ...updatedMeta } : meta
+      ))
+      
+      setShowEditMetaModal(false)
+      setMetaSelectedForEdit(null)
+      
+      alert('✅ Meta atualizada com sucesso!')
+      
+    } catch (error) {
+      console.error('❌ Erro ao salvar meta editada:', error)
+      alert('❌ Erro ao salvar meta. Tente novamente.')
+    }
+  }
+
+  // 📝 FUNÇÃO PARA SALVAR FASE EDITADA
+  const handleSaveEditedFase = async (updatedFase) => {
+    try {
+      console.log('💾 SALVANDO FASE EDITADA:', updatedFase)
+      
+      // Por enquanto, vamos simular a atualização localmente
+      // TODO: Implementar API call quando endpoint estiver disponível
+      
+      // Atualizar plano de execução local
+      setPlanoExecucao(prev => ({
+        ...prev,
+        [updatedFase.nome]: {
+          ...prev[updatedFase.nome],
+          ...updatedFase
+        }
+      }))
+      
+      setShowEditFaseModal(false)
+      setFaseSelectedForEdit(null)
+      
+      alert('✅ Fase atualizada com sucesso!')
+      
+    } catch (error) {
+      console.error('❌ Erro ao salvar fase editada:', error)
+      alert('❌ Erro ao salvar fase. Tente novamente.')
+    }
   }
 
     // LOG: início cruzamento
@@ -2616,7 +3348,7 @@ function normalizarCidade(nome) {
           className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
         >
           {Object.entries(planoExecucao).map(([fase, dados]) => (
-            <StatusFase key={fase} fase={fase} dadosFase={dados} />
+            <StatusFase key={fase} fase={fase} dadosFase={dados} onVerDetalhes={handleVerDetalhesFase} />
           ))}
         </motion.div>
 
@@ -2789,9 +3521,10 @@ function normalizarCidade(nome) {
                   </button>
                   <button 
                     onClick={() => {
-                      // Aqui você pode adicionar lógica para editar a meta
-                      console.log('Editar meta:', metaSelectedForDetails)
+                      // Abrir modal de edição
+                      setMetaSelectedForEdit(metaSelectedForDetails)
                       setShowMetaDetailsModal(false)
+                      setShowEditMetaModal(true)
                     }}
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
@@ -2808,6 +3541,122 @@ function normalizarCidade(nome) {
           isOpen={showGerenciadorEstrategico}
           onClose={() => setShowGerenciadorEstrategico(false)}
         />
+
+        {/* 📝 MODAL DE EDIÇÃO DE META PROGRESSIVA */}
+        {showEditMetaModal && metaSelectedForEdit && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Edit className="w-6 h-6" />
+                    <div>
+                      <h3 className="text-xl font-bold">Editar Meta Progressiva</h3>
+                      <p className="text-blue-100 text-sm">
+                        {metaSelectedForEdit.cidade_nome} • {metaSelectedForEdit.tipo_meta?.replace('_', ' ').toUpperCase()}
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowEditMetaModal(false)}
+                    className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <EditMetaForm 
+                  meta={metaSelectedForEdit}
+                  onSave={handleSaveEditedMeta}
+                  onCancel={() => setShowEditMetaModal(false)}
+                />
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* 📊 MODAL DE DETALHES DA FASE */}
+        {showFaseDetailsModal && faseSelectedForDetails && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white p-6 rounded-t-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Target className="w-6 h-6" />
+                    <div>
+                      <h3 className="text-2xl font-bold">Detalhes da {faseSelectedForDetails.nome}</h3>
+                      <p className="text-blue-100 text-sm">
+                        {faseSelectedForDetails.periodo} • {faseSelectedForDetails.cidades?.length || 0} cidades
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowFaseDetailsModal(false)}
+                    className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <FaseDetailsContent fase={faseSelectedForDetails} onEditFase={handleEditFase} />
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* 📝 MODAL DE EDIÇÃO DE FASE */}
+        {showEditFaseModal && faseSelectedForEdit && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-t-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Edit className="w-6 h-6" />
+                    <div>
+                      <h3 className="text-xl font-bold">Editar Fase</h3>
+                      <p className="text-green-100 text-sm">
+                        {faseSelectedForEdit.nome} • {faseSelectedForEdit.periodo}
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowEditFaseModal(false)}
+                    className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <EditFaseForm 
+                  fase={faseSelectedForEdit}
+                  onSave={handleSaveEditedFase}
+                  onCancel={() => setShowEditFaseModal(false)}
+                />
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   )
