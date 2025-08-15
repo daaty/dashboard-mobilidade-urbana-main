@@ -1,11 +1,108 @@
+
 import React, { useState } from 'react'
+import CampanhasFormList from './CampanhasFormList';
+// --- CriarMetaForm: Formulário para criar metas progressivas ---
+const CriarMetaForm = ({ cidade, onClose }) => {
+  const [form, setForm] = useState({
+    mes: '',
+    percentual_penetracao: '',
+    meta_corridas: '',
+    meta_motoristas: '',
+    meta_receita: '',
+    tipo_meta: 'media',
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${API_URL}/api/dashboard-executivo/metas-progressivas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...form,
+          cidade_id: cidade.id || cidade.cidade_id,
+          cidade_nome: cidade.cidade || cidade.nome,
+        }),
+      });
+      if (!res.ok) throw new Error('Erro ao criar meta');
+      setSuccess(true);
+      setTimeout(() => onClose(), 1200);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Mês</label>
+          <input name="mes" type="number" min="1" max="12" value={form.mes} onChange={handleChange} className="w-full border rounded p-2" required />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">% Penetração</label>
+          <input name="percentual_penetracao" type="number" step="0.01" value={form.percentual_penetracao} onChange={handleChange} className="w-full border rounded p-2" required />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Meta Corridas</label>
+          <input name="meta_corridas" type="number" value={form.meta_corridas} onChange={handleChange} className="w-full border rounded p-2" required />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Meta Motoristas</label>
+          <input name="meta_motoristas" type="number" value={form.meta_motoristas} onChange={handleChange} className="w-full border rounded p-2" required />
+        </div>
+        <div className="col-span-2">
+          <label className="block text-sm font-medium mb-1">Meta Receita (R$)</label>
+          <input name="meta_receita" type="number" step="0.01" value={form.meta_receita} onChange={handleChange} className="w-full border rounded p-2" required />
+        </div>
+        <div className="col-span-2">
+          <label className="block text-sm font-medium mb-1">Tipo de Meta</label>
+          <select name="tipo_meta" value={form.tipo_meta} onChange={handleChange} className="w-full border rounded p-2">
+            <option value="muito_baixa">Muito Baixa</option>
+            <option value="baixa">Baixa</option>
+            <option value="media">Média</option>
+            <option value="alta">Alta</option>
+            <option value="agressiva">Agressiva</option>
+          </select>
+        </div>
+      </div>
+      {error && <div className="text-red-600 text-sm">{error}</div>}
+      {success && <div className="text-green-600 text-sm">Meta criada com sucesso!</div>}
+      <div className="flex gap-2 justify-end mt-4">
+        <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-gray-200">Cancelar</button>
+        <button type="submit" disabled={loading} className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition-all">
+          {loading ? 'Salvando...' : 'Salvar Meta'}
+        </button>
+      </div>
+    </form>
+  );
+};
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   MapPin, Users, Car, DollarSign, Calendar, TrendingUp, 
   X, Eye, Filter, Search, ArrowRight, Target, Building
 } from 'lucide-react'
 
+
 const CidadeDetailModal = ({ cidade, isOpen, onClose, corridasReais, motoristasReais }) => {
+  const [showCriarMeta, setShowCriarMeta] = React.useState(false)
+  const [showRelatorio, setShowRelatorio] = React.useState(false)
+  const [showCampanhas, setShowCampanhas] = React.useState(false)
+
   if (!isOpen || !cidade) return null
 
   // Verificar se cidade é string ou objeto
@@ -20,6 +117,16 @@ const CidadeDetailModal = ({ cidade, isOpen, onClose, corridasReais, motoristasR
   const corridasTotal = cidade.realizado_corridas || dadosCoridas.concluidas || 0
   const motoristasTotal = cidade.realizado_motoristas || dadosMotoristas.ativos || 0
   const populacao = cidade.populacao || 0
+
+  // Handlers para os botões de ação
+  const handleCriarMeta = () => setShowCriarMeta(true)
+  const handleVerRelatorio = () => setShowRelatorio(true)
+  const handleCampanhas = () => setShowCampanhas(true)
+  const handleCloseModal = () => {
+    setShowCriarMeta(false)
+    setShowRelatorio(false)
+    setShowCampanhas(false)
+  }
 
   return (
     <AnimatePresence>
@@ -187,23 +294,21 @@ const CidadeDetailModal = ({ cidade, isOpen, onClose, corridasReais, motoristasR
                 Ações Disponíveis
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <button className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all group">
+                <button onClick={handleCriarMeta} className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all group">
                   <Target className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   <div className="text-left">
                     <div className="font-medium">Criar Meta</div>
                     <div className="text-xs text-blue-200">Definir objetivos</div>
                   </div>
                 </button>
-                
-                <button className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all group">
+                <button onClick={handleVerRelatorio} className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all group">
                   <TrendingUp className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   <div className="text-left">
                     <div className="font-medium">Ver Relatório</div>
                     <div className="text-xs text-green-200">Análise completa</div>
                   </div>
                 </button>
-                
-                <button className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all group">
+                <button onClick={handleCampanhas} className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all group">
                   <Building className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   <div className="text-left">
                     <div className="font-medium">Campanhas</div>
@@ -228,6 +333,34 @@ const CidadeDetailModal = ({ cidade, isOpen, onClose, corridasReais, motoristasR
                 </button>
               </div>
             </div>
+            {/* Modais das ações */}
+            {showCriarMeta && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div className="bg-white rounded-xl p-8 max-w-lg w-full shadow-xl">
+                  <h2 className="text-lg font-bold mb-4">Criar Meta para {cidadeNome}</h2>
+                  <CriarMetaForm cidade={cidade} onClose={handleCloseModal} />
+                </div>
+              </div>
+            )}
+            {showRelatorio && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div className="bg-white rounded-xl p-8 max-w-lg w-full shadow-xl">
+                  <h2 className="text-lg font-bold mb-4">Relatório de {cidadeNome}</h2>
+                  <p>Relatório detalhado da cidade (implementar)...</p>
+                  <button onClick={handleCloseModal} className="mt-6 px-4 py-2 bg-gray-200 rounded-lg">Fechar</button>
+                </div>
+              </div>
+            )}
+            {showCampanhas && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div className="bg-white rounded-xl p-8 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto relative">
+                  <button onClick={handleCloseModal} className="absolute top-4 right-4 px-3 py-1 bg-gray-200 rounded-lg z-10">Fechar</button>
+                  <h2 className="text-2xl font-bold mb-6">Campanhas de {cidadeNome}</h2>
+                  {/* Gestão real de campanhas filtradas por cidade */}
+                  <CampanhasFormList cidadeFiltro={cidadeNome} />
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
       </motion.div>

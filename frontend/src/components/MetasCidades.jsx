@@ -489,7 +489,7 @@ const StatusFase = ({ fase, dadosFase, onVerDetalhes }) => {
   )
 }
 
-const FormularioCadastroMetas = ({ isOpen, onClose, onSave }) => {
+const FormularioCadastroMetas = ({ isOpen, onClose, onSave, kpisGerais }) => {
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
     // DADOS DA CIDADE
@@ -592,7 +592,7 @@ const FormularioCadastroMetas = ({ isOpen, onClose, onSave }) => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold">🚀 Cadastro Dinâmico de Metas</h2>
-              <p className="text-blue-100">Sistema escalável para {kpisGerais.totalCidades}+ cidades</p>
+              <p className="text-blue-100">Sistema escalável para {(kpisGerais?.totalCidades ?? 0)}+ cidades</p>
             </div>
             <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-lg">
               <X className="w-6 h-6" />
@@ -3369,6 +3369,7 @@ function normalizarCidade(nome) {
           }}
           onSave={campanhaEditando ? handleSalvarEdicao : handleSaveNovaMeta}
           initialData={campanhaEditando}
+          kpisGerais={kpisGerais}
         />
         {/* Modal de confirmação de exclusão */}
         {showConfirmDelete && (

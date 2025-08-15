@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion } from 'framer-motion';
 import { 
   Plus, 
@@ -44,28 +44,42 @@ const statusList = [
   { value: "pausada", label: "Pausada", color: "bg-yellow-100 text-yellow-800" }
 ];
 
-export default function CampanhasFormList() {
+export default function CampanhasFormList({ cidadeFiltro }) {
   const [form, setForm] = useState(initialForm);
   const [campanhas, setCampanhas] = useState([]);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const formRef = useRef(null);
 
   const fetchCampanhas = async () => {
     setLoading(true);
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-    const resp = await fetch(`${API_URL}/api/campanhas`);
-    const data = await resp.json();
+    const resp = await fetch(`${API_URL}/api/dashboard-executivo/campanhas`);
+    const result = await resp.json();
+    let data = Array.isArray(result.campanhas) ? result.campanhas : [];
+    // Se cidadeFiltro estiver definido, filtra campanhas por cidade
+    if (cidadeFiltro) {
+      data = data.filter(c => {
+        if (typeof c.cidade === 'string') {
+          return c.cidade.toLowerCase().trim() === cidadeFiltro.toLowerCase().trim();
+        } else if (c.cidade && c.cidade.nome) {
+          return c.cidade.nome.toLowerCase().trim() === cidadeFiltro.toLowerCase().trim();
+        }
+        return false;
+      });
+    }
     setCampanhas(data);
     setLoading(false);
   };
 
   useEffect(() => {
     fetchCampanhas();
-  }, []);
+    // eslint-disable-next-line
+  }, [cidadeFiltro]);
 
   const handleChange = e => {
     const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
+    setForm(f => ({ ...f, [name]: value ?? "" }));
   };
 
   const handleSubmit = async e => {
@@ -74,6 +88,7 @@ export default function CampanhasFormList() {
     const method = editId ? "PUT" : "POST";
     const url = editId ? `${API_URL}/api/campanhas/${editId}` : `${API_URL}/api/campanhas`;
     const body = { ...form };
+    if (cidadeFiltro) body.cidade = cidadeFiltro;
     if (body.meta_quantidade) body.meta_quantidade = parseInt(body.meta_quantidade);
     if (body.orcamento_previsto) body.orcamento_previsto = parseFloat(body.orcamento_previsto);
     if (body.custo_real) body.custo_real = parseFloat(body.custo_real);
@@ -88,8 +103,20 @@ export default function CampanhasFormList() {
   };
 
   const handleEdit = campanha => {
-    setForm({ ...campanha, data_inicio: campanha.data_inicio?.slice(0,10), data_fim: campanha.data_fim?.slice(0,10) });
+    setForm({ 
+      ...campanha, 
+      cidade: typeof campanha.cidade === "string" 
+        ? campanha.cidade 
+        : (campanha.cidade?.nome || ""), 
+      data_inicio: campanha.data_inicio?.slice(0,10), 
+      data_fim: campanha.data_fim?.slice(0,10) 
+    });
     setEditId(campanha.id);
+    setTimeout(() => {
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   const handleDelete = async id => {
@@ -108,9 +135,10 @@ export default function CampanhasFormList() {
     <div className="space-y-8">
       {/* Formulário de Campanha - Estilo Executivo */}
       <motion.div
+        ref={formRef}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 rounded-2xl shadow-xl overflow-hidden"
+        className={`bg-gradient-to-br from-blue-50 to-indigo-100 border rounded-2xl shadow-xl overflow-hidden ${editId ? 'border-yellow-400 ring-2 ring-yellow-300' : 'border-blue-200'}`}
       >
         {/* Header do Formulário */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
@@ -140,7 +168,7 @@ export default function CampanhasFormList() {
               </label>
               <input 
                 name="nome" 
-                value={form.nome} 
+                value={form.nome ?? ""} 
                 onChange={handleChange} 
                 required 
                 placeholder="Ex: Lançamento Motoristas - Guaranta do Norte"
@@ -171,7 +199,7 @@ export default function CampanhasFormList() {
               </label>
               <input 
                 name="cidade" 
-                value={form.cidade} 
+                value={form.cidade ?? ""} 
                 onChange={handleChange} 
                 required 
                 placeholder="Ex: Guaranta do Norte"
@@ -204,7 +232,7 @@ export default function CampanhasFormList() {
               <input 
                 name="data_inicio" 
                 type="date" 
-                value={form.data_inicio} 
+                value={form.data_inicio ?? ""} 
                 onChange={handleChange} 
                 required 
                 className="w-full border border-slate-300 p-3 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200" 
@@ -220,7 +248,7 @@ export default function CampanhasFormList() {
               <input 
                 name="data_fim" 
                 type="date" 
-                value={form.data_fim} 
+                value={form.data_fim ?? ""} 
                 onChange={handleChange} 
                 required 
                 className="w-full border border-slate-300 p-3 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200" 
@@ -236,7 +264,7 @@ export default function CampanhasFormList() {
               <input 
                 name="meta_quantidade" 
                 type="number" 
-                value={form.meta_quantidade} 
+                value={form.meta_quantidade ?? ""} 
                 onChange={handleChange} 
                 required 
                 placeholder="Ex: 50 motoristas"
@@ -254,7 +282,7 @@ export default function CampanhasFormList() {
                 name="orcamento_previsto" 
                 type="number" 
                 step="0.01" 
-                value={form.orcamento_previsto} 
+                value={form.orcamento_previsto ?? ""} 
                 onChange={handleChange} 
                 required 
                 placeholder="Ex: 15000.00"
@@ -272,7 +300,7 @@ export default function CampanhasFormList() {
                 name="custo_real" 
                 type="number" 
                 step="0.01" 
-                value={form.custo_real} 
+                value={form.custo_real ?? ""} 
                 onChange={handleChange} 
                 placeholder="Ex: 12500.00"
                 className="w-full border border-slate-300 p-3 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200" 
@@ -407,7 +435,7 @@ export default function CampanhasFormList() {
                             <div className="text-sm font-medium text-slate-900">{c.fase}</div>
                             <div className="text-xs text-slate-500 flex items-center gap-1">
                               <MapPin className="w-3 h-3" />
-                              {c.cidade}
+                              {typeof c.cidade === 'string' ? c.cidade : (c.cidade && c.cidade.nome ? c.cidade.nome : '-')}
                             </div>
                           </div>
                         </td>
@@ -477,3 +505,4 @@ export default function CampanhasFormList() {
     </div>
   );
 }
+
