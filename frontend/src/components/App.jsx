@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { MetricsOverview } from './MetricsOverview'
-import { DriversOverview } from './DriversOverview'
+import DriversOverview from './DriversOverview'
 import { FinanceiroOverview } from './FinanceiroOverview'
 import MetasCidades from './MetasCidades'
 import DashboardExecutivoIntegrado from './DashboardExecutivoIntegradoSimple'
@@ -72,7 +72,7 @@ function App() {
     }
   }
 
-  const fetchDriversData = async (period = 30) => {
+  const fetchDriversData = async (period = '30d') => {
     try {
       setLoadingDrivers(true)
       // Converte período para número de dias
@@ -80,12 +80,25 @@ function App() {
       if (period === 'hoje') periodoDias = 1;
       else if (period === '7d') periodoDias = 7;
       else if (period === '30d') periodoDias = 30;
+      else if (period === '3m') periodoDias = 90;
+      else if (period === '6m') periodoDias = 180;
+      else if (period === '12m') periodoDias = 365;
+      
+      console.log(`Buscando dados dos motoristas para período: ${period} (${periodoDias} dias)`);
       
       const response = await fetch(`${API_URL}/api/drivers/overview?periodo=${periodoDias}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json()
+      console.log('Dados dos motoristas recebidos:', data);
       setDriversData(data)
     } catch (error) {
       console.error('Erro ao buscar dados dos motoristas:', error)
+      console.error('API_URL:', API_URL);
+      setDriversData(null)
     } finally {
       setLoadingDrivers(false)
     }

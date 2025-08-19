@@ -146,6 +146,40 @@ const ImportacaoAvancada = () => {
       return;
     }
 
+    // Se for motoristas, usar drivers_data
+    if (tipoImportacao === 'motoristas') {
+      formData.append('table_name', 'drivers_data');
+      try {
+        const response = await fetch('/api/import/driversdata', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+          setStatusImportacao({
+            status: 'success',
+            message: `Importação concluída! ${data.imported} motoristas importados de ${data.total_rows} linhas processadas. ${data.errors > 0 ? `(${data.errors} erros encontrados)` : ''}`,
+            details: data
+          });
+        } else {
+          setStatusImportacao({
+            status: 'error',
+            message: `Erro na importação: ${data.detail || data.error}`,
+            details: data
+          });
+        }
+      } catch (error) {
+        setStatusImportacao({
+          status: 'error',
+          message: 'Erro ao executar importação',
+          details: { error: error.message }
+        });
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     // Fluxo antigo para outros tipos
     formData.append('import_type', tipoImportacao);
     formData.append('column_mapping', JSON.stringify(mappingColumns));
@@ -375,6 +409,38 @@ const ImportacaoAvancada = () => {
                     <option value="Missed Rides">Missed Rides</option>
                   </select>
                 </div>
+                <div className="flex justify-end pt-4">
+                  <button
+                    onClick={executarImportacao}
+                    disabled={loading}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {loading ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        <Database className="h-4 w-4" />
+                        Executar Importação
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Botão de importação direta para Motoristas, mesmo sem preview */}
+            {tipoImportacao === 'motoristas' && arquivoSelecionado && !previewData && (
+              <div className="bg-white rounded-lg border p-6 space-y-4">
+                <h3 className="text-lg font-medium flex items-center gap-2">
+                  <FileSpreadsheet className="h-5 w-5" />
+                  Importação Direta de Motoristas
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Importar dados de motoristas diretamente do arquivo Excel selecionado
+                </p>
                 <div className="flex justify-end pt-4">
                   <button
                     onClick={executarImportacao}

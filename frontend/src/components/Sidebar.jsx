@@ -19,7 +19,6 @@ import { Button } from '@/components/ui/button'
 export function Sidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
   const menuItems = [
     { id: 'overview', label: 'Visão Geral', icon: Home },
-    { id: 'executivo', label: 'Dashboard Executivo', icon: Building2 },
     { id: 'analises', label: 'Análise de Corridas', icon: PieChart },
     { id: 'drivers', label: 'Motoristas', icon: Users },
     { id: 'financeiro', label: 'Financeiro', icon: DollarSign },

@@ -183,7 +183,7 @@ export default function AnaliseCorreidas() {
                   <Select
                     value={filters.periodo}
                     onChange={(value) => handleFilterChange('periodo', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
                   >
                     <SelectOption value="">Selecione o período</SelectOption>
                     {periodOptions.map(option => (
@@ -199,7 +199,7 @@ export default function AnaliseCorreidas() {
                   <Select
                     value={filters.cidade}
                     onChange={(value) => handleFilterChange('cidade', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
                   >
                     <SelectOption value="">Todas as cidades</SelectOption>
                     {cities.map(city => (
@@ -215,7 +215,7 @@ export default function AnaliseCorreidas() {
                   <Select
                     value={filters.categoria}
                     onChange={(value) => handleFilterChange('categoria', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
                   >
                     <SelectOption value="">Todas as categorias</SelectOption>
                     <SelectOption value="economico">Econômico</SelectOption>
@@ -229,7 +229,7 @@ export default function AnaliseCorreidas() {
                   <Select
                     value={filters.diaSemana}
                     onChange={(value) => handleFilterChange('diaSemana', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
                   >
                     <SelectOption value="">Todos os dias</SelectOption>
                     <SelectOption value="seg">Segunda-feira</SelectOption>
@@ -247,7 +247,7 @@ export default function AnaliseCorreidas() {
                   <Select
                     value={filters.horario}
                     onChange={(value) => handleFilterChange('horario', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
                   >
                     <SelectOption value="">Todos os horários</SelectOption>
                     <SelectOption value="manha">Manhã (6h-12h)</SelectOption>

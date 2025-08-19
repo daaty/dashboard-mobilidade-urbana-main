@@ -1,4 +1,5 @@
 from app.models.rides_data import RidesData as AsyncRidesData
+from app.models.drivers_data import DriversData as AsyncDriversData
 from app.database.db import SessionLocal as AsyncSessionLocal
 import json
 import pandas as pd
@@ -72,6 +73,196 @@ class ImportService:
             print(f"Erro na importação: {str(e)}")
             import_result['error'] = str(e)
         return import_result
+
+    def import_driversdata(self, filepath: str, table_name: str, session=None, source="import_excel") -> Dict:
+        """Importa planilha para drivers_data"""
+        import_result = {
+            'success': False,
+            'imported': 0,
+            'errors': [],
+            'total_rows': 0
+        }
+        
+        try:
+            # Ler planilha
+            df = pd.read_excel(filepath)
+            import_result['total_rows'] = len(df)
+            
+            # Log do que foi encontrado na planilha
+            print(f"📊 Encontradas {len(df)} linhas na planilha")
+            print(f"📋 Colunas encontradas: {list(df.columns)}")
+            
+            # Processar cada linha da planilha
+            imported_count = 0
+            
+            for index, row in df.iterrows():
+                try:
+                    # Mapear dados do motorista usando padrões comuns de colunas
+                    driver_data = self.map_row_to_driver(row, index)
+                    
+                    if session is not None:
+                        # Usar sessão síncrona fornecida
+                        from app.models.drivers_data import DriversData as SyncDriversData
+                        entry = SyncDriversData(
+                            driver_id=driver_data['driver_id'],
+                            name=driver_data['name'],
+                            email=driver_data.get('email', ''),
+                            mobile=driver_data.get('mobile', ''),
+                            data_type=driver_data['data_type'],
+                            page_source=driver_data['page_source'],
+                            additional_data=driver_data['additional_data'],
+                            data_hash=driver_data['data_hash'],
+                            scraped_at=driver_data['scraped_at'],
+                            session_info=driver_data.get('session_info'),
+                            source=source,
+                            unique_id=driver_data.get('unique_id')
+                        )
+                        session.add(entry)
+                        session.commit()
+                        imported_count += 1
+                        print(f"✅ Motorista {driver_data['name']} importado com sucesso")
+                    else:
+                        import_result['error'] = "Sessão de banco não fornecida"
+                        return import_result
+                        
+                except Exception as e:
+                    error_msg = f"Erro na linha {index + 2}: {str(e)}"
+                    import_result['errors'].append(error_msg)
+                    print(f"❌ {error_msg}")
+                    continue
+            
+            import_result['imported'] = imported_count
+            import_result['success'] = imported_count > 0
+            
+            print(f"🎉 Importação concluída: {imported_count} motoristas importados")
+            
+        except Exception as e:
+            import_result['error'] = f"Erro geral na importação: {str(e)}"
+            print(f"💥 Erro geral: {str(e)}")
+            
+        return import_result
+
+    def map_row_to_driver(self, row: pd.Series, index: int) -> Dict:
+        """Mapeia uma linha da planilha para os campos da tabela drivers_data usando o esquema específico da planilha"""
+        import hashlib
+        from datetime import datetime
+        
+        # Converter para dicionário
+        row_dict = row.to_dict()
+        
+        # Função auxiliar para obter valor seguro
+        def get_safe_value(column_name, default=''):
+            try:
+                value = row_dict.get(column_name, default)
+                if pd.isna(value) or value is None:
+                    return default
+                return str(value).strip()
+            except:
+                return default
+        
+        def get_numeric_value(column_name, default=0):
+            try:
+                value = row_dict.get(column_name, default)
+                if pd.isna(value) or value is None:
+                    return default
+                return int(float(value))
+            except:
+                return default
+        
+        # Extrair dados principais baseado na estrutura real da planilha
+        driver_id = get_safe_value('Driver ID', f'DRV_{index + 1:04d}')
+        name = get_safe_value('Driver Name', f'Motorista_{index + 1}')
+        phone = get_safe_value('Phone Number', '')
+        city = get_safe_value('CITY', '')
+        vehicle = get_safe_value('Vehicle', '')
+        
+        # Converter phone number para string formatada
+        if phone and phone != '':
+            try:
+                # Converter para string limpa
+                phone_clean = str(int(float(phone)))
+                if len(phone_clean) == 11:  # Formato brasileiro
+                    phone = f"+55{phone_clean}"
+                else:
+                    phone = phone_clean
+            except:
+                phone = str(phone)
+        
+        # Coletar métricas de corridas
+        request_sent = get_numeric_value('Request Sent', 0)
+        requests_received = get_numeric_value('Requests Received', 0)
+        success_rides = get_numeric_value('Success Rides', 0)
+        user_cancelled = get_numeric_value('User Cancelled Rides', 0)
+        driver_cancelled = get_numeric_value('Driver Cancelled Rides', 0)
+        rejected_rides = get_numeric_value('Rejected Rides', 0)
+        missed_rides = get_numeric_value('Missed Rides', 0)
+        active_days = get_safe_value('Active Days', '0')
+        online_hours = get_safe_value('Online Hours', '0')
+        
+        # Calcular total de corridas (successful + cancelled)
+        total_rides = success_rides + user_cancelled + driver_cancelled
+        
+        # Calcular rating baseado na performance
+        if requests_received > 0:
+            success_rate = (success_rides / requests_received) * 100
+            rating = round(min(5.0, max(1.0, success_rate / 20)), 1)  # Converte % para escala 1-5
+        else:
+            rating = 3.0
+        
+        # Determinar status baseado na atividade
+        status = 'active' if success_rides > 0 or requests_received > 0 else 'inactive'
+        
+        # Criar dados adicionais detalhados
+        additional_data = {
+            'row_index': index,
+            'import_timestamp': datetime.now().isoformat(),
+            'performance_metrics': {
+                'request_sent': request_sent,
+                'requests_received': requests_received,
+                'success_rides': success_rides,
+                'user_cancelled_rides': user_cancelled,
+                'driver_cancelled_rides': driver_cancelled,
+                'rejected_rides': rejected_rides,
+                'missed_rides': missed_rides,
+                'success_rate': round((success_rides / max(requests_received, 1)) * 100, 2),
+                'acceptance_rate': round((requests_received / max(request_sent, 1)) * 100, 2)
+            },
+            'activity_info': {
+                'active_days': active_days,
+                'online_hours': online_hours,
+                'total_rides': total_rides,
+                'avg_rides_per_day': round(total_rides / max(1, get_numeric_value('Active Days', 1)), 2) if active_days != '0' else 0
+            },
+            'profile_info': {
+                'city': city,
+                'vehicle_type': vehicle,
+                'phone': phone,
+                'rating': rating,
+                'status': status
+            },
+            'import_info': {
+                'source_file': 'Dados Completos Motoristas.xlsx',
+                'original_data': {k: str(v) if pd.notna(v) else '' for k, v in row_dict.items()}
+            }
+        }
+        
+        # Criar hash único baseado nos dados principais
+        hash_string = f"{driver_id}_{name}_{phone}_{city}"
+        data_hash = hashlib.md5(hash_string.encode()).hexdigest()
+        
+        return {
+            'driver_id': str(driver_id),
+            'name': name,
+            'email': '',  # Não disponível na planilha
+            'mobile': phone,
+            'data_type': 'driver_profile',
+            'page_source': 'excel_import',
+            'additional_data': json.dumps(additional_data, ensure_ascii=False),
+            'data_hash': data_hash,
+            'scraped_at': datetime.now(),
+            'session_info': f'excel_import_{datetime.now().strftime("%Y%m%d_%H%M%S")}',
+            'unique_id': f"{driver_id}_{data_hash[:8]}"
+        }
     """Serviço para importação de planilhas locais"""
     
     SUPPORTED_FORMATS = ['.xlsx', '.xls', '.csv']

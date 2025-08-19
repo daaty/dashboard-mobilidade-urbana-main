@@ -1,28 +1,182 @@
-import { useState, useEffect } from 'react'
-import { Users, Star, TrendingUp, UserCheck, UserX, Activity, Award, AlertTriangle, Clock } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Users, Star, TrendingUp, UserCheck, Activity, Award, AlertTriangle, Clock, BarChart3, Wifi, Filter, Target, DollarSign, MapPin, Car, AlertCircle, CheckCircle, XCircle, TrendingDown, Calendar, Lightbulb } from 'lucide-react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
+import { useDriversAnalytics } from '../hooks/useDriversAnalytics';
+
+// Simulação dos componentes de UI, já que não temos acesso a eles.
+// Em um projeto real, você importaria de '@/components/ui/card'.
+const Card = ({ children, className }) => <div className={`border rounded-lg shadow-sm ${className}`}>{children}</div>;
+const CardContent = ({ children, className }) => <div className={`p-6 ${className}`}>{children}</div>;
+const CardHeader = ({ children, className }) => <div className={`p-6 ${className}`}>{children}</div>;
+const CardTitle = ({ children, className }) => <h3 className={`font-semibold ${className}`}>{children}</h3>;
+
 
 const periodOptions = [
   { label: 'Hoje', value: 'hoje' },
   { label: '7 dias', value: '7d' },
   { label: '30 dias', value: '30d' },
-]
+  { label: '3 meses', value: '3m' },
+  { label: '6 meses', value: '6m' },
+  { label: '12 meses', value: '12m' }
+];
 
-export function DriversOverview({ data, loading = false, onPeriodChange }) {
-  // Garante que data nunca será null/undefined
-  const safeData = data || {};
-  const [period, setPeriod] = useState('30d')
+const statusOptions = [
+  { label: 'Todos', value: '' },
+  { label: 'Ativos', value: 'active' },
+  { label: 'Inativos', value: 'inactive' },
+  { label: 'Online', value: 'online' }
+];
 
-  // Dados padrão caso não venha da API
-  const driversData = safeData || {
+const performanceOptions = [
+  { label: 'Todos', value: '' },
+  { label: 'Excelente (A+/A)', value: 'excellent' },
+  { label: 'Bom (B)', value: 'good' },
+  { label: 'Médio (C)', value: 'average' },
+  { label: 'Abaixo (D/F)', value: 'below' }
+];
+
+const revenueRanges = [
+  { label: 'Todas as faixas', value: '' },
+  { label: 'R$ 0 - R$ 500', value: [0, 500] },
+  { label: 'R$ 500 - R$ 1.000', value: [500, 1000] },
+  { label: 'R$ 1.000 - R$ 2.000', value: [1000, 2000] },
+  { label: 'R$ 2.000+', value: [2000, 999999] }
+];
+
+const alertTypes = [
+  { label: 'Baixa Performance', value: 'low_performance', color: 'red' },
+  { label: 'Alto Cancelamento', value: 'high_cancellation', color: 'orange' },
+  { label: 'Penalidades', value: 'penalties', color: 'yellow' },
+  { label: 'Oportunidades', value: 'opportunities', color: 'green' }
+];
+
+// Cores para o novo gráfico
+const STATUS_COLORS = {
+    active: '#10B981', // Verde
+    inactive: '#EF4444', // Vermelho
+};
+
+
+export default function DriversOverview({ onPeriodChange }) {
+  const [period, setPeriod] = useState('6m'); // Mudado para 6 meses
+  const [filters, setFilters] = useState({
+    periodo: '6m', // Mudado para 6 meses para incluir dados históricos
+    status: '',
+    performance: '',
+    ordenacao: 'rating',
+    cidade: '',
+    veiculo: '',
+    faixaReceita: '',
+    alertas: true
+  });
+
+  const [showComparison, setShowComparison] = useState(false);
+  const [selectedAlert, setSelectedAlert] = useState('');
+
+  // Hook para dados reais dos motoristas - expandido
+  const { 
+    driversData, 
+    loading, 
+    error, 
+    calculateAggregatedMetrics, 
+    getTopDrivers,
+    getFilteredDrivers,
+    getTemporalComparison,
+    getSpecificAlerts
+  } = useDriversAnalytics();
+
+  // Calcular métricas baseadas no período selecionado
+  const daysMap = {
+    'hoje': 1,
+    '7d': 7,
+    '30d': 30,
+    '3m': 90,
+    '6m': 180,
+    '12m': 365
+  };
+  const daysFilter = daysMap[filters.periodo] || daysMap[period] || 180; // Usar filters.periodo primeiro
+  
+  // Aplicar filtros aos dados antes de calcular métricas
+  const filteredData = getFilteredDrivers({
+    city: filters.cidade,
+    vehicle: filters.veiculo,
+    revenueRange: filters.faixaReceita ? revenueRanges.find(r => r.value === filters.faixaReceita)?.value : null,
+    status: filters.status,
+    performanceGrade: filters.performance
+  });
+  
+  const aggregatedData = calculateAggregatedMetrics(filteredData.length > 0 ? filteredData : driversData, daysFilter);
+
+  // Debug: Log dos dados recebidos
+  console.log('DriversOverview - dados agregados:', aggregatedData);
+  console.log('DriversOverview - loading:', loading);
+
+  // Utiliza os dados calculados ou um objeto padrão com valores zerados - EXPANDIDO
+  const dashboardData = aggregatedData ? {
+    // Métricas básicas
+    total_drivers: aggregatedData.globalMetrics.totalDrivers,
+    active_drivers: aggregatedData.drivers.filter(d => d.total_online_hours > 0).length,
+    inactive_drivers: aggregatedData.drivers.filter(d => d.total_online_hours === 0).length,
+    online_drivers: aggregatedData.drivers.filter(d => d.total_active_days > 0).length,
+    average_rating: Number(aggregatedData.globalMetrics.avgDriverRating),
+    total_rides_completed: aggregatedData.globalMetrics.totalRides,
+    total_cancelled_rides: aggregatedData.globalMetrics.totalCancelled,
+    avg_rides_per_driver: aggregatedData.globalMetrics.totalDrivers > 0 ? 
+      Number((aggregatedData.globalMetrics.totalRides / aggregatedData.globalMetrics.totalDrivers).toFixed(1)) : 0,
+    top_drivers: getTopDrivers('total_online_hours', 5, daysFilter),
+    total_online_hours: Number(aggregatedData.globalMetrics.totalOnlineHours),
+    avg_hours_per_driver: Number(aggregatedData.globalMetrics.avgHoursPerDriver),
+    
+    // Novas métricas financeiras
+    total_revenue: Number(aggregatedData.globalMetrics.totalRevenue),
+    total_commission: Number(aggregatedData.globalMetrics.totalCommission),
+    total_bonus: Number(aggregatedData.globalMetrics.totalBonus),
+    total_penalty: Number(aggregatedData.globalMetrics.totalPenalty),
+    net_revenue: Number(aggregatedData.globalMetrics.netRevenue),
+    avg_revenue_per_driver: Number(aggregatedData.globalMetrics.avgRevenuePerDriver),
+    avg_revenue_per_hour: Number(aggregatedData.globalMetrics.avgRevenuePerHour),
+    commission_rate: Number(aggregatedData.globalMetrics.commissionRate),
+    
+    // Métricas operacionais
+    total_distance: Number(aggregatedData.globalMetrics.totalDistance),
+    total_missed_rides: aggregatedData.globalMetrics.totalMissedRides,
+    avg_acceptance_rate: Number(aggregatedData.globalMetrics.avgAcceptanceRate),
+    avg_completion_rate: Number(aggregatedData.globalMetrics.avgCompletionRate),
+    avg_response_time: Number(aggregatedData.globalMetrics.avgResponseTime),
+    avg_cancellation_rate: Number(aggregatedData.globalMetrics.avgCancellationRate),
+    avg_distance_per_ride: Number(aggregatedData.globalMetrics.avgDistancePerRide),
+    
+    // Análises por categoria
+    city_analysis: aggregatedData.globalMetrics.cityAnalysis,
+    vehicle_analysis: aggregatedData.globalMetrics.vehicleAnalysis,
+    alerts: aggregatedData.globalMetrics.alerts,
+    
+    drivers_by_status: {},
+    performance_metrics: {
+      excellent_drivers: aggregatedData.drivers.filter(d => d.performance_grade === 'A+' || d.performance_grade === 'A').length,
+      good_drivers: aggregatedData.drivers.filter(d => d.performance_grade === 'B').length,
+      average_drivers: aggregatedData.drivers.filter(d => d.performance_grade === 'C').length,
+      below_average_drivers: aggregatedData.drivers.filter(d => d.performance_grade === 'D' || d.performance_grade === 'F').length
+    },
+    periodo_dias: daysFilter
+  } : {
     total_drivers: 0,
     active_drivers: 0,
     inactive_drivers: 0,
     online_drivers: 0,
     average_rating: 0,
     total_rides_completed: 0,
+    total_cancelled_rides: 0,
     avg_rides_per_driver: 0,
     top_drivers: [],
+    total_revenue: 0,
+    total_commission: 0,
+    net_revenue: 0,
+    avg_revenue_per_driver: 0,
+    alerts: [],
+    city_analysis: {},
+    vehicle_analysis: {},
     drivers_by_status: {},
     performance_metrics: {
       excellent_drivers: 0,
@@ -30,496 +184,1142 @@ export function DriversOverview({ data, loading = false, onPeriodChange }) {
       average_drivers: 0,
       below_average_drivers: 0
     },
-    periodo_dias: 30
-  }
+    periodo_dias: 0
+  };
 
-  // Calcular KPIs avançados com verificações de segurança
+  // Calcula KPIs avançados com verificações de segurança para evitar divisão por zero.
   const kpis = {
-    activationRate: driversData?.total_drivers > 0 ? (driversData.active_drivers / driversData.total_drivers) * 100 : 0,
-    onlineRate: driversData?.active_drivers > 0 ? ((driversData.online_drivers || 0) / driversData.active_drivers) * 100 : 0,
-    excellenceRate: driversData?.total_drivers > 0 ? ((driversData?.performance_metrics?.excellent_drivers || 0) / driversData.total_drivers) * 100 : 0,
-    avgRatingTrend: (driversData?.average_rating || 0) >= 4.0 ? 'positive' : (driversData?.average_rating || 0) >= 3.5 ? 'neutral' : 'negative',
+    activationRate: dashboardData?.total_drivers > 0 ? (dashboardData.active_drivers / dashboardData.total_drivers) * 100 : 0,
+    onlineRate: dashboardData?.active_drivers > 0 ? ((dashboardData.online_drivers || 0) / dashboardData.active_drivers) * 100 : 0,
+    excellenceRate: dashboardData?.total_drivers > 0 ? ((dashboardData?.performance_metrics?.excellent_drivers || 0) / dashboardData.total_drivers) * 100 : 0,
+    avgRatingTrend: (dashboardData?.average_rating || 0) >= 4.5 ? 'positive' : (dashboardData?.average_rating || 0) >= 4.0 ? 'neutral' : 'negative',
     performanceDistribution: {
-      excellent: driversData?.performance_metrics?.excellent_drivers || 0,
-      good: driversData?.performance_metrics?.good_drivers || 0,
-      average: driversData?.performance_metrics?.average_drivers || 0,
-      below: driversData?.performance_metrics?.below_average_drivers || 0
+      excellent: dashboardData?.performance_metrics?.excellent_drivers || 0,
+      good: dashboardData?.performance_metrics?.good_drivers || 0,
+      average: dashboardData?.performance_metrics?.average_drivers || 0,
+      below: dashboardData?.performance_metrics?.below_average_drivers || 0
     }
-  }
+  };
+  
+  // Prepara os dados para o gráfico de pizza
+  const statusChartData = [
+      { name: 'Ativos', value: dashboardData.active_drivers || 0, color: STATUS_COLORS.active },
+      { name: 'Inativos', value: dashboardData.inactive_drivers || 0, color: STATUS_COLORS.inactive },
+  ];
 
-  // Dispara callback para buscar dados ao trocar período
-  const handlePeriodChange = (e) => {
-    const newPeriod = e.target.value
-    setPeriod(newPeriod)
-    if (onPeriodChange) onPeriodChange(newPeriod)
-  }
 
-  // Função para gerar avatar
+  // Dispara o callback para buscar novos dados quando o período é alterado.
+  const handlePeriodChange = (newPeriod) => {
+    setPeriod(newPeriod);
+    setFilters(prev => ({ ...prev, periodo: newPeriod }));
+    if (onPeriodChange) onPeriodChange(newPeriod);
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    // Se for mudança de período, sincronizar com o estado period
+    if (key === 'periodo') {
+      setPeriod(value);
+      if (onPeriodChange) onPeriodChange(value);
+    }
+  };
+
+  // Gera uma URL de avatar com base no nome do motorista.
   const getAvatarUrl = (name) => {
-    if (!name) return "https://ui-avatars.com/api/?name=User&background=random"
-    const cleanName = name.replace("Motorista ", "").replace(" ", "+")
-    return `https://ui-avatars.com/api/?name=${cleanName}&background=random`
-  }
-
-  // Função para determinar cor baseada no valor com melhor contraste
-  const getKpiColor = (value, thresholds = { good: 80, average: 60 }) => {
-    if (value >= thresholds.good) return 'text-green-700 dark:text-green-400'
-    if (value >= thresholds.average) return 'text-yellow-700 dark:text-yellow-400'
-    return 'text-red-700 dark:text-red-400'
-  }
-
-  // Função para cores de fundo dos KPIs
-  const getKpiBackgroundColor = (value, thresholds = { good: 80, average: 60 }) => {
-    if (value >= thresholds.good) return 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20'
-    if (value >= thresholds.average) return 'from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20'
-    return 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20'
-  }
+    if (!name) return "https://ui-avatars.com/api/?name=User&background=random";
+    const cleanName = name.replace("Motorista ", "").replace(" ", "+");
+    return `https://ui-avatars.com/api/?name=${cleanName}&background=random`;
+  };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6 space-y-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
-      {/* Header com filtro de período e resumo executivo */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl">
-              <Users className="h-6 w-6 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-              Gestão de Motoristas
-            </h1>
-          </div>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 font-sans">
+      <style>{`
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+      `}</style>
+      <div className="max-w-7xl mx-auto">
+        {/* Cabeçalho animado e padronizado */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2 flex items-center gap-3">
+            <Users className="h-8 w-8 text-blue-500" />
+            GESTÃO DE MOTORISTAS
+          </h1>
+          <p className="text-gray-600 text-lg">
             Dashboard executivo com KPIs e métricas de performance dos motoristas
           </p>
-          <div className="flex items-center gap-6 text-sm">
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-              <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <span className="font-medium text-blue-700 dark:text-blue-300">
-                Período: {period === 'hoje' ? '24 horas' : period === '7d' ? '7 dias' : '30 dias'}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="font-medium text-green-700 dark:text-green-300">
-                Atualizado: {new Date().toLocaleTimeString()}
-              </span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex gap-3">
-          {periodOptions.map(opt => (
-            <button
-              key={opt.value}
-              type="button"
-              className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg
-                ${period === opt.value 
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white border-2 border-blue-500 shadow-blue-200 dark:shadow-blue-800' 
-                  : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                }`}
-              onClick={() => handlePeriodChange({ target: { value: opt.value } })}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
+        </motion.div>
 
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i} className="animate-pulse bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
-              <CardContent className="p-8">
-                <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-lg w-24 mb-4"></div>
-                <div className="h-10 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-lg w-20 mb-3"></div>
-                <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-lg w-32"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <>
-          {/* KPIs principais com tendências e contexto */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {/* Total Motoristas */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-800">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Total de Motoristas</CardTitle>
-                <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                  <Users className="h-4 w-4 text-white" />
+        {/* Filtros executivos - Estilo AnaliseCorreidas */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
+              <div className="flex items-center gap-3 text-lg font-semibold">
+                <div className="bg-blue-500/20 p-2 rounded-lg">
+                  <Filter className="w-5 h-5 text-blue-400" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{driversData.total_drivers || 0}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span>Cadastrados na plataforma</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Motoristas Ativos */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-green-900/20 rounded-2xl shadow-xl border border-green-100 dark:border-green-800">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Motoristas Ativos</CardTitle>
-                <div className="p-2 bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg">
-                  <UserCheck className="h-4 w-4 text-white" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">{driversData.active_drivers || 0}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>{kpis.activationRate.toFixed(1)}% do total</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Motoristas Online */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br from-white to-emerald-50 dark:from-gray-800 dark:to-emerald-900/20 rounded-2xl shadow-xl border border-emerald-100 dark:border-emerald-800">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Motoristas Online</CardTitle>
-                <div className="p-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl shadow-lg relative">
-                  <Activity className="h-4 w-4 text-white" />
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">{driversData.online_drivers || 0}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  <span>{kpis.onlineRate.toFixed(1)}% dos ativos</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Avaliação Média com Tendência */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br from-white to-yellow-50 dark:from-gray-800 dark:to-yellow-900/20 rounded-2xl shadow-xl border border-yellow-100 dark:border-yellow-800">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Avaliação Média</CardTitle>
-                <div className="flex items-center gap-1">
-                  <div className="p-2 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow-lg">
-                    <Star className="h-4 w-4 text-white fill-current" />
-                  </div>
-                  {kpis.avgRatingTrend === 'positive' && <TrendingUp className="h-3 w-3 text-green-500" />}
-                  {kpis.avgRatingTrend === 'negative' && <AlertTriangle className="h-3 w-3 text-red-500" />}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className={`text-3xl font-bold mb-2 ${
-                  kpis.avgRatingTrend === 'positive' ? 'text-green-600 dark:text-green-400' :
-                  kpis.avgRatingTrend === 'neutral' ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
-                }`}>
-                  {(driversData.average_rating || 0).toFixed(1)}
-                </div>
-                <div className="flex items-center gap-1">
-                  {[1,2,3,4,5].map(star => (
-                    <Star 
-                      key={star} 
-                      className={`h-3 w-3 transition-all duration-300 ${
-                        star <= (driversData.average_rating || 0) 
-                          ? 'text-yellow-400 fill-current drop-shadow-sm' 
-                          : 'text-gray-300 dark:text-gray-600'
-                      }`} 
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Taxa de Excelência */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-2xl shadow-xl border border-purple-100 dark:border-purple-800">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Taxa de Excelência</CardTitle>
-                <div className="p-2 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg">
-                  <Award className="h-4 w-4 text-white" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className={`text-3xl font-bold mb-2 ${getKpiColor(kpis.excellenceRate)}`}>
-                  {kpis.excellenceRate.toFixed(1)}%
-                </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>{driversData?.performance_metrics?.excellent_drivers || 0} com nota ≥ 4.5</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Métricas Operacionais */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-800">
-              <CardHeader className="border-b border-blue-100 dark:border-blue-800 pb-4">
-                <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                  <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                    <Clock className="h-6 w-6 text-white" />
-                  </div>
-                  Métricas Operacionais
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6 pt-6">
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl">
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Corridas Completadas</span>
-                  <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{driversData.total_rides_completed || 0}</span>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl">
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Média por Motorista</span>
-                  <span className="text-2xl font-bold text-green-600 dark:text-green-400">{(driversData.avg_rides_per_driver || 0).toFixed(1)}</span>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl">
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Período de Análise</span>
-                  <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{driversData.periodo_dias || 0} dias</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Distribuição por Status */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-green-900/20 rounded-2xl shadow-xl border border-green-100 dark:border-green-800">
-              <CardHeader className="border-b border-green-100 dark:border-green-800 pb-4">
-                <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                  <div className="p-3 bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg">
-                    <UserCheck className="h-6 w-6 text-white" />
-                  </div>
-                  Distribuição por Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6 pt-6">
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl">
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-3">
-                    <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-green-600 rounded-full shadow-lg"></div>
-                    Ativos
-                  </span>
-                  <span className="text-2xl font-bold text-green-600 dark:text-green-400">{driversData.active_drivers || 0}</span>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl">
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-3">
-                    <div className="w-4 h-4 bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg"></div>
-                    Inativos
-                  </span>
-                  <span className="text-2xl font-bold text-red-600 dark:text-red-400">{driversData.inactive_drivers || 0}</span>
-                </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden shadow-inner">
-                  <div 
-                    className="h-4 bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-1000 ease-out shadow-lg"
-                    style={{ 
-                      width: `${driversData.total_drivers > 0 ? (driversData.active_drivers / driversData.total_drivers) * 100 : 0}%` 
-                    }}
-                  ></div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Distribuição de Performance */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-2xl shadow-xl border border-purple-100 dark:border-purple-800">
-              <CardHeader className="border-b border-purple-100 dark:border-purple-800 pb-4">
-                <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                  <div className="p-3 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg">
-                    <TrendingUp className="h-6 w-6 text-white" />
-                  </div>
-                  Performance dos Motoristas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-6">
-                {[
-                  { label: 'Excelente (≥4.5)', value: kpis.performanceDistribution.excellent, color: 'from-green-500 to-green-600', bgColor: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', textColor: 'text-green-600 dark:text-green-400' },
-                  { label: 'Bom (4.0-4.4)', value: kpis.performanceDistribution.good, color: 'from-blue-500 to-blue-600', bgColor: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', textColor: 'text-blue-600 dark:text-blue-400' },
-                  { label: 'Médio (3.5-3.9)', value: kpis.performanceDistribution.average, color: 'from-yellow-500 to-yellow-600', bgColor: 'from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20', textColor: 'text-yellow-600 dark:text-yellow-400' },
-                  { label: 'Abaixo (< 3.5)', value: kpis.performanceDistribution.below, color: 'from-red-500 to-red-600', bgColor: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20', textColor: 'text-red-600 dark:text-red-400' }
-                ].map((item, index) => (
-                  <div key={index} className={`flex justify-between items-center p-4 bg-gradient-to-r ${item.bgColor} rounded-xl`}>
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-3">
-                      <div className={`w-3 h-3 bg-gradient-to-r ${item.color} rounded-full shadow-lg`}></div>
-                      {item.label}
-                    </span>
-                    <span className={`text-xl font-bold ${item.textColor}`}>{item.value || 0}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Top Motoristas e Performance */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Top 5 Motoristas */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-yellow-50 dark:from-gray-800 dark:to-yellow-900/20 rounded-2xl shadow-xl border border-yellow-100 dark:border-yellow-800">
-              <CardHeader className="border-b border-yellow-100 dark:border-yellow-800 pb-4">
-                <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                  <div className="p-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow-lg">
-                    <Star className="h-6 w-6 text-white fill-current" />
-                  </div>
-                  Top Motoristas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  {driversData.top_drivers?.length > 0 ? driversData.top_drivers.map((driver, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-yellow-50 dark:from-gray-700 dark:to-yellow-900/20 rounded-xl shadow-md border border-yellow-100 dark:border-yellow-800 hover:shadow-lg transition-all duration-300">
-                      <div className="flex items-center gap-4">
-                        <div className="relative">
-                          <img 
-                            src={getAvatarUrl(driver.name)} 
-                            alt={driver.name}
-                            className="w-12 h-12 rounded-full shadow-lg border-2 border-yellow-200 dark:border-yellow-700"
-                          />
-                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
-                            {index + 1}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="font-bold text-gray-900 dark:text-white text-lg">
-                            {driver.name.replace("Motorista ", "")}
-                          </p>
-                          <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            <span>{driver.total_rides} corridas realizadas</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Star className="h-5 w-5 text-yellow-500 fill-current drop-shadow-sm" />
-                          <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                            {driver.rating ? driver.rating.toFixed(1) : '0.0'}
-                          </span>
-                        </div>
-                        <span className={`text-xs px-3 py-1 rounded-full font-semibold shadow-md ${
-                          driver.status === 'active' 
-                            ? 'bg-gradient-to-r from-green-100 to-green-200 text-green-800 border border-green-300' 
-                            : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-300'
-                        }`}>
-                          {driver.status === 'active' ? '🟢 Ativo' : '🔴 Inativo'}
-                        </span>
-                      </div>
-                    </div>
-                  )) : (
-                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                      <Star className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                      <p className="text-lg font-medium">Nenhum motorista encontrado</p>
-                      <p className="text-sm">Ajuste o período de análise para ver dados</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Métricas de Performance Visual */}
-            <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-800">
-              <CardHeader className="border-b border-blue-100 dark:border-blue-800 pb-4">
-                <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                  <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                    <TrendingUp className="h-6 w-6 text-white" />
-                  </div>
-                  Performance Visual
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Excelentes (≥4.5) ⭐⭐⭐⭐⭐</span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner">
-                        <div 
-                          className="h-3 bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-1000 ease-out shadow-lg" 
-                          style={{ 
-                            width: `${driversData?.total_drivers > 0 ? ((driversData?.performance_metrics?.excellent_drivers || 0) / driversData.total_drivers) * 100 : 0}%` 
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-xl font-bold text-green-600 dark:text-green-400 min-w-[2rem]">
-                        {driversData?.performance_metrics?.excellent_drivers || 0}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Bons (4.0-4.5) ⭐⭐⭐⭐</span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner">
-                        <div 
-                          className="h-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-1000 ease-out shadow-lg" 
-                          style={{ 
-                            width: `${driversData?.total_drivers > 0 ? ((driversData?.performance_metrics?.good_drivers || 0) / driversData.total_drivers) * 100 : 0}%` 
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-xl font-bold text-blue-600 dark:text-blue-400 min-w-[2rem]">
-                        {driversData?.performance_metrics?.good_drivers || 0}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Médios (3.5-3.9) ⭐⭐⭐</span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner">
-                        <div 
-                          className="h-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full transition-all duration-1000 ease-out shadow-lg" 
-                          style={{ 
-                            width: `${driversData?.total_drivers > 0 ? ((driversData?.performance_metrics?.average_drivers || 0) / driversData.total_drivers) * 100 : 0}%` 
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-xl font-bold text-yellow-600 dark:text-yellow-400 min-w-[2rem]">
-                        {driversData?.performance_metrics?.average_drivers || 0}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Abaixo (&lt; 3.5) ⭐⭐</span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner">
-                        <div 
-                          className="h-3 bg-gradient-to-r from-red-500 to-red-600 rounded-full transition-all duration-1000 ease-out shadow-lg" 
-                          style={{ 
-                            width: `${driversData?.total_drivers > 0 ? ((driversData?.performance_metrics?.below_average_drivers || 0) / driversData.total_drivers) * 100 : 0}%` 
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-xl font-bold text-red-600 dark:text-red-400 min-w-[2rem]">
-                        {driversData?.performance_metrics?.below_average_drivers || 0}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Status dos Motoristas - Resumo Final */}
-          <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700">
-            <CardHeader className="border-b border-gray-200 dark:border-gray-700 pb-6">
-              <CardTitle className="text-2xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                <div className="p-4 bg-gradient-to-r from-gray-600 to-gray-700 rounded-xl shadow-lg">
-                  <Users className="h-7 w-7 text-white" />
-                </div>
-                Resumo Geral por Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {Object.entries(driversData.drivers_by_status).map(([status, count]) => (
-                  <div key={status} className="text-center p-6 bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-600 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                    <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">{count}</div>
-                    <div className="text-sm font-semibold text-gray-600 dark:text-gray-400 capitalize mb-3">
-                      {status === 'ativo' ? '🟢 Motoristas Ativos' : 
-                       status === 'inativo' ? '🔴 Motoristas Inativos' : 
-                       status === 'active' ? '🟢 Ativos' : 
-                       status === 'inactive' ? '🔴 Inativos' : status}
-                    </div>
-                    <div className={`w-full h-2 rounded-full ${
-                      status === 'ativo' || status === 'active' ? 'bg-gradient-to-r from-green-500 to-green-600' : 
-                      'bg-gradient-to-r from-red-500 to-red-600'
-                    } shadow-inner`}></div>
-                  </div>
-                ))}
+                Filtros de Análise - Motoristas
               </div>
-            </CardContent>
-          </Card>
-        </>
-      )}
+            </div>
+            <div className="p-8">
+              <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 tracking-wide">Período</label>
+                  <select
+                    value={filters.periodo}
+                    onChange={(e) => handleFilterChange('periodo', e.target.value)}
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                  >
+                    {periodOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 tracking-wide">Status</label>
+                  <select
+                    value={filters.status}
+                    onChange={(e) => handleFilterChange('status', e.target.value)}
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                  >
+                    {statusOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 tracking-wide">Performance</label>
+                  <select
+                    value={filters.performance}
+                    onChange={(e) => handleFilterChange('performance', e.target.value)}
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                  >
+                    {performanceOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 tracking-wide">Cidade</label>
+                  <select
+                    value={filters.cidade}
+                    onChange={(e) => handleFilterChange('cidade', e.target.value)}
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                  >
+                    <option value="">Todas as Cidades</option>
+                    {Object.keys(dashboardData.city_analysis || {}).map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 tracking-wide">Faixa de Receita</label>
+                  <select
+                    value={filters.faixaReceita}
+                    onChange={(e) => handleFilterChange('faixaReceita', e.target.value)}
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                  >
+                    {revenueRanges.map(option => (
+                      <option key={option.label} value={JSON.stringify(option.value)}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 tracking-wide">Ordenação</label>
+                  <select
+                    value={filters.ordenacao}
+                    onChange={(e) => handleFilterChange('ordenacao', e.target.value)}
+                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                  >
+                    <option value="rating">Por Avaliação</option>
+                    <option value="rides">Por Número de Corridas</option>
+                    <option value="revenue">Por Receita</option>
+                    <option value="efficiency">Por Eficiência</option>
+                    <option value="name">Por Nome</option>
+                    <option value="status">Por Status</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Seção de Conteúdo: Exibe o loader ou os dados */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="animate-pulse bg-gray-200 rounded-2xl h-40"></div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {/* KPIs Principais - Estilo Executivo */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Total de Motoristas */}
+                <div className="bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-slate-300 text-sm font-medium tracking-wide uppercase">Total de Motoristas</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mt-2">{dashboardData.total_drivers || 0}</p>
+                            <p className="text-slate-400 text-sm mt-2">{dashboardData.active_drivers || 0} com atividade registrada</p>
+                        </div>
+                        <div className="bg-blue-500/20 p-4 rounded-xl"><Users className="w-8 h-8 text-blue-400" /></div>
+                    </div>
+                </div>
+
+                {/* Corridas Canceladas */}
+                <div className="bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-red-200 text-sm font-medium tracking-wide uppercase">Corridas Canceladas</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-red-300 to-pink-300 bg-clip-text text-transparent mt-2">{dashboardData.total_cancelled_rides || 0}</p>
+                            <p className="text-red-300 text-sm mt-2">Últimos {dashboardData.periodo_dias} dias</p>
+                        </div>
+                        <div className="bg-red-500/20 p-4 rounded-xl"><AlertTriangle className="w-8 h-8 text-red-400" /></div>
+                    </div>
+                </div>
+
+                {/* Média Horas por Motorista */}
+                <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-purple-200 text-sm font-medium tracking-wide uppercase">Média por Motorista</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.avg_hours_per_driver || 0).toFixed(1)}h</p>
+                            <p className="text-purple-300 text-sm mt-2">Horas online médias</p>
+                        </div>
+                        <div className="bg-purple-500/20 p-4 rounded-xl"><Activity className="w-8 h-8 text-purple-400" /></div>
+                    </div>
+                </div>
+
+                {/* Rating Médio dos Motoristas */}
+                <div className="bg-gradient-to-br from-amber-600 via-orange-700 to-orange-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                    <div className="flex items-center justify-between">
+                         <div>
+                            <p className="text-orange-200 text-sm font-medium tracking-wide uppercase">Rating Médio</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-orange-300 to-yellow-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.average_rating || 0).toFixed(1)}</p>
+                            <p className="text-orange-300 text-sm mt-2">Avaliação média dos motoristas</p>
+                        </div>
+                        <div className="bg-orange-500/20 p-4 rounded-xl"><Target className="w-8 h-8 text-orange-400" /></div>
+                    </div>
+                </div>
+            </div>
+
+            {/* KPIs Financeiros - Nova Linha */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Receita Total */}
+                <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-emerald-200 text-sm font-medium tracking-wide uppercase">Receita Total</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-emerald-300 to-green-300 bg-clip-text text-transparent mt-2">R$ {Number(dashboardData.total_revenue || 0).toFixed(2)}</p>
+                            <p className="text-emerald-300 text-sm mt-2">Últimos {dashboardData.periodo_dias} dias</p>
+                        </div>
+                        <div className="bg-emerald-500/20 p-4 rounded-xl"><DollarSign className="w-8 h-8 text-emerald-400" /></div>
+                    </div>
+                </div>
+
+                {/* Taxa de Aceitação */}
+                <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-blue-200 text-sm font-medium tracking-wide uppercase">Taxa de Aceitação</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.avg_acceptance_rate || 0).toFixed(1)}%</p>
+                            <p className="text-blue-300 text-sm mt-2">Média geral</p>
+                        </div>
+                        <div className="bg-blue-500/20 p-4 rounded-xl"><CheckCircle className="w-8 h-8 text-blue-400" /></div>
+                    </div>
+                </div>
+
+                {/* Receita por Hora */}
+                <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-indigo-200 text-sm font-medium tracking-wide uppercase">Receita por Hora</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent mt-2">R$ {Number(dashboardData.avg_revenue_per_hour || 0).toFixed(2)}</p>
+                            <p className="text-indigo-300 text-sm mt-2">Produtividade média</p>
+                        </div>
+                        <div className="bg-indigo-500/20 p-4 rounded-xl"><TrendingUp className="w-8 h-8 text-indigo-400" /></div>
+                    </div>
+                </div>
+
+                {/* Distância Total */}
+                <div className="bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-teal-200 text-sm font-medium tracking-wide uppercase">Distância Total</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-teal-300 to-cyan-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.total_distance || 0).toFixed(1)} km</p>
+                            <p className="text-teal-300 text-sm mt-2">Quilometragem acumulada</p>
+                        </div>
+                        <div className="bg-teal-500/20 p-4 rounded-xl"><MapPin className="w-8 h-8 text-teal-400" /></div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Alertas Inteligentes */}
+            {dashboardData.alerts && dashboardData.alerts.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+                <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+                  <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
+                    <div className="flex items-center gap-3 text-lg font-semibold">
+                      <div className="bg-yellow-500/20 p-2 rounded-lg">
+                        <AlertCircle className="w-5 h-5 text-yellow-400" />
+                      </div>
+                      Alertas Inteligentes
+                    </div>
+                  </div>
+                  <div className="p-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {dashboardData.alerts.map((alert, index) => (
+                        <div key={index} className={`p-6 rounded-2xl border ${
+                          alert.severity === 'high' ? 'bg-red-50 border-red-200' :
+                          alert.severity === 'medium' ? 'bg-yellow-50 border-yellow-200' :
+                          'bg-green-50 border-green-200'
+                        }`}>
+                          <div className="flex items-start gap-3">
+                            <div className={`p-2 rounded-lg ${
+                              alert.severity === 'high' ? 'bg-red-500/20' :
+                              alert.severity === 'medium' ? 'bg-yellow-500/20' :
+                              'bg-green-500/20'
+                            }`}>
+                              {alert.type === 'error' ? <XCircle className="w-5 h-5 text-red-500" /> :
+                               alert.type === 'warning' ? <AlertTriangle className="w-5 h-5 text-yellow-500" /> :
+                               <CheckCircle className="w-5 h-5 text-green-500" />}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 mb-1">{alert.title}</h4>
+                              <p className="text-sm text-gray-600 mb-2">{alert.message}</p>
+                              {alert.drivers && alert.drivers.length > 0 && (
+                                <div className="text-xs text-gray-500">
+                                  {alert.drivers.slice(0, 3).join(', ')}
+                                  {alert.drivers.length > 3 && ` +${alert.drivers.length - 3} outros`}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Gráficos e Detalhes - Estilo Executivo */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
+                  <div className="flex items-center gap-3 text-lg font-semibold">
+                    <div className="bg-blue-500/20 p-2 rounded-lg">
+                      <BarChart3 className="w-5 h-5 text-blue-400" />
+                    </div>
+                    Análise Visual de Dados
+                  </div>
+                </div>
+                <div className="p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Gráfico de Status */}
+                    <div className="bg-gradient-to-br from-white to-gray-100 border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-blue-600 rounded-xl"><BarChart3 className="w-5 h-5 text-white" /></div>
+                        <h3 className="text-lg font-semibold text-blue-800">Distribuição por Status</h3>
+                      </div>
+                      <div className="h-80">
+                         <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie data={statusChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}>
+                                    {statusChartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <Tooltip formatter={(value) => [`${value} motoristas`, '']}/>
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                    
+                     {/* Métricas Operacionais */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-800">
+                        <CardHeader className="border-b border-blue-100 dark:border-blue-800 pb-4">
+                            <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
+                                <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                                    <Activity className="h-6 w-6 text-white" />
+                                </div>
+                                Métricas Operacionais
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6 pt-6">
+                            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Corridas Completadas</span>
+                                <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{dashboardData.total_rides_completed || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Média por Motorista</span>
+                                <span className="text-2xl font-bold text-green-600 dark:text-green-400">{Number(dashboardData.avg_rides_per_driver || 0).toFixed(1)}</span>
+                            </div>
+                            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Período de Análise</span>
+                                <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{dashboardData.periodo_dias || 0} dias</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+            
+            {/* Top Motoristas e Performance - Estilo Executivo */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
+                  <div className="flex items-center gap-3 text-lg font-semibold">
+                    <div className="bg-green-500/20 p-2 rounded-lg">
+                      <BarChart3 className="w-5 h-5 text-green-400" />
+                    </div>
+                    Análise de Produtividade: Horas vs Performance
+                  </div>
+                </div>
+                <div className="p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Top 5 por Horas Online */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-green-900/20 rounded-2xl shadow-xl border border-green-100 dark:border-green-800">
+                        <CardHeader className="border-b border-green-100 dark:border-green-800 pb-4">
+                            <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
+                                <div className="p-3 bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg">
+                                    <Clock className="h-6 w-6 text-white" />
+                                </div>
+                                Top 5 - Horas Online
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-6">
+                            <div className="space-y-4">
+                                {dashboardData.top_drivers?.length > 0 ? dashboardData.top_drivers.map((driver, index) => (
+                                    <div key={index} className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-yellow-50 dark:from-gray-700 dark:to-yellow-900/20 rounded-xl shadow-md border border-yellow-100 dark:border-yellow-800 hover:shadow-lg transition-all duration-300">
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative">
+                                                <img src={getAvatarUrl(driver.name)} alt={driver.name} className="w-12 h-12 rounded-full shadow-lg border-2 border-yellow-200 dark:border-yellow-700"/>
+                                                <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                                                    {index + 1}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-gray-900 dark:text-white text-lg">{driver.name.replace("Motorista ", "")}</p>
+                                                <p className="text-sm text-gray-600 dark:text-gray-400">{driver.total_rides} corridas</p>
+                                                <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{Number(driver.total_hours || 0).toFixed(1)}h online</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Star className="h-5 w-5 text-yellow-500 fill-current" />
+                                                <span className="text-xl font-bold text-gray-900 dark:text-white">{Number(driver.rating || 0).toFixed(1)}</span>
+                                            </div>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Avaliação média</p>
+                                            <span className={`text-xs px-2 py-1 rounded-full font-semibold ${ driver.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                {driver.status === 'active' ? 'Ativo' : 'Inativo'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                                        <p className="text-lg font-medium">Nenhum motorista encontrado</p>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                    
+                    {/* Performance dos Motoristas */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-2xl shadow-xl border border-purple-100 dark:border-purple-800">
+                        <CardHeader className="border-b border-purple-100 dark:border-purple-800 pb-4">
+                            <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
+                                <div className="p-3 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg">
+                                    <TrendingUp className="h-6 w-6 text-white" />
+                                </div>
+                                Distribuição de Performance
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4 pt-6">
+                            {[
+                                { label: 'Excelente (≥4.5)', value: kpis.performanceDistribution.excellent, color: 'from-green-500 to-green-600', bgColor: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', textColor: 'text-green-600 dark:text-green-400' },
+                                { label: 'Bom (4.0-4.4)', value: kpis.performanceDistribution.good, color: 'from-blue-500 to-blue-600', bgColor: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', textColor: 'text-blue-600 dark:text-blue-400' },
+                                { label: 'Médio (3.5-3.9)', value: kpis.performanceDistribution.average, color: 'from-yellow-500 to-yellow-600', bgColor: 'from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20', textColor: 'text-yellow-600 dark:text-yellow-400' },
+                                { label: 'Abaixo (< 3.5)', value: kpis.performanceDistribution.below, color: 'from-red-500 to-red-600', bgColor: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20', textColor: 'text-red-600 dark:text-red-400' }
+                            ].map((item, index) => (
+                                <div key={index} className={`flex justify-between items-center p-4 bg-gradient-to-r ${item.bgColor} rounded-xl hover:shadow-md transition-all duration-300`}>
+                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-3">
+                                        <div className={`w-3 h-3 bg-gradient-to-r ${item.color} rounded-full shadow-lg`}></div>
+                                        {item.label}
+                                    </span>
+                                    <div className="text-right">
+                                        <span className={`text-xl font-bold ${item.textColor}`}>{item.value || 0}</span>
+                                        <p className="text-xs text-gray-500">motoristas</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Análise Geográfica e de Veículos */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
+                  <div className="flex items-center gap-3 text-lg font-semibold">
+                    <div className="bg-cyan-500/20 p-2 rounded-lg">
+                      <MapPin className="w-5 h-5 text-cyan-400" />
+                    </div>
+                    Análise Geográfica e Operacional
+                  </div>
+                </div>
+                <div className="p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    {/* Top Cidades por Receita */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-cyan-50 rounded-2xl shadow-xl border border-cyan-100">
+                      <CardHeader className="border-b border-cyan-100 pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                          <div className="p-2 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-lg shadow-lg">
+                            <MapPin className="h-5 w-5 text-white" />
+                          </div>
+                          Top Cidades
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-6">
+                        <div className="space-y-4">
+                          {Object.entries(dashboardData.city_analysis || {})
+                            .sort(([,a], [,b]) => b.revenue - a.revenue)
+                            .slice(0, 5)
+                            .map(([city, data], index) => (
+                              <div key={city} className="flex items-center justify-between p-3 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                                    {index + 1}
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold text-gray-900">{city}</p>
+                                    <p className="text-sm text-gray-600">{data.drivers} motoristas</p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-lg font-bold text-cyan-600">R$ {data.revenue.toFixed(2)}</p>
+                                  <p className="text-xs text-gray-500">{data.rides} corridas</p>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Análise de Veículos */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-orange-50 rounded-2xl shadow-xl border border-orange-100">
+                      <CardHeader className="border-b border-orange-100 pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                          <div className="p-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg">
+                            <Car className="h-5 w-5 text-white" />
+                          </div>
+                          Tipos de Veículos
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-6">
+                        <div className="space-y-4">
+                          {Object.entries(dashboardData.vehicle_analysis || {})
+                            .sort(([,a], [,b]) => b.drivers - a.drivers)
+                            .slice(0, 5)
+                            .map(([vehicle, data], index) => (
+                              <div key={vehicle} className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                                    {index + 1}
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold text-gray-900">{vehicle}</p>
+                                    <p className="text-sm text-gray-600">R$ {data.revenue.toFixed(2)} receita</p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-lg font-bold text-orange-600">{data.drivers}</p>
+                                  <p className="text-xs text-gray-500">motoristas</p>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Métricas de Eficiência */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-purple-50 rounded-2xl shadow-xl border border-purple-100">
+                      <CardHeader className="border-b border-purple-100 pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                          <div className="p-2 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg">
+                            <Activity className="h-5 w-5 text-white" />
+                          </div>
+                          Eficiência Operacional
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 pt-6">
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Taxa de Conclusão</span>
+                            <span className="text-xl font-bold text-purple-600">{Number(dashboardData.avg_completion_rate || 0).toFixed(1)}%</span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Tempo de Resposta</span>
+                            <span className="text-xl font-bold text-pink-600">{Number(dashboardData.avg_response_time || 0).toFixed(1)}s</span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-rose-50 to-red-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Taxa de Cancelamento</span>
+                            <span className="text-xl font-bold text-rose-600">{Number(dashboardData.avg_cancellation_rate || 0).toFixed(1)}%</span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Corridas Perdidas</span>
+                            <span className="text-xl font-bold text-emerald-600">{dashboardData.total_missed_rides || 0}</span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Km por Corrida</span>
+                            <span className="text-xl font-bold text-blue-600">{Number(dashboardData.avg_distance_per_ride || 0).toFixed(1)}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Ranking e Performance - Todos os Motoristas */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
+                  <div className="flex items-center gap-3 text-lg font-semibold">
+                    <div className="bg-yellow-500/20 p-2 rounded-lg">
+                      <Star className="w-5 h-5 text-yellow-400" />
+                    </div>
+                    Ranking e Performance - Todos os Motoristas
+                  </div>
+                </div>
+                <div className="p-8">
+                  <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl border border-gray-100">
+                    <CardHeader className="border-b border-gray-100 pb-4">
+                      <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900">
+                        <div className="p-3 bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl shadow-lg">
+                          <Users className="h-6 w-6 text-white" />
+                        </div>
+                        Lista Completa de Motoristas
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-4">
+                          {aggregatedData?.drivers?.length > 0 ? aggregatedData.drivers
+                            .sort((a, b) => {
+                              switch (filters.ordenacao) {
+                                case 'rating':
+                                  return (b.avg_rating || 0) - (a.avg_rating || 0);
+                                case 'rides':
+                                  return (b.total_success_rides || 0) - (a.total_success_rides || 0);
+                                case 'revenue':
+                                  return (b.total_revenue || 0) - (a.total_revenue || 0);
+                                case 'efficiency':
+                                  return (b.efficiency_score || 0) - (a.efficiency_score || 0);
+                                case 'name':
+                                  return (a.name || '').localeCompare(b.name || '');
+                                case 'status':
+                                  return (a.current_status || '').localeCompare(b.current_status || '');
+                                case 'hours':
+                                default:
+                                  return (b.total_online_hours || 0) - (a.total_online_hours || 0);
+                              }
+                            })
+                            .map((driver, index) => {
+                              // Calcular rating individual
+                              const driverRecords = driversData.filter(d => d.driver_id === driver.driver_id);
+                              let totalRating = 0;
+                              let ratingCount = 0;
+                              
+                              driverRecords.forEach(record => {
+                                const rating = Number(record.additional_data?.Rating || 0);
+                                if (rating > 0) {
+                                  totalRating += rating;
+                                  ratingCount++;
+                                }
+                              });
+                              
+                              const averageRating = ratingCount > 0 ? (totalRating / ratingCount) : 0;
+                              
+                              return (
+                                <div key={index} className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                                  <div className="flex items-center gap-4">
+                                    <div className="relative">
+                                      <img src={getAvatarUrl(driver.name)} alt={driver.name} className="w-12 h-12 rounded-full shadow-lg border-2 border-gray-200"/>
+                                      <div className="absolute -top-1 -right-1 bg-gradient-to-r from-gray-400 to-gray-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                                        {index + 1}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <p className="font-bold text-gray-900 text-lg">{driver.name.replace("Motorista ", "")}</p>
+                                      <div className="flex gap-4 text-sm text-gray-600">
+                                        <span>{Number(driver.total_online_hours || 0).toFixed(1)}h online</span>
+                                        <span>{driver.total_success_rides || 0} corridas</span>
+                                        <span>{driver.total_cancelled || 0} canceladas</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Star className="h-5 w-5 text-yellow-500 fill-current" />
+                                      <span className="text-xl font-bold text-gray-900">{Number(averageRating).toFixed(1)}</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mb-2">Rating</p>
+                                    <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                                      averageRating >= 4.5 ? 'bg-green-100 text-green-800' : 
+                                      averageRating >= 4.0 ? 'bg-blue-100 text-blue-800' : 
+                                      averageRating >= 3.5 ? 'bg-yellow-100 text-yellow-800' : 
+                                      averageRating > 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                                    }`}>
+                                      {averageRating >= 4.5 ? 'Excelente' : 
+                                       averageRating >= 4.0 ? 'Bom' : 
+                                       averageRating >= 3.5 ? 'Médio' : 
+                                       averageRating > 0 ? 'Baixo' : 'S/Rating'}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            }) : (
+                              <div className="text-center py-12 text-gray-500">
+                                <p className="text-lg font-medium">Nenhum motorista encontrado</p>
+                              </div>
+                            )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Análise Temporal Detalhada */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
+                  <div className="flex items-center gap-3 text-lg font-semibold">
+                    <div className="bg-indigo-500/20 p-2 rounded-lg">
+                      <Clock className="w-5 h-5 text-indigo-400" />
+                    </div>
+                    Análise Temporal e Produtividade
+                  </div>
+                </div>
+                <div className="p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    {/* Estatísticas de Tempo */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-indigo-50 rounded-2xl shadow-xl border border-indigo-100">
+                      <CardHeader className="border-b border-indigo-100 pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                          <div className="p-2 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg shadow-lg">
+                            <Clock className="h-5 w-5 text-white" />
+                          </div>
+                          Distribuição Temporal
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 pt-6">
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Total de Horas</span>
+                            <span className="text-xl font-bold text-indigo-600">{Number(dashboardData.total_online_hours || 0).toFixed(1)}h</span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Média Diária</span>
+                            <span className="text-xl font-bold text-blue-600">
+                              {dashboardData.periodo_dias > 0 ? (Number(dashboardData.total_online_hours || 0) / dashboardData.periodo_dias).toFixed(1) : '0.0'}h
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-cyan-50 to-teal-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Horas por Motorista</span>
+                            <span className="text-xl font-bold text-cyan-600">{Number(dashboardData.avg_hours_per_driver || 0).toFixed(1)}h</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Métricas de Produtividade */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-emerald-50 rounded-2xl shadow-xl border border-emerald-100">
+                      <CardHeader className="border-b border-emerald-100 pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                          <div className="p-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg shadow-lg">
+                            <Activity className="h-5 w-5 text-white" />
+                          </div>
+                          Produtividade
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 pt-6">
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Corridas/Hora</span>
+                            <span className="text-xl font-bold text-emerald-600">
+                              {Number(dashboardData.total_online_hours || 0) > 0 ? 
+                                ((dashboardData.total_rides_completed || 0) / Number(dashboardData.total_online_hours || 1)).toFixed(2) : 
+                                '0.00'
+                              }
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-50 to-lime-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Eficiência Média</span>
+                            <span className="text-xl font-bold text-green-600">{Number(dashboardData.average_rating || 0).toFixed(1)}%</span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-lime-50 to-yellow-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-700">Score Global</span>
+                            <span className="text-xl font-bold text-lime-600">
+                              {(Number(dashboardData.average_rating || 0) * 
+                                (Number(dashboardData.total_online_hours || 0) > 0 ? 
+                                  ((dashboardData.total_rides_completed || 0) / Number(dashboardData.total_online_hours || 1)) : 0) * 10
+                              ).toFixed(0)}
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Insights e Recomendações */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-amber-50 rounded-2xl shadow-xl border border-amber-100">
+                      <CardHeader className="border-b border-amber-100 pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                          <div className="p-2 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg shadow-lg">
+                            <TrendingUp className="h-5 w-5 text-white" />
+                          </div>
+                          Insights
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-6">
+                        <div className="space-y-4">
+                          {/* Análise automática baseada nos dados */}
+                          {Number(dashboardData.avg_hours_per_driver || 0) > 100 ? (
+                            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span className="text-sm font-semibold text-green-800">Alto Engajamento</span>
+                              </div>
+                              <p className="text-sm text-green-700">Motoristas com média de {Number(dashboardData.avg_hours_per_driver || 0).toFixed(1)}h demonstram alto comprometimento.</p>
+                            </div>
+                          ) : (
+                            <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-xl">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                                <span className="text-sm font-semibold text-amber-800">Oportunidade</span>
+                              </div>
+                              <p className="text-sm text-amber-700">Considere estratégias para aumentar o tempo online dos motoristas.</p>
+                            </div>
+                          )}
+                          
+                          {Number(dashboardData.average_rating || 0) > 70 ? (
+                            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <span className="text-sm font-semibold text-blue-800">Boa Performance</span>
+                              </div>
+                              <p className="text-sm text-blue-700">Taxa de sucesso de {Number(dashboardData.average_rating || 0).toFixed(1)}% está acima da média.</p>
+                            </div>
+                          ) : (
+                            <div className="p-4 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                <span className="text-sm font-semibold text-red-800">Atenção Necessária</span>
+                              </div>
+                              <p className="text-sm text-red-700">Taxa de {Number(dashboardData.average_rating || 0).toFixed(1)}% indica necessidade de melhorias.</p>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Nova Seção: Análise de Produtividade */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+                <div className="bg-gradient-to-r from-emerald-900 to-emerald-800 text-white rounded-t-2xl p-6">
+                  <div className="flex items-center gap-3 text-lg font-semibold">
+                    <div className="bg-emerald-500/20 p-2 rounded-lg">
+                      <Activity className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    Análise de Produtividade: Horas vs Performance
+                  </div>
+                </div>
+                <div className="p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    {/* Top 5 Motoristas por Horas */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-emerald-50 rounded-2xl shadow-xl border border-emerald-100">
+                      <CardHeader className="border-b border-emerald-100 pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                          <div className="p-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg shadow-lg">
+                            <Clock className="h-5 w-5 text-white" />
+                          </div>
+                          Top 5 - Mais Horas Online
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 pt-6">
+                        {getTopDrivers('total_online_hours', 5, daysFilter).map((driver, index) => (
+                          <div key={driver.driver_id} className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-100">
+                            <div className="flex items-center gap-3">
+                              <div className="relative">
+                                <img src={getAvatarUrl(driver.name)} alt={driver.name} className="w-10 h-10 rounded-full border-2 border-emerald-200"/>
+                                <div className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                  {index + 1}
+                                </div>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-gray-900">{driver.name.replace("Motorista ", "")}</p>
+                                <p className="text-sm text-gray-600">{driver.total_rides} corridas</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-emerald-600">{Number(driver.total_online_hours || 0).toFixed(1)}h</p>
+                              <p className="text-xs text-gray-500">Rating: {Number(driver.rating || 0).toFixed(1)}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+
+                    {/* Top 5 Motoristas por Rating */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-yellow-50 rounded-2xl shadow-xl border border-yellow-100">
+                      <CardHeader className="border-b border-yellow-100 pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                          <div className="p-2 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg shadow-lg">
+                            <Star className="h-5 w-5 text-white" />
+                          </div>
+                          Top 5 - Melhor Rating
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 pt-6">
+                        {getTopDrivers('rating', 5, daysFilter)
+                          .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+                          .map((driver, index) => (
+                          <div key={driver.driver_id} className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border border-yellow-100">
+                            <div className="flex items-center gap-3">
+                              <div className="relative">
+                                <img src={getAvatarUrl(driver.name)} alt={driver.name} className="w-10 h-10 rounded-full border-2 border-yellow-200"/>
+                                <div className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                  {index + 1}
+                                </div>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-gray-900">{driver.name.replace("Motorista ", "")}</p>
+                                <p className="text-sm text-gray-600">{Number(driver.total_online_hours || 0).toFixed(1)}h online</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="flex items-center gap-1">
+                                <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                                <p className="text-lg font-bold text-yellow-600">{Number(driver.rating || 0).toFixed(1)}</p>
+                              </div>
+                              <p className="text-xs text-gray-500">{driver.total_rides} corridas</p>
+                            </div>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                    
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Análise de Tendências e Comparações Temporais */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
+                  <div className="flex items-center gap-3 text-lg font-semibold">
+                    <div className="bg-violet-500/20 p-2 rounded-lg">
+                      <TrendingUp className="w-5 h-5 text-violet-400" />
+                    </div>
+                    Análise de Tendências e Performance Temporal
+                  </div>
+                </div>
+                <div className="p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    {/* Tendências de Crescimento */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-violet-50 rounded-2xl shadow-xl border border-violet-100">
+                      <CardHeader className="border-b border-violet-100 pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                          <div className="p-2 bg-gradient-to-r from-violet-500 to-violet-600 rounded-lg shadow-lg">
+                            <TrendingUp className="h-5 w-5 text-white" />
+                          </div>
+                          Tendências de Performance
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6 pt-6">
+                        <div className="space-y-4">
+                          {/* Crescimento de Receita */}
+                          <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-lg">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm font-medium text-gray-700">Crescimento de Receita</span>
+                              <span className={`text-lg font-bold ${dashboardData.revenue_growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {dashboardData.revenue_growth >= 0 ? '+' : ''}{Number(dashboardData.revenue_growth || 0).toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`h-2 rounded-full ${dashboardData.revenue_growth >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                                style={{width: `${Math.min(Math.abs(dashboardData.revenue_growth || 0), 100)}%`}}
+                              ></div>
+                            </div>
+                          </div>
+
+                          {/* Tendência de Aceitação */}
+                          <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm font-medium text-gray-700">Tendência de Aceitação</span>
+                              <span className={`text-lg font-bold ${dashboardData.acceptance_trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {dashboardData.acceptance_trend >= 0 ? '+' : ''}{Number(dashboardData.acceptance_trend || 0).toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`h-2 rounded-full ${dashboardData.acceptance_trend >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                                style={{width: `${Math.min(Math.abs(dashboardData.acceptance_trend || 0), 100)}%`}}
+                              ></div>
+                            </div>
+                          </div>
+
+                          {/* Eficiência Temporal */}
+                          <div className="p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm font-medium text-gray-700">Melhoria na Eficiência</span>
+                              <span className={`text-lg font-bold ${dashboardData.efficiency_improvement >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {dashboardData.efficiency_improvement >= 0 ? '+' : ''}{Number(dashboardData.efficiency_improvement || 0).toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`h-2 rounded-full ${dashboardData.efficiency_improvement >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                                style={{width: `${Math.min(Math.abs(dashboardData.efficiency_improvement || 0), 100)}%`}}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Padrões Sazonais e Oportunidades */}
+                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-amber-50 rounded-2xl shadow-xl border border-amber-100">
+                      <CardHeader className="border-b border-amber-100 pb-4">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                          <div className="p-2 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg shadow-lg">
+                            <Calendar className="h-5 w-5 text-white" />
+                          </div>
+                          Padrões e Oportunidades
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6 pt-6">
+                        <div className="space-y-4">
+                          
+                          {/* Insights Temporais */}
+                          <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg p-4">
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                              <Lightbulb className="h-4 w-4 text-amber-500" />
+                              Insights do Período
+                            </h4>
+                            <div className="space-y-2">
+                              {dashboardData.temporal_insights && dashboardData.temporal_insights.length > 0 ? (
+                                dashboardData.temporal_insights.slice(0, 3).map((insight, index) => (
+                                  <div key={index} className="flex items-start gap-2 text-sm">
+                                    <div className="w-2 h-2 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <span className="text-gray-700">{insight}</span>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-sm text-gray-600 italic">
+                                  Coletando dados para análise temporal...
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Recomendações de Otimização */}
+                          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4">
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                              <Target className="h-4 w-4 text-green-500" />
+                              Oportunidades de Melhoria
+                            </h4>
+                            <div className="space-y-2">
+                              {dashboardData.optimization_opportunities && dashboardData.optimization_opportunities.length > 0 ? (
+                                dashboardData.optimization_opportunities.slice(0, 3).map((opportunity, index) => (
+                                  <div key={index} className="flex items-start gap-2 text-sm">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <span className="text-gray-700">{opportunity}</span>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-sm text-gray-600 italic">
+                                  Analisando dados para identificar oportunidades...
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Previsões */}
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4">
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                              <BarChart3 className="h-4 w-4 text-blue-500" />
+                              Projeções para o Próximo Período
+                            </h4>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="text-center">
+                                <p className="text-xs text-gray-600">Receita Estimada</p>
+                                <p className="text-lg font-bold text-blue-600">R$ {Number(dashboardData.projected_revenue || 0).toFixed(2)}</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-xs text-gray-600">Corridas Previstas</p>
+                                <p className="text-lg font-bold text-indigo-600">{dashboardData.projected_rides || 0}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </div>
     </div>
-  )
+  );
 }

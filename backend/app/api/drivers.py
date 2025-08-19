@@ -67,42 +67,112 @@ async def get_drivers_overview(
                 elif not isinstance(driver_data, dict):
                     driver_data = {}
                 
-                # Verificar se tem status online primeiro
-                has_online_status = False
-                if driver_data:
-                    # Procurar na raw_row pelo status "Online"
+                # Verificar estrutura: se tem 'profile' (nova estrutura) ou 'raw_row' (estrutura antiga)
+                has_new_structure = 'profile' in driver_data
+                has_old_structure = 'raw_row' in driver_data
+                
+                # Para nova estrutura (dados importados)
+                if has_new_structure:
+                    profile = driver_data.get('profile', {})
+                    performance = driver_data.get('performance', {})
+                    raw_data = driver_data.get('raw_data', {})
+                    
+                    # Extrair dados do perfil
+                    real_name = driver_name or f"Motorista {driver_id}"
+                    phone = driver_record.mobile or ''
+                    status = profile.get('status', 'active' if raw_data.get('Active Days', 0) > 0 else 'inactive')
+                    
+                    # Calcular rating baseado na performance
+                    success_rides = float(raw_data.get('Success Rides', 0))
+                    total_requests = max(float(raw_data.get('Request Sent', 0)), float(raw_data.get('Requests Received', 0)))
+                    driver_cancelled = float(raw_data.get('Driver Cancelled Rides', 0))
+                    user_cancelled = float(raw_data.get('User Cancelled Rides', 0))
+                    missed_rides = float(raw_data.get('Missed Rides', 0))
+                    
+                    # Simular rating baseado na performance (igual ao frontend)
+                    if total_requests > 0 or success_rides > 0:
+                        cancellation_rate = ((driver_cancelled + user_cancelled) / total_requests) if total_requests > 0 else 0
+                        miss_rate = (missed_rides / total_requests) if total_requests > 0 else 0
+                        rating = max(1.0, min(5.0, 5.0 - (cancellation_rate * 3) - (miss_rate * 2)))
+                    else:
+                        rating = 0.0
+                    
+                    city = raw_data.get('CITY', profile.get('city', ''))
+                    vehicle_type = raw_data.get('Vehicle', profile.get('vehicle_type', ''))
+                    
+                    # Métricas de performance do raw_data (dados reais do Excel) - já calculadas acima
+                    active_days = float(raw_data.get('Active Days', 0))
+                    
+                    # Calcular métricas derivadas
+                    success_rate = (success_rides / total_requests * 100) if total_requests > 0 else 0.0
+                    total_rides = success_rides  # Corridas completadas
+                    
+                    # Usar dados de performance se disponível, senão usar raw_data
+                    if performance:
+                        total_rides = performance.get('total_rides', total_rides)
+                        success_rides = performance.get('success_rides', success_rides)
+                        success_rate = performance.get('success_rate', success_rate)
+                    
+                    # Chave para deduplicação
+                    if phone and phone.startswith('+55'):
+                        dedup_key = phone
+                    else:
+                        dedup_key = f"id_{driver_id}"
+                    
+                    # Adicionar à lista processada
+                    unique_drivers[dedup_key] = {
+                        'driver_record': driver_record,
+                        'driver_data': driver_data,
+                        'phone': phone,
+                        'name': real_name,
+                        'driver_id': driver_id,
+                        'status': status,
+                        'rating': rating,
+                        'city': city,
+                        'vehicle_type': vehicle_type,
+                        'total_rides': total_rides,
+                        'success_rides': success_rides,
+                        'success_rate': success_rate,
+                        'active_days': active_days,
+                        'total_requests': total_requests,
+                        'driver_cancelled': driver_cancelled,
+                        'user_cancelled': user_cancelled,
+                        'missed_rides': missed_rides
+                    }
+                    continue
+                
+                # Lógica antiga para estrutura com raw_row
+                elif has_old_structure:
+                    # Verificar se tem status online
+                    has_online_status = False
                     raw_row = driver_data.get('raw_row', [])
                     if isinstance(raw_row, list):
                         for item in raw_row:
                             if isinstance(item, str) and item.lower() == 'online':
                                 has_online_status = True
                                 break
-                
-                # Se não tem status online, pular
-                if not has_online_status:
-                    continue
-                
-                # Extrair telefone válido para deduplicação
-                phone = driver_record.email if hasattr(driver_record, 'email') else ''
-                real_phone = None
-                
-                # Procurar telefone válido no raw_row
-                if driver_data and 'raw_row' in driver_data:
-                    raw_row = driver_data['raw_row']
+                    
+                    # Se não tem status online, pular
+                    if not has_online_status:
+                        continue
+                    
+                    # Extrair telefone válido para deduplicação
+                    phone = driver_record.email if hasattr(driver_record, 'email') else ''
+                    real_phone = None
+                    
+                    # Procurar telefone válido no raw_row
                     if isinstance(raw_row, list):
                         for item in raw_row:
                             if isinstance(item, str) and item.startswith('+556') and len(item) >= 13:
                                 real_phone = item
                                 break
-                
-                # Usar o telefone válido encontrado
-                if real_phone:
-                    phone = real_phone
-                
-                # Extrair nome real do motorista
-                real_name = driver_name
-                if driver_data and 'raw_row' in driver_data:
-                    raw_row = driver_data['raw_row']
+                    
+                    # Usar o telefone válido encontrado
+                    if real_phone:
+                        phone = real_phone
+                    
+                    # Extrair nome real do motorista
+                    real_name = driver_name
                     if isinstance(raw_row, list):
                         # Procurar nome real no raw_row (geralmente após o telefone)
                         for i, item in enumerate(raw_row):
@@ -111,46 +181,56 @@ async def get_drivers_overview(
                                 if ' ' in item or (item[0].isupper() and any(c.islower() for c in item)):
                                     real_name = item
                                     break
-                
-                # Se nome ainda é inválido, usar o ID se for nome
-                if not real_name or real_name in ['0', '1', 'None', 'null']:
-                    if isinstance(driver_id, str) and len(driver_id) > 3 and not driver_id.startswith('+'):
-                        real_name = driver_id
-                
-                # Chave para deduplicação: priorizar telefone, depois nome
-                dedup_key = None
-                if phone and phone.startswith('+556'):
-                    dedup_key = phone
-                elif real_name and real_name not in ['0', '1', 'None', 'null']:
-                    dedup_key = real_name.lower()
-                else:
-                    dedup_key = driver_id
-                
-                # Se já processamos este motorista, priorizar registro mais recente com nome completo
-                if dedup_key in unique_drivers:
-                    existing = unique_drivers[dedup_key]
-                    # Priorizar registro com nome real vs ID como nome
-                    if (real_name and real_name not in ['0', '1', 'None', 'null'] and 
-                        existing['name'] in ['0', '1', 'None', 'null']):
-                        # Substituir por registro com nome melhor
-                        pass
+                    
+                    # Se nome ainda é inválido, usar o ID se for nome
+                    if not real_name or real_name in ['0', '1', 'None', 'null']:
+                        if isinstance(driver_id, str) and len(driver_id) > 3 and not driver_id.startswith('+'):
+                            real_name = driver_id
+                    
+                    # Chave para deduplicação: priorizar telefone, depois nome
+                    dedup_key = None
+                    if phone and phone.startswith('+556'):
+                        dedup_key = phone
+                    elif real_name and real_name not in ['0', '1', 'None', 'null']:
+                        dedup_key = real_name.lower()
                     else:
-                        # Manter o existente
-                        continue
-                
-                unique_drivers[dedup_key] = {
-                    'driver_record': driver_record,
-                    'driver_data': driver_data,
-                    'phone': phone,
-                    'name': real_name,
-                    'driver_id': driver_id
-                }
+                        dedup_key = driver_id
+                    
+                    # Se já processamos este motorista, priorizar registro mais recente com nome completo
+                    if dedup_key in unique_drivers:
+                        existing = unique_drivers[dedup_key]
+                        # Priorizar registro com nome real vs ID como nome
+                        if (real_name and real_name not in ['0', '1', 'None', 'null'] and 
+                            existing['name'] in ['0', '1', 'None', 'null']):
+                            # Substituir por registro com nome melhor
+                            pass
+                        else:
+                            # Manter o existente
+                            continue
+                    
+                    unique_drivers[dedup_key] = {
+                        'driver_record': driver_record,
+                        'driver_data': driver_data,
+                        'phone': phone,
+                        'name': real_name,
+                        'driver_id': driver_id,
+                        'status': 'active',  # Default para estrutura antiga
+                        'rating': 0.0,
+                        'city': '',
+                        'vehicle_type': '',
+                        'total_rides': 0,
+                        'success_rides': 0,
+                        'success_rate': 0.0
+                    }
+                else:
+                    # Estrutura não reconhecida, pular
+                    continue
                 
             except Exception as e:
                 print(f"Erro ao processar dados do motorista {driver_record.driver_id}: {e}")
                 continue
         
-        # Processar apenas os motoristas únicos online
+        # Processar apenas os motoristas únicos
         for dedup_key, driver_info in unique_drivers.items():
             try:
                 driver_record = driver_info['driver_record']
@@ -159,19 +239,29 @@ async def get_drivers_overview(
                 real_name = driver_info['name']
                 driver_id = driver_info['driver_id']
                 
-                # Extrair dados do JSON additional_data com fallbacks seguros
-                status = driver_data.get('status', '0') if driver_data else '0'
-                rating = 4.0  # Rating padrão para motoristas online
-                total_rides = 15  # Total padrão para motoristas ativos
-                efficiency_score = 75.0  # Score padrão
+                # Usar dados processados da nova estrutura ou valores padrão para estrutura antiga
+                status = driver_info.get('status', 'active')
+                rating = driver_info.get('rating', 0.0)  # Usar rating calculado ou 0 como padrão
+                total_rides = driver_info.get('total_rides', 0)
+                success_rides = driver_info.get('success_rides', 0)
+                success_rate = driver_info.get('success_rate', 0.0)
+                city = driver_info.get('city', '')
+                vehicle_type = driver_info.get('vehicle_type', '')
                 
-                # Status é sempre ativo pois só processamos motoristas online
-                driver_status = 'ativo'
+                # Calcular efficiency_score baseado nas métricas
+                if total_rides > 0:
+                    efficiency_score = min(100, (success_rate + (rating * 20)))
+                else:
+                    efficiency_score = rating * 20
                 
-                # Extrair informações adicionais com validação
-                last_ride = driver_data.get('last_ride', '') if driver_data else ''
-                last_login = driver_data.get('last_login', '') if driver_data else ''
-                vehicle_info = driver_record.mobile if hasattr(driver_record, 'mobile') else ''
+                # Determinar status final
+                driver_status = 'ativo' if status == 'active' or total_rides > 0 else 'inativo'
+                
+                # Informações adicionais
+                last_ride = ''
+                last_login = ''
+                if driver_data and 'import_timestamp' in driver_data:
+                    last_login = driver_data['import_timestamp']
                 
                 # Usar o nome real extraído
                 clean_name = real_name if real_name and real_name not in ['None', '0', 'null', '1'] else f"Motorista {driver_id}"
@@ -182,13 +272,17 @@ async def get_drivers_overview(
                     'status': driver_status,
                     'rating': rating,
                     'total_rides': total_rides,
+                    'success_rides': success_rides,
+                    'success_rate': success_rate,
                     'efficiency_score': efficiency_score,
                     'phone': phone,
-                    'vehicle_info': vehicle_info,
+                    'city': city,
+                    'vehicle_type': vehicle_type,
+                    'vehicle_info': vehicle_type,
                     'last_ride': last_ride,
                     'last_login': last_login,
-                    'created_at': driver_record.created_at if hasattr(driver_record, 'created_at') else None,
-                    'updated_at': driver_record.updated_at if hasattr(driver_record, 'updated_at') else None,
+                    'created_at': driver_record.scraped_at if hasattr(driver_record, 'scraped_at') else None,
+                    'updated_at': driver_record.scraped_at if hasattr(driver_record, 'scraped_at') else None,
                     'data_type': driver_record.data_type
                 }
                 
@@ -249,6 +343,7 @@ async def get_drivers_overview(
             "total_drivers": total_drivers,
             "active_drivers": active_drivers,
             "inactive_drivers": total_drivers - active_drivers,
+            "online_drivers": active_drivers,  # Todos os ativos estão online
             "average_rating": round(average_rating, 2),
             "total_rides_completed": total_rides_all,
             "avg_rides_per_driver": round(avg_rides_per_driver, 2),
@@ -258,7 +353,8 @@ async def get_drivers_overview(
                     "rating": d['rating'],
                     "total_rides": d['total_rides'],
                     "efficiency": d['efficiency_score'],
-                    "avg_rating": d['rating']
+                    "avg_rating": d['rating'],
+                    "status": d['status']
                 } for d in top_drivers
             ],
             "drivers_by_status": drivers_by_status,
