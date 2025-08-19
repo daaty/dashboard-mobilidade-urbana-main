@@ -129,21 +129,36 @@ class MetasEstrategicasService:
             print(f"Erro ao atualizar meta progressiva: {e}")
             return None
     
-    def deletar_meta_progressiva(self, meta_id: int) -> bool:
+    def deletar_meta_progressiva(self, meta_id: int) -> Dict:
         """Deleta uma meta progressiva"""
         try:
             meta = self.db.query(MetasProgressivas).filter(MetasProgressivas.id == meta_id).first()
             if not meta:
-                return False
+                return {'success': False, 'error': 'Meta não encontrada'}
+            
+            # Salvar dados antes de deletar para retorno
+            cidade_nome = meta.cidade.cidade if meta.cidade else "N/A"
+            mes = meta.mes
+            tipo = meta.tipo_meta
             
             self.db.delete(meta)
             self.db.commit()
-            return True
+            
+            return {
+                'success': True, 
+                'message': 'Meta deletada com sucesso',
+                'meta_deletada': {
+                    'id': meta_id,
+                    'cidade': cidade_nome,
+                    'mes': mes,
+                    'tipo': tipo
+                }
+            }
             
         except Exception as e:
             self.db.rollback()
             print(f"Erro ao deletar meta progressiva: {e}")
-            return False
+            return {'success': False, 'error': str(e)}
     
     # === FASES DE PLANEJAMENTO ===
     
