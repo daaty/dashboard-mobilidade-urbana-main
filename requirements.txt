@@ -3,3 +3,12 @@ uvicorn[standard]
 pydantic
 sqlalchemy
 asyncpg
+werkzeug
+pandas
+psycopg2-binary
+python-multipart
+google-generativeai
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
