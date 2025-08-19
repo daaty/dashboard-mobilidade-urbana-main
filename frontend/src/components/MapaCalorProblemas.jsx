@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { GoogleMap, MarkerF, useJsApiLoader, InfoWindowF } from "@react-google-maps/api";
+import React, { useEffect, useState, useRef } from "react";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 
 // Chave da API Google Maps (use variável de ambiente Vite)
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "SUA_CHAVE_AQUI";
@@ -25,7 +25,9 @@ async function geocodeAddress(address) {
 export default function MapaCalorProblemas() {
   const [pontos, setPontos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState(null);
+  const [tipo, setTipo] = useState('todas');
+  const mapRef = useRef(null);
+  const heatmapRef = useRef(null);
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries: ["visualization"]
@@ -41,15 +43,12 @@ export default function MapaCalorProblemas() {
       const cache = JSON.parse(localStorage.getItem("geocode_cache") || "{}")
       const geocoded = [];
       for (const item of pontosApi) {
-        // Montar endereço completo para geocodificação
-        // Tenta usar: endereco, bairro, cidade, estado, Brasil
         let enderecoCompleto = "";
         if (item.endereco) enderecoCompleto += item.endereco + ", ";
         if (item.bairro) enderecoCompleto += item.bairro + ", ";
         if (item.cidade) enderecoCompleto += item.cidade + ", ";
         if (item.estado) enderecoCompleto += item.estado + ", ";
         enderecoCompleto += "Brasil";
-        // Usar bairro como chave de cache, mas pode ser melhor usar o endereço completo
         let cacheKey = enderecoCompleto;
         let coords = cache[cacheKey];
         if (!coords) {
@@ -72,49 +71,47 @@ export default function MapaCalorProblemas() {
     fetchAndGeocode();
   }, []);
 
+  // Filtro dos pontos conforme o tipo selecionado
+  const pontosFiltrados = tipo === 'todas' ? pontos : pontos.filter(p => p.status === tipo);
+
+  // Dados para o heatmap: array de google.maps.LatLng ou {location, weight}
+  const heatmapData = pontosFiltrados.map(p => new window.google.maps.LatLng(p.location.lat, p.location.lng));
+
+  // Atualizar camada de heatmap quando dados ou tipo mudam
+  useEffect(() => {
+    if (!isLoaded || !mapRef.current) return;
+    // Remove camada anterior
+    if (heatmapRef.current) {
+      heatmapRef.current.setMap(null);
+    }
+    if (heatmapData.length > 0 && window.google && window.google.maps.visualization) {
+      heatmapRef.current = new window.google.maps.visualization.HeatmapLayer({
+        data: heatmapData,
+        radius: 40,
+        opacity: 0.7,
+        dissipating: true
+      });
+      heatmapRef.current.setMap(mapRef.current);
+    }
+  }, [isLoaded, heatmapData]);
+
   if (!isLoaded) return <div>Carregando mapa...</div>;
   if (loading) return <div>Carregando dados do heatmap...</div>;
 
-  // Cores por status
-  const statusColor = {
-    cancelada: "#e74c3c",
-    perdida: "#f1c40f",
-    concluida: "#2ecc71"
-  };
-
   return (
-    <GoogleMap
-      mapContainerStyle={mapContainerStyle}
-      center={defaultCenter}
-      zoom={5}
-    >
-      {pontos.map((p, idx) => (
-        <MarkerF
-          key={idx}
-          position={p.location}
-          icon={{
-            path: window.google.maps.SymbolPath.CIRCLE,
-            scale: 10,
-            fillColor: statusColor[p.status] || "#3498db",
-            fillOpacity: 0.8,
-            strokeWeight: 1,
-            strokeColor: "#333"
-          }}
-          onClick={() => setSelected({ ...p, idx })}
-        />
-      ))}
-      {selected && (
-        <InfoWindowF
-          position={selected.location}
-          onCloseClick={() => setSelected(null)}
-        >
-          <div>
-            <strong>Status:</strong> {selected.status}<br />
-            {selected.motivo && <><strong>Motivo:</strong> {selected.motivo}<br /></>}
-            <strong>Bairro:</strong> {selected.bairro}
-          </div>
-        </InfoWindowF>
-      )}
-    </GoogleMap>
+    <div>
+      <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
+        <button onClick={() => setTipo('todas')} style={{ background: tipo === 'todas' ? '#3B82F6' : '#eee', color: tipo === 'todas' ? '#fff' : '#333', border: 'none', borderRadius: 4, padding: '6px 12px', cursor: 'pointer' }}>Todas</button>
+        <button onClick={() => setTipo('concluida')} style={{ background: tipo === 'concluida' ? '#10B981' : '#eee', color: tipo === 'concluida' ? '#fff' : '#333', border: 'none', borderRadius: 4, padding: '6px 12px', cursor: 'pointer' }}>Concluídas</button>
+        <button onClick={() => setTipo('cancelada')} style={{ background: tipo === 'cancelada' ? '#EF4444' : '#eee', color: tipo === 'cancelada' ? '#fff' : '#333', border: 'none', borderRadius: 4, padding: '6px 12px', cursor: 'pointer' }}>Canceladas</button>
+        <button onClick={() => setTipo('perdida')} style={{ background: tipo === 'perdida' ? '#F59E0B' : '#eee', color: tipo === 'perdida' ? '#fff' : '#333', border: 'none', borderRadius: 4, padding: '6px 12px', cursor: 'pointer' }}>Perdidas</button>
+      </div>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={defaultCenter}
+        zoom={5}
+        onLoad={map => { mapRef.current = map; }}
+      />
+    </div>
   );
 }
