@@ -28,11 +28,21 @@ class DashboardAPITools(Toolkit):
         """Método auxiliar para fazer requisições HTTP"""
         try:
             url = f"{self.base_url}{endpoint}"
+            print(f"🔗 [TOOL] Fazendo requisição: {method} {url}")
+            if kwargs.get('params'):
+                print(f"📊 [TOOL] Parâmetros: {kwargs['params']}")
+            
             response = requests.request(method, url, timeout=self.timeout, **kwargs)
+            print(f"✅ [TOOL] Status: {response.status_code}")
+            
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+            print(f"📋 [TOOL] Dados recebidos com {len(str(data))} caracteres")
+            return data
         except requests.exceptions.RequestException as e:
-            logger.error(f"Erro na requisição {method} {endpoint}: {e}")
+            error_msg = f"Erro na requisição {method} {endpoint}: {e}"
+            print(f"❌ [TOOL] {error_msg}")
+            logger.error(error_msg)
             return {"error": str(e), "success": False}
     
     # ========== ANÁLISE DE CORRIDAS ==========
@@ -92,13 +102,21 @@ class DashboardAPITools(Toolkit):
         Returns:
             JSON com dados de motoristas ativos, avaliações, etc.
         """
+        print(f"🚗 [TOOL] get_drivers_overview() chamada com periodo={periodo}")
+        print(f"🔗 [TOOL] URL base configurada: {self.base_url}")
+        
         # API não aceita parâmetros de período, então fazemos requisição simples
         data = self._make_request("GET", "/api/drivers/overview")
         
         if "error" in data:
-            return f"Erro ao buscar dados de motoristas: {data['error']}"
-            
-        return json.dumps(data, indent=2, ensure_ascii=False)
+            error_msg = f"Erro ao buscar dados de motoristas: {data['error']}"
+            print(f"❌ [TOOL] {error_msg}")
+            return error_msg
+        
+        print(f"✅ [TOOL] Dados de motoristas obtidos: {data.get('active_drivers', 'N/A')} ativos")
+        result = json.dumps(data, indent=2, ensure_ascii=False)
+        print(f"📤 [TOOL] Retornando dados de motoristas ({len(result)} caracteres)")
+        return result
     
     def get_drivers_by_city(self, cidade: str) -> str:
         """

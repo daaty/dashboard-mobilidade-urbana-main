@@ -73,18 +73,27 @@ class MobilityDashboardAgent:
         instructions = self._get_agent_instructions()
         
         # Criar agente
+        print(f"🔧 [INIT] Criando agente com dashboard_url: {dashboard_url}")
+        print(f"🛠️ [INIT] Inicializando ferramentas...")
+        
+        dashboard_tools = DashboardAPITools(base_url=dashboard_url)
+        business_tools = BusinessAnalysisTools()
+        
+        print(f"✅ [INIT] DashboardAPITools configurado com base_url: {dashboard_tools.base_url}")
+        print(f"✅ [INIT] BusinessAnalysisTools configurado")
+        
         self.agent = Agent(
             name="MobilityInsightAgent",
             model=OpenAIChat(**model_config),
-            tools=[
-                DashboardAPITools(base_url=dashboard_url),
-                BusinessAnalysisTools()
-            ],
+            tools=[dashboard_tools, business_tools],
             instructions=instructions,
             memory=memory,
             show_tool_calls=True,
             markdown=True
         )
+        
+        print(f"🎯 [INIT] Agente criado com {len(self.agent.tools)} ferramentas")
+        print(f"🔍 [INIT] show_tool_calls habilitado: True")
         
         # Base de conhecimento sobre mobilidade urbana
         self.knowledge_base = self._build_knowledge_base()
@@ -408,7 +417,10 @@ Se precisar de mais insights ou tiver outras perguntas, estarei aqui! 🚀"""
 
         elif intent == 'question':
             # Para perguntas diretas, FORÇAR uso de ferramentas
-            return self.agent.run(f"""
+            print(f"🎯 [AGENT] Pergunta classificada como 'question': {user_question}")
+            print(f"🔧 [AGENT] Executando agent.run() com instruções para usar ferramentas...")
+            
+            result = self.agent.run(f"""
             PERGUNTA: {user_question}
             
             PROTOCOLO OBRIGATÓRIO:
@@ -423,6 +435,9 @@ Se precisar de mais insights ou tiver outras perguntas, estarei aqui! 🚀"""
             
             Responda com base nos dados REAIS das ferramentas!
             """)
+            
+            print(f"📤 [AGENT] Resposta gerada: {result[:200]}...")
+            return result
         
         elif intent == 'analysis_request':
             # Para solicitações de análise, usar análise completa
@@ -462,11 +477,17 @@ Se precisar de mais insights ou tiver outras perguntas, estarei aqui! 🚀"""
     def interactive_analysis(self, user_question: str) -> str:
         """Análise interativa inteligente baseada no contexto da pergunta"""
         
+        print(f"🤔 [AGENT] Pergunta recebida: {user_question}")
+        
         # Classificar intenção do usuário
         intent = self._classify_user_intent(user_question)
+        print(f"🎯 [AGENT] Intenção classificada como: {intent}")
         
         # Gerar resposta contextual
-        return self._generate_contextual_response(user_question, intent)
+        result = self._generate_contextual_response(user_question, intent)
+        print(f"📋 [AGENT] Resposta final gerada com {len(result)} caracteres")
+        
+        return result
 
 
 def main():

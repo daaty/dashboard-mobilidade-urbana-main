@@ -79,13 +79,31 @@ async def startup_event():
     try:
         print("🚀 Inicializando Agente Inteligente...")
         
+        dashboard_url = os.getenv("DASHBOARD_URL", "http://localhost:8000")
+        print(f"🔗 [STARTUP] Dashboard URL: {dashboard_url}")
+        
         agente = MobilityDashboardAgent(
-            dashboard_url=os.getenv("DASHBOARD_URL", "http://localhost:8000"),
+            dashboard_url=dashboard_url,
             openai_api_key=os.getenv("OPENAI_API_KEY"),
             memory_db_url=os.getenv("MEMORY_DB_URL")
         )
         
         print("✅ Agente inicializado com sucesso!")
+        
+        # TESTE: Verificar se as ferramentas funcionam
+        print("🧪 [STARTUP] Testando ferramentas...")
+        try:
+            # Teste direto da ferramenta
+            from dashboard_agent.tools.dashboard_api_tools import DashboardAPITools
+            test_tools = DashboardAPITools(base_url=dashboard_url)
+            print(f"🔧 [TEST] Testando get_drivers_overview() com URL: {dashboard_url}")
+            result = test_tools.get_drivers_overview()
+            if "active_drivers" in result:
+                print("✅ [TEST] Ferramentas funcionando corretamente!")
+            else:
+                print(f"⚠️ [TEST] Resultado inesperado: {result[:100]}...")
+        except Exception as e:
+            print(f"❌ [TEST] Erro ao testar ferramentas: {e}")
         
     except Exception as e:
         print(f"❌ Erro ao inicializar agente: {e}")
@@ -172,9 +190,12 @@ async def ask_question(request: QuestionRequest):
         raise HTTPException(status_code=503, detail="Agente não inicializado")
     
     try:
-        print(f"🤔 Pergunta recebida: {request.question[:50]}...")
+        print(f"🤔 [API] Pergunta recebida: {request.question[:50]}...")
+        print(f"🔧 [API] Chamando agente.interactive_analysis()...")
         
         result = agente.interactive_analysis(request.question)
+        
+        print(f"📤 [API] Resultado recebido do agente com {len(str(result))} caracteres")
         
         # Extrair conteúdo se for RunResponse
         if hasattr(result, 'content'):
