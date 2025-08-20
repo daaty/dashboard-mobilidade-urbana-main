@@ -131,12 +131,22 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
         tipo_meta: item.tipo_meta
       })
     } else {
+      // 🔧 Converter datas ISO para formato YYYY-MM-DD para input date
+      const formatarDataParaInput = (dataStr) => {
+        if (!dataStr) return ''
+        // Se a data contém T (formato ISO), extrair apenas a parte da data
+        if (dataStr.includes('T')) {
+          return dataStr.split('T')[0]
+        }
+        return dataStr
+      }
+      
       setFormData({
         ...formData,
         nome: item.nome,
         descricao: item.descricao,
-        data_inicio: item.data_inicio,
-        data_fim: item.data_fim,
+        data_inicio: formatarDataParaInput(item.data_inicio),
+        data_fim: formatarDataParaInput(item.data_fim),
         status: item.status,
         meta_cidades: item.meta_cidades,
         orcamento_previsto: item.orcamento_previsto,

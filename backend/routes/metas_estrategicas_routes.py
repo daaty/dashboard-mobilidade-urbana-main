@@ -182,7 +182,7 @@ async def atualizar_fase_planejamento(
         resultado = service.atualizar_fase_planejamento(fase_id, fase.dict(exclude_unset=True))
         
         if not resultado['success']:
-            raise HTTPException(status_code=400, detail=resultado['error'])
+            raise HTTPException(status_code=400, detail=resultado['message'])
         
         return resultado
     except Exception as e:
@@ -199,7 +199,7 @@ async def deletar_fase_planejamento(
         resultado = service.deletar_fase_planejamento(fase_id)
         
         if not resultado['success']:
-            raise HTTPException(status_code=400, detail=resultado['error'])
+            raise HTTPException(status_code=400, detail=resultado['message'])
         
         return resultado
     except Exception as e:

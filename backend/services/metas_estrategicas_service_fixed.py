@@ -240,12 +240,16 @@ class MetasEstrategicasService:
             print(f"Erro ao criar fase de planejamento: {e}")
             return None
     
-    def atualizar_fase_planejamento(self, fase_id: int, dados: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def atualizar_fase_planejamento(self, fase_id: int, dados: Dict[str, Any]) -> Dict[str, Any]:
         """Atualiza uma fase de planejamento existente"""
         try:
             fase = self.db.query(FasesPlanejamento).filter(FasesPlanejamento.id == fase_id).first()
             if not fase:
-                return None
+                return {
+                    'success': False,
+                    'message': 'Fase não encontrada',
+                    'fase_atualizada': None
+                }
             
             # Atualizar campos permitidos
             if 'nome' in dados:
@@ -253,9 +257,33 @@ class MetasEstrategicasService:
             if 'descricao' in dados:
                 fase.descricao = dados['descricao']
             if 'data_inicio' in dados:
-                fase.data_inicio = datetime.strptime(dados['data_inicio'], '%Y-%m-%d').date()
+                # Lidar com diferentes tipos de data
+                data_valor = dados['data_inicio']
+                if isinstance(data_valor, str):
+                    # Se é string, converter
+                    if 'T' in data_valor:
+                        data_valor = data_valor.split('T')[0]  # Remove parte do tempo
+                    fase.data_inicio = datetime.strptime(data_valor, '%Y-%m-%d').date()
+                elif hasattr(data_valor, 'date'):
+                    # Se é datetime, extrair apenas a data
+                    fase.data_inicio = data_valor.date()
+                else:
+                    # Se já é date, usar diretamente
+                    fase.data_inicio = data_valor
             if 'data_fim' in dados:
-                fase.data_fim = datetime.strptime(dados['data_fim'], '%Y-%m-%d').date()
+                # Lidar com diferentes tipos de data
+                data_valor = dados['data_fim']
+                if isinstance(data_valor, str):
+                    # Se é string, converter
+                    if 'T' in data_valor:
+                        data_valor = data_valor.split('T')[0]  # Remove parte do tempo
+                    fase.data_fim = datetime.strptime(data_valor, '%Y-%m-%d').date()
+                elif hasattr(data_valor, 'date'):
+                    # Se é datetime, extrair apenas a data
+                    fase.data_fim = data_valor.date()
+                else:
+                    # Se já é date, usar diretamente
+                    fase.data_fim = data_valor
             if 'status' in dados:
                 fase.status = dados['status']
             if 'progresso_percentual' in dados:
@@ -267,31 +295,65 @@ class MetasEstrategicasService:
             self.db.refresh(fase)
             
             return {
-                'id': fase.id,
-                'nome': fase.nome,
-                'status': fase.status
+                'success': True,
+                'message': 'Fase atualizada com sucesso',
+                'fase_atualizada': {
+                    'id': fase.id,
+                    'nome': fase.nome,
+                    'status': fase.status,
+                    'data_inicio': fase.data_inicio.isoformat() if fase.data_inicio else None,
+                    'data_fim': fase.data_fim.isoformat() if fase.data_fim else None,
+                    'progresso_percentual': fase.progresso_percentual,
+                    'orcamento_previsto': float(fase.orcamento_previsto) if fase.orcamento_previsto else 0
+                }
             }
             
         except Exception as e:
             self.db.rollback()
             print(f"Erro ao atualizar fase de planejamento: {e}")
-            return None
+            return {
+                'success': False,
+                'message': f'Erro interno: {str(e)}',
+                'fase_atualizada': None
+            }
     
-    def deletar_fase_planejamento(self, fase_id: int) -> bool:
+    def deletar_fase_planejamento(self, fase_id: int) -> Dict[str, Any]:
         """Deleta uma fase de planejamento"""
         try:
             fase = self.db.query(FasesPlanejamento).filter(FasesPlanejamento.id == fase_id).first()
             if not fase:
-                return False
+                return {
+                    'success': False,
+                    'message': 'Fase não encontrada',
+                    'fase_deletada': None
+                }
+            
+            # Salvar dados da fase antes de deletar
+            fase_dados = {
+                'id': fase.id,
+                'nome': fase.nome,
+                'status': fase.status,
+                'data_inicio': fase.data_inicio.isoformat() if fase.data_inicio else None,
+                'data_fim': fase.data_fim.isoformat() if fase.data_fim else None
+            }
             
             self.db.delete(fase)
             self.db.commit()
-            return True
+            
+            return {
+                'success': True,
+                'message': 'Fase deletada com sucesso',
+                'fase_deletada': fase_dados
+            }
             
         except Exception as e:
             self.db.rollback()
             print(f"Erro ao deletar fase de planejamento: {e}")
-            return False
+            return {
+                'success': False,
+                'message': f'Erro interno: {str(e)}',
+                'fase_deletada': None
+            }
     
     # === RELATÓRIOS E DASHBOARD ===
     
