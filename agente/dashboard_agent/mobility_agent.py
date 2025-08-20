@@ -436,12 +436,17 @@ Se precisar de mais insights ou tiver outras perguntas, estarei aqui! 🚀"""
             Responda com base nos dados REAIS das ferramentas!
             """)
             
-            print(f"📤 [AGENT] Resposta gerada: {result[:200]}...")
-            return result
+            print(f"📤 [AGENT] Resposta gerada: {str(result)[:200]}...")
+            
+            # Garantir que retornamos string
+            if hasattr(result, 'content'):
+                return str(result.content)
+            else:
+                return str(result)
         
         elif intent == 'analysis_request':
             # Para solicitações de análise, usar análise completa
-            return self.agent.run(f"""
+            result = self.agent.run(f"""
             Execute esta solicitação de análise de forma completa:
             
             SOLICITAÇÃO: {user_question}
@@ -453,10 +458,16 @@ Se precisar de mais insights ou tiver outras perguntas, estarei aqui! 🚀"""
             4. Forneça insights acionáveis e recomendações
             5. Inclua dados específicos e métricas relevantes
             """)
+            
+            # Garantir que retornamos string
+            if hasattr(result, 'content'):
+                return str(result.content)
+            else:
+                return str(result)
         
         else:
             # Para QUALQUER pergunta, FORÇAR uso das ferramentas
-            return self.agent.run(f"""
+            result = self.agent.run(f"""
             MENSAGEM: {user_question}
             
             AÇÃO OBRIGATÓRIA:
@@ -473,6 +484,12 @@ Se precisar de mais insights ou tiver outras perguntas, estarei aqui! 🚀"""
             
             USE as ferramentas quando apropriado!
             """)
+            
+            # Garantir que retornamos string
+            if hasattr(result, 'content'):
+                return str(result.content)
+            else:
+                return str(result)
 
     def interactive_analysis(self, user_question: str) -> str:
         """Análise interativa inteligente baseada no contexto da pergunta"""
@@ -483,11 +500,21 @@ Se precisar de mais insights ou tiver outras perguntas, estarei aqui! 🚀"""
         intent = self._classify_user_intent(user_question)
         print(f"🎯 [AGENT] Intenção classificada como: {intent}")
         
-        # Gerar resposta contextual
-        result = self._generate_contextual_response(user_question, intent)
-        print(f"📋 [AGENT] Resposta final gerada com {len(result)} caracteres")
-        
-        return result
+        try:
+            # Gerar resposta contextual
+            result = self._generate_contextual_response(user_question, intent)
+            print(f"📋 [AGENT] Resposta final gerada com {len(str(result))} caracteres")
+            
+            # Garantir que sempre retornamos uma string
+            if hasattr(result, 'content'):
+                return str(result.content)
+            else:
+                return str(result)
+                
+        except Exception as e:
+            error_msg = f"❌ [AGENT] Erro ao processar pergunta: {str(e)}"
+            print(error_msg)
+            return f"Desculpe, houve um erro ao processar sua pergunta: {str(e)}"
 
 
 def main():

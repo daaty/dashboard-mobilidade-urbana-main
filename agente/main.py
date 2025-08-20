@@ -196,14 +196,25 @@ async def ask_question(request: QuestionRequest):
         result = agente.interactive_analysis(request.question)
         
         print(f"📤 [API] Resultado recebido do agente com {len(str(result))} caracteres")
+        print(f"🔍 [API] Tipo do resultado: {type(result)}")
+        print(f"🔍 [API] Hasattr content: {hasattr(result, 'content')}")
         
         # Extrair conteúdo se for RunResponse
-        if hasattr(result, 'content'):
-            result_content = result.content
-        else:
+        try:
+            if hasattr(result, 'content'):
+                result_content = result.content
+                print(f"✅ [API] Conteúdo extraído do RunResponse: {len(str(result_content))} caracteres")
+            else:
+                result_content = str(result)
+                print(f"✅ [API] Usando resultado como string: {len(result_content)} caracteres")
+        except Exception as extract_error:
+            print(f"❌ [API] Erro ao extrair conteúdo: {extract_error}")
+            print(f"🔍 [API] Tentando conversão direta para string...")
             result_content = str(result)
         
-        return AnalysisResponse(
+        print(f"📋 [API] Preparando resposta...")
+        
+        response = AnalysisResponse(
             success=True,
             result=result_content,
             timestamp=datetime.now(),
@@ -211,8 +222,14 @@ async def ask_question(request: QuestionRequest):
             metadata={"question": request.question, "context": request.context}
         )
         
+        print(f"✅ [API] Resposta preparada com sucesso")
+        return response
+        
     except Exception as e:
-        print(f"❌ Erro ao processar pergunta: {e}")
+        print(f"❌ [API] Erro ao processar pergunta: {e}")
+        print(f"🔍 [API] Tipo do erro: {type(e)}")
+        import traceback
+        print(f"📋 [API] Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Erro ao processar pergunta: {str(e)}")
 
 @app.get("/status")
