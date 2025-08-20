@@ -332,65 +332,8 @@ export default function AnaliseCorreidas() {
           </div>
         </motion.div>
 
-        {/* Gráficos e análises detalhadas */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Gráfico de Pizza - Distribuição de Status */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-blue-600 rounded-xl">
-                <BarChart3 className="w-5 h-5 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-blue-800">
-                Distribuição por Status das Corridas
-              </h3>
-            </div>
-            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-200 p-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    dataKey="quantidade"
-                    nameKey="status"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {statusData.map((entry, idx) => (
-                      <Cell key={`cell-${idx}`} fill={
-                        entry.status === 'Concluídas' ? COLORS.concluidas :
-                        entry.status === 'Canceladas' ? COLORS.canceladas :
-                        entry.status === 'Perdidas' ? COLORS.perdidas :
-                        Object.values(COLORS)[idx % Object.values(COLORS).length]
-                      } />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value, name) => [`${value} corridas`, name]} 
-                    contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px'
-                    }}
-                  />
-                  <Legend 
-                    formatter={(value) => (
-                      <span style={{ 
-                        color: value === 'Concluídas' ? COLORS.concluidas :
-                               value === 'Canceladas' ? COLORS.canceladas :
-                               value === 'Perdidas' ? COLORS.perdidas : '#374151'
-                      }}>
-                        {value}
-                      </span>
-                    )}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          
-          {/* Gráfico de Tendências */}
+        {/* Gráfico de Tendências - Largura Total */}
+        <div className="mb-8">
           <div className="bg-gradient-to-br from-emerald-50 to-green-100 border border-emerald-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-emerald-600 rounded-xl">
@@ -443,62 +386,8 @@ export default function AnaliseCorreidas() {
           </div>
         </div>
 
-        {/* Row 2: Análise de Cancelamentos e Tempos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Análise de Cancelamentos */}
-          <div className="bg-gradient-to-br from-red-50 to-pink-100 border border-red-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-red-600 rounded-xl">
-                <XCircle className="w-5 h-5 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-red-800">
-                Análise de Causa Raiz - Cancelamentos
-              </h3>
-            </div>
-            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-red-200 p-4">
-              {data?.motivos_cancelamento && data.motivos_cancelamento.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={data.motivos_cancelamento}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="quantidade"
-                      nameKey="motivo"
-                    >
-                      {data.motivos_cancelamento.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={`hsl(${index * 360 / data.motivos_cancelamento.length}, 70%, 50%)`} 
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value, name) => [`${value} cancelamentos`, name]} 
-                      labelFormatter={(motivo) => `Motivo: ${motivo}`}
-                      contentStyle={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <div className="text-red-600 text-lg font-medium">Sem dados de cancelamentos</div>
-                    <div className="text-red-500 text-sm mt-1">Nenhum cancelamento encontrado no período</div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Análise de Tempos */}
+        {/* Análise de Tempos - Largura Total */}
+        <div className="mb-8">
           <div className="bg-gradient-to-br from-amber-50 to-yellow-100 border border-amber-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-amber-600 rounded-xl">
@@ -557,6 +446,118 @@ export default function AnaliseCorreidas() {
                   <div className="text-center">
                     <div className="text-amber-600 text-lg font-medium">Sem dados de horários</div>
                     <div className="text-amber-500 text-sm mt-1">Nenhum dado encontrado no período</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: Distribuição de Status e Análise de Cancelamentos - Lado a Lado */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Gráfico de Pizza - Distribuição de Status */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-blue-600 rounded-xl">
+                <BarChart3 className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-blue-800">
+                Distribuição por Status das Corridas
+              </h3>
+            </div>
+            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-200 p-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    dataKey="quantidade"
+                    nameKey="status"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {statusData.map((entry, idx) => (
+                      <Cell key={`cell-${idx}`} fill={
+                        entry.status === 'Concluídas' ? COLORS.concluidas :
+                        entry.status === 'Canceladas' ? COLORS.canceladas :
+                        entry.status === 'Perdidas' ? COLORS.perdidas :
+                        Object.values(COLORS)[idx % Object.values(COLORS).length]
+                      } />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value, name) => [`${value} corridas`, name]} 
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px'
+                    }}
+                  />
+                  <Legend 
+                    formatter={(value) => (
+                      <span style={{ 
+                        color: value === 'Concluídas' ? COLORS.concluidas :
+                               value === 'Canceladas' ? COLORS.canceladas :
+                               value === 'Perdidas' ? COLORS.perdidas : '#374151'
+                      }}>
+                        {value}
+                      </span>
+                    )}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Análise de Cancelamentos */}
+          <div className="bg-gradient-to-br from-red-50 to-pink-100 border border-red-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-600 rounded-xl">
+                <XCircle className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-red-800">
+                Análise de Causa Raiz - Cancelamentos
+              </h3>
+            </div>
+            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-red-200 p-4">
+              {data?.motivos_cancelamento && data.motivos_cancelamento.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={data.motivos_cancelamento}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="quantidade"
+                      nameKey="motivo"
+                    >
+                      {data.motivos_cancelamento.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={`hsl(${index * 360 / data.motivos_cancelamento.length}, 70%, 50%)`} 
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value, name) => [`${value} cancelamentos`, name]} 
+                      labelFormatter={(motivo) => `Motivo: ${motivo}`}
+                      contentStyle={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="text-red-600 text-lg font-medium">Sem dados de cancelamentos</div>
+                    <div className="text-red-500 text-sm mt-1">Nenhum cancelamento encontrado no período</div>
                   </div>
                 </div>
               )}
