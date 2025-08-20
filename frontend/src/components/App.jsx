@@ -16,6 +16,7 @@ import RelatoriosExecutivos from './RelatoriosExecutivos'
 import ImportacaoAvancada from './ImportacaoAvancada'
 import { SistemaAlertas } from './SistemaAlertas'
 import { ResumoPerformance } from './ResumoPerformance'
+import FloatingChat from './FloatingChat'
 import '../App.css'
 
 // Configuração da URL da API baseada no ambiente
@@ -300,6 +301,9 @@ function App() {
             {renderContent()}
           </main>
         </div>
+
+        {/* Chat Flutuante Global */}
+        <FloatingChat />
       </div>
     </div>
   )

@@ -12,7 +12,8 @@ const SistemaIA = () => {
   const [reports, setReports] = useState(null);
   const [loading, setLoading] = useState({
     insights: false,
-    reports: false
+    reports: false,
+    question: false
   });
   const [error, setError] = useState(null);
   const [analysisType, setAnalysisType] = useState('performance');
@@ -94,7 +95,8 @@ const SistemaIA = () => {
       if (data.success) {
         setReports({
           result: data.result,
-          timestamp: data.timestamp
+          timestamp: data.timestamp,
+          metadata: data.metadata
         });
       } else {
         setError('Erro ao gerar relatório: ' + (data.detail || 'Erro desconhecido'));
@@ -104,6 +106,42 @@ const SistemaIA = () => {
       console.error('Erro no relatório:', err);
     } finally {
       setLoading(prev => ({ ...prev, reports: false }));
+    }
+  };
+
+  const askQuestion = async () => {
+    if (!question.trim()) return;
+    
+    setLoading(prev => ({ ...prev, question: true }));
+    setError(null);
+    
+    try {
+      const response = await fetch(`${AGENT_API_URL}/ask`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: question,
+          context: {}
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setAnswer({
+          question: question,
+          result: data.result,
+          timestamp: data.timestamp
+        });
+        setQuestion(''); // Limpar pergunta
+      } else {
+        setError('Erro ao processar pergunta: ' + (data.detail || 'Erro desconhecido'));
+      }
+    } catch (err) {
+      setError('Erro de conexão com o agente: ' + err.message);
+      console.error('Erro na pergunta:', err);
+    } finally {
+      setLoading(prev => ({ ...prev, question: false }));
     }
   };
 
@@ -183,83 +221,72 @@ const SistemaIA = () => {
       if (trimmedLine.startsWith('#')) {
         const level = (trimmedLine.match(/^#+/) || [''])[0].length;
         const text = trimmedLine.replace(/^#+\s*/, '');
-        const headerClass = level === 1 ? 'text-lg font-bold text-gray-900 mt-4 mb-2' :
-                          level === 2 ? 'text-base font-semibold text-gray-800 mt-3 mb-2' :
-                          'text-sm font-medium text-gray-700 mt-2 mb-1';
+        const classes = level === 1 ? 'text-lg font-bold text-gray-900 mt-4 mb-2' :
+                       level === 2 ? 'text-base font-semibold text-gray-800 mt-3 mb-2' :
+                       'text-sm font-medium text-gray-700 mt-2 mb-1';
         
+        return <h3 key={index} className={classes}>{text}</h3>;
+      }
+      
+      // Detectar listas (começam com -)
+      if (trimmedLine.startsWith('-')) {
         return (
-          <div key={index} className={headerClass}>
-            {text}
-          </div>
+          <li key={index} className="mb-1 text-sm leading-relaxed text-gray-700 ml-4">
+            {trimmedLine.replace(/^-\s*/, '')}
+          </li>
         );
       }
       
-      // Detectar listas (começam com - ou *)
-      if (trimmedLine.match(/^[-*]\s/)) {
-        const text = trimmedLine.replace(/^[-*]\s/, '');
+      // Detectar texto em negrito (**texto**)
+      if (trimmedLine.includes('**')) {
+        const parts = trimmedLine.split(/\*\*(.*?)\*\*/);
         return (
-          <div key={index} className="flex items-start space-x-2 text-sm text-gray-600 mb-1">
-            <span className="text-blue-500 mt-1">•</span>
-            <span>{text}</span>
-          </div>
-        );
-      }
-      
-      // Detectar números (começam com números)
-      if (trimmedLine.match(/^\d+\.\s/)) {
-        return (
-          <div key={index} className="text-sm text-gray-600 mb-1 ml-4">
-            {trimmedLine}
-          </div>
-        );
-      }
-      
-      // Texto normal
-      if (trimmedLine) {
-        return (
-          <p key={index} className="text-sm text-gray-600 mb-2">
-            {trimmedLine}
+          <p key={index} className="mb-2 text-sm leading-relaxed text-gray-700">
+            {parts.map((part, i) => 
+              i % 2 === 1 ? <strong key={i} className="font-semibold">{part}</strong> : part
+            )}
           </p>
         );
       }
       
-      return null;
-    }).filter(Boolean);
+      // Parágrafo normal
+      return (
+        <p key={index} className="mb-2 text-sm leading-relaxed text-gray-700">
+          {trimmedLine}
+        </p>
+      );
+    });
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-200">
-        <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <Brain className="h-8 w-8 text-purple-600" />
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-              <Brain className="h-7 w-7 text-blue-600" />
-              <span>IA & Insights</span>
-            </h2>
-            <p className="text-gray-600 mt-2">
-              Análises inteligentes geradas pelo agente AGNO com raciocínio avançado
-            </p>
+            <h2 className="text-2xl font-bold text-gray-900">Agente Inteligente AGNO</h2>
+            <p className="text-gray-600">Análises avançadas com IA e reasoning especializado</p>
           </div>
+        </div>
         
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setChatOpen(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg"
-            >
-              <MessageCircle className="h-4 w-4" />
-              <span>Chat com Agente</span>
-            </button>
-            
-            <button
-              onClick={fetchExecutiveReport}
-              disabled={loading.reports}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
-            >
-              <BarChart3 className={`h-4 w-4 ${loading.reports ? 'animate-spin' : ''}`} />
-              <span>Relatório Executivo</span>
-            </button>
-          </div>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setChatOpen(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg"
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span>Chat com Agente</span>
+          </button>
+          
+          <button
+            onClick={fetchExecutiveReport}
+            disabled={loading.reports}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+          >
+            <BarChart3 className={`h-4 w-4 ${loading.reports ? 'animate-spin' : ''}`} />
+            <span>Relatório Executivo</span>
+          </button>
         </div>
       </div>
 
@@ -289,8 +316,8 @@ const SistemaIA = () => {
                 className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all ${
                   isActive
                     ? `border-${type.color}-500 bg-${type.color}-50 text-${type.color}-700`
-                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-                }`}
+                    : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                } disabled:opacity-50`}
               >
                 <Icon className="h-4 w-4" />
                 <span className="text-sm font-medium">{type.name}</span>
@@ -300,26 +327,32 @@ const SistemaIA = () => {
         </div>
       </div>
 
+      </div>
+      </div>
+
       {/* Grid com 2 colunas */}
+
+      {/* Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Insights Card */}
+        
+        {/* Análise Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center space-x-2">
               <Lightbulb className="h-5 w-5 text-yellow-500" />
-              <h3 className="text-lg font-semibold text-gray-900">Análise Atual</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {analysisTypes.find(t => t.id === analysisType)?.name || 'Análise Inteligente'}
+              </h3>
             </div>
-            <p className="text-sm text-gray-600 mt-1">
-              {analysisTypes.find(t => t.id === analysisType)?.name || 'Análise Personalizada'}
-            </p>
+            <p className="text-sm text-gray-600 mt-1">Análise especializada com reasoning avançado</p>
           </div>
           
           <div className="p-6">
             {loading.insights ? (
               <div className="flex items-center justify-center py-8">
                 <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600">Analisando dados...</span>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                  <span className="text-gray-600">Agente analisando dados...</span>
                 </div>
               </div>
             ) : insights ? (
@@ -332,7 +365,7 @@ const SistemaIA = () => {
             ) : (
               <div className="text-center py-8">
                 <Lightbulb className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">Selecione um tipo de análise acima</p>
+                <p className="text-gray-500">Selecione um tipo de análise acima para começar</p>
               </div>
             )}
           </div>

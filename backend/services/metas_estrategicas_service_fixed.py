@@ -63,11 +63,14 @@ class MetasEstrategicasService:
     def criar_meta_progressiva(self, dados: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Cria uma nova meta progressiva"""
         try:
+            # Compatibilidade entre nomes de campos
+            percentual_publico = dados.get('percentual_publico') or dados.get('percentual_penetracao', 0)
+            
             nova_meta = MetasProgressivas(
                 cidade_id=dados['cidade_id'],
                 fase_id=dados.get('fase_id'),
                 mes=dados['mes'],
-                percentual_publico=dados['percentual_publico'],
+                percentual_publico=percentual_publico,
                 tipo_meta=dados['tipo_meta'],
                 meta_corridas=dados['meta_corridas'],
                 meta_motoristas=dados['meta_motoristas'],
@@ -209,18 +212,29 @@ class MetasEstrategicasService:
     def criar_fase_planejamento(self, dados: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Cria uma nova fase de planejamento"""
         try:
+            # Converter datas se necessário
+            data_inicio = dados.get('data_inicio')
+            data_fim = dados.get('data_fim')
+            
+            if isinstance(data_inicio, str):
+                data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d').date()
+            if isinstance(data_fim, str):
+                data_fim = datetime.strptime(data_fim, '%Y-%m-%d').date()
+            
             nova_fase = FasesPlanejamento(
                 nome=dados['nome'],
                 descricao=dados.get('descricao'),
-                data_inicio=datetime.strptime(dados['data_inicio'], '%Y-%m-%d').date(),
-                data_fim=datetime.strptime(dados['data_fim'], '%Y-%m-%d').date(),
-                orcamento_previsto=dados['orcamento_previsto'],
+                data_inicio=data_inicio,
+                data_fim=data_fim,
+                orcamento_previsto=dados.get('orcamento_previsto', 0),
                 meta_cidades=dados.get('meta_cidades', 0),
                 meta_motoristas=dados.get('meta_motoristas', 0),
                 meta_corridas=dados.get('meta_corridas', 0),
                 meta_receita=dados.get('meta_receita', 0.0),
                 prazo_meses=dados.get('prazo_meses', 1),
-                responsavel=dados.get('responsavel')
+                responsavel=dados.get('responsavel'),
+                status=dados.get('status', 'planejada'),
+                progresso_percentual=dados.get('progresso_percentual', 0)
             )
             
             self.db.add(nova_fase)
@@ -231,8 +245,10 @@ class MetasEstrategicasService:
                 'id': nova_fase.id,
                 'nome': nova_fase.nome,
                 'status': nova_fase.status,
-                'data_inicio': nova_fase.data_inicio.isoformat(),
-                'data_fim': nova_fase.data_fim.isoformat()
+                'data_inicio': nova_fase.data_inicio.isoformat() if nova_fase.data_inicio else None,
+                'data_fim': nova_fase.data_fim.isoformat() if nova_fase.data_fim else None,
+                'orcamento_previsto': nova_fase.orcamento_previsto,
+                'meta_cidades': nova_fase.meta_cidades
             }
             
         except Exception as e:

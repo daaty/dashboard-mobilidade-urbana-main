@@ -1,0 +1,279 @@
+"""
+🎯 FERRAMENTAS PARA CONSUMIR API DO DASHBOARD DE MOBILIDADE URBANA
+Tools para análise de dados de corridas, motoristas, metas e insights financeiros
+"""
+
+import requests
+import json
+from typing import Dict, List, Optional, Any
+from datetime import datetime, date
+from agno.tools import Toolkit
+from agno.utils.log import logger
+
+
+class DashboardAPITools(Toolkit):
+    """Ferramentas para consumir todas as APIs do Dashboard de Mobilidade Urbana"""
+    
+    def __init__(
+        self,
+        base_url: str = "http://localhost:8000",
+        timeout: int = 30,
+        **kwargs
+    ):
+        super().__init__(**kwargs)
+        self.base_url = base_url.rstrip("/")
+        self.timeout = timeout
+        
+    def _make_request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
+        """Método auxiliar para fazer requisições HTTP"""
+        try:
+            url = f"{self.base_url}{endpoint}"
+            response = requests.request(method, url, timeout=self.timeout, **kwargs)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Erro na requisição {method} {endpoint}: {e}")
+            return {"error": str(e), "success": False}
+    
+    # ========== ANÁLISE DE CORRIDAS ==========
+    
+    def get_rides_overview(self, cidade: Optional[str] = None, periodo: str = "30d") -> str:
+        """
+        Busca métricas gerais de corridas por cidade e período.
+        
+        Args:
+            cidade: Nome da cidade (opcional)
+            periodo: Período de análise (7d, 30d, 90d)
+            
+        Returns:
+            JSON com métricas de corridas concluídas, canceladas, perdidas
+        """
+        params = {"periodo": periodo}
+        if cidade:
+            params["cidade"] = cidade
+            
+        data = self._make_request("GET", "/api/metrics/overview", params=params)
+        
+        if "error" in data:
+            return f"Erro ao buscar dados de corridas: {data['error']}"
+            
+        return json.dumps({
+            "metricas_principais": data.get("metricas_principais", {}),
+            "evolucao": data.get("evolucao", []),
+            "distribuicao_status": data.get("distribuicao_status", []),
+            "atividade_recente": data.get("atividade_recente", {}),
+            "periodo_analisado": periodo,
+            "cidade": cidade or "Todas"
+        }, indent=2, ensure_ascii=False)
+    
+    def get_rides_by_city(self) -> str:
+        """
+        Busca distribuição de corridas por cidade.
+        
+        Returns:
+            JSON com ranking de cidades por volume de corridas
+        """
+        data = self._make_request("GET", "/api/metrics/rides-by-city")
+        
+        if "error" in data:
+            return f"Erro ao buscar corridas por cidade: {data['error']}"
+            
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    
+    # ========== ANÁLISE DE MOTORISTAS ==========
+    
+    def get_drivers_overview(self, periodo: str = "30d") -> str:
+        """
+        Busca métricas gerais de motoristas.
+        
+        Args:
+            periodo: Período de análise (7d, 30d, 90d)
+            
+        Returns:
+            JSON com dados de motoristas ativos, avaliações, etc.
+        """
+        params = {"periodo": periodo}
+        data = self._make_request("GET", "/api/drivers/overview", params=params)
+        
+        if "error" in data:
+            return f"Erro ao buscar dados de motoristas: {data['error']}"
+            
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    
+    def get_drivers_by_city(self, cidade: str) -> str:
+        """
+        Busca motoristas específicos de uma cidade.
+        
+        Args:
+            cidade: Nome da cidade
+            
+        Returns:
+            JSON com motoristas da cidade especificada
+        """
+        params = {"cidade": cidade}
+        data = self._make_request("GET", "/api/drivers/by-city", params=params)
+        
+        if "error" in data:
+            return f"Erro ao buscar motoristas de {cidade}: {data['error']}"
+            
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    
+    # ========== ANÁLISE FINANCEIRA ==========
+    
+    def get_financial_overview(self, periodo: str = "30d") -> str:
+        """
+        Busca métricas financeiras gerais.
+        
+        Args:
+            periodo: Período de análise (7d, 30d, 90d)
+            
+        Returns:
+            JSON com gastos, receitas, ROI, etc.
+        """
+        params = {"periodo": periodo}
+        data = self._make_request("GET", "/api/finance/overview", params=params)
+        
+        if "error" in data:
+            return f"Erro ao buscar dados financeiros: {data['error']}"
+            
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    
+    def get_financial_by_category(self) -> str:
+        """
+        Busca gastos categorizados.
+        
+        Returns:
+            JSON com distribuição de gastos por categoria
+        """
+        data = self._make_request("GET", "/api/finance/categories")
+        
+        if "error" in data:
+            return f"Erro ao buscar gastos por categoria: {data['error']}"
+            
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    
+    # ========== METAS ESTRATÉGICAS ==========
+    
+    def get_strategic_goals(self) -> str:
+        """
+        Busca metas estratégicas e progresso.
+        
+        Returns:
+            JSON com metas progressivas e fases de planejamento
+        """
+        data = self._make_request("GET", "/api/metas-estrategicas/dashboard")
+        
+        if "error" in data:
+            return f"Erro ao buscar metas estratégicas: {data['error']}"
+            
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    
+    def get_progressive_goals(self) -> str:
+        """
+        Busca metas progressivas por cidade.
+        
+        Returns:
+            JSON com metas de corridas, motoristas e receita por cidade
+        """
+        data = self._make_request("GET", "/api/metas-estrategicas/metas-progressivas")
+        
+        if "error" in data:
+            return f"Erro ao buscar metas progressivas: {data['error']}"
+            
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    
+    def get_planning_phases(self) -> str:
+        """
+        Busca fases de planejamento estratégico.
+        
+        Returns:
+            JSON com fases, cronograma e orçamentos
+        """
+        data = self._make_request("GET", "/api/metas-estrategicas/fases-planejamento")
+        
+        if "error" in data:
+            return f"Erro ao buscar fases de planejamento: {data['error']}"
+            
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    
+    # ========== CAMPANHAS E CIDADES ==========
+    
+    def get_campaigns(self) -> str:
+        """
+        Busca campanhas de marketing.
+        
+        Returns:
+            JSON com campanhas ativas por cidade
+        """
+        data = self._make_request("GET", "/api/campanhas")
+        
+        if "error" in data:
+            return f"Erro ao buscar campanhas: {data['error']}"
+            
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    
+    def get_cities_data(self) -> str:
+        """
+        Busca dados demográficos das cidades.
+        
+        Returns:
+            JSON com população, público-alvo e penetração de mercado
+        """
+        data = self._make_request("GET", "/api/cidades")
+        
+        if "error" in data:
+            return f"Erro ao buscar dados das cidades: {data['error']}"
+            
+        return json.dumps(data, indent=2, ensure_ascii=False)
+    
+    # ========== ANÁLISE COMPARATIVA ==========
+    
+    def compare_cities_performance(self, cidades: List[str]) -> str:
+        """
+        Compara performance entre cidades específicas.
+        
+        Args:
+            cidades: Lista de nomes das cidades para comparar
+            
+        Returns:
+            Análise comparativa detalhada
+        """
+        results = {}
+        
+        for cidade in cidades:
+            # Buscar dados de corridas por cidade
+            rides_data = self._make_request("GET", "/api/metrics/overview", params={"cidade": cidade})
+            drivers_data = self._make_request("GET", "/api/drivers/by-city", params={"cidade": cidade})
+            
+            results[cidade] = {
+                "corridas": rides_data.get("metricas_principais", {}),
+                "motoristas": drivers_data
+            }
+        
+        return json.dumps({
+            "comparacao_cidades": results,
+            "cidades_analisadas": cidades,
+            "data_analise": datetime.now().isoformat()
+        }, indent=2, ensure_ascii=False)
+    
+    def get_market_penetration_analysis(self) -> str:
+        """
+        Análise de penetração de mercado por cidade.
+        
+        Returns:
+            JSON com análise de penetração e potencial de crescimento
+        """
+        # Combinar dados de cidades e métricas de corridas
+        cities_data = self._make_request("GET", "/api/cidades")
+        overview_data = self._make_request("GET", "/api/metrics/overview")
+        
+        if "error" in cities_data or "error" in overview_data:
+            return "Erro ao buscar dados para análise de penetração"
+        
+        analysis = {
+            "penetracao_mercado": cities_data,
+            "metricas_atuais": overview_data,
+            "recomendacoes": "Análise de penetração combinada com métricas operacionais"
+        }
+        
+        return json.dumps(analysis, indent=2, ensure_ascii=False)

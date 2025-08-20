@@ -14,6 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.database.db import get_db
 from services.metas_estrategicas_service_fixed import MetasEstrategicasService
+from services.calculo_progresso_fases import CalculadorProgressoFases, obter_configuracao_calculo_progresso
 
 router = APIRouter(prefix="/api/metas-estrategicas", tags=["Metas Estratégicas"])
 
@@ -85,10 +86,10 @@ async def criar_meta_progressiva(
         service = MetasEstrategicasService(db)
         resultado = service.criar_meta_progressiva(meta.dict())
         
-        if not resultado['success']:
-            raise HTTPException(status_code=400, detail=resultado['error'])
+        if resultado is None:
+            raise HTTPException(status_code=400, detail="Erro ao criar meta progressiva")
         
-        return resultado
+        return {"success": True, "meta": resultado}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao criar meta: {str(e)}")
 
@@ -145,10 +146,31 @@ async def limpar_metas_duplicadas(db: Session = Depends(get_db)):
 
 @router.get("/fases-planejamento")
 async def listar_fases_planejamento(db: Session = Depends(get_db)):
-    """Lista todas as fases de planejamento"""
+    """Lista todas as fases de planejamento com progresso automático calculado"""
     try:
+        from services.calculo_progresso_fases import CalculadorProgressoFases
+        
         service = MetasEstrategicasService(db)
         fases = service.listar_fases_planejamento()
+        
+        # Calcular progresso automático para fases não-manuais
+        calculadora = CalculadorProgressoFases(db)
+        
+        for fase in fases:
+            # Se não for progresso manual, recalcular automaticamente
+            if not fase.get('progresso_manual', False):
+                metodo = fase.get('metodo_calculo', 'hibrido')
+                try:
+                    resultado = calculadora.atualizar_progresso_automatico(fase['id'], metodo)
+                    if resultado.get('success'):
+                        fase['progresso_percentual'] = resultado['progresso_novo']
+                        fase['progresso_automatico'] = True
+                        fase['metodo_usado'] = resultado['metodo_usado']
+                except Exception as e:
+                    print(f"Erro ao calcular progresso automático para fase {fase.get('id', 'N/A')}: {e}")
+            else:
+                fase['progresso_automatico'] = False
+        
         return {"success": True, "fases": fases}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao listar fases: {str(e)}")
@@ -163,10 +185,10 @@ async def criar_fase_planejamento(
         service = MetasEstrategicasService(db)
         resultado = service.criar_fase_planejamento(fase.dict())
         
-        if not resultado['success']:
-            raise HTTPException(status_code=400, detail=resultado['error'])
+        if resultado is None:
+            raise HTTPException(status_code=400, detail="Erro ao criar fase de planejamento")
         
-        return resultado
+        return {"success": True, "fase": resultado}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao criar fase: {str(e)}")
 
@@ -261,3 +283,117 @@ async def dashboard_metas_estrategicas(db: Session = Depends(get_db)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao gerar dashboard: {str(e)}")
+
+# ========== ENDPOINTS DE CÁLCULO AUTOMÁTICO DE PROGRESSO ==========
+
+@router.get("/configuracao-progresso")
+async def obter_configuracao_progresso():
+    """Retorna as opções de configuração para cálculo de progresso"""
+    return obter_configuracao_calculo_progresso()
+
+@router.post("/fases-estrategicas/{fase_id}/calcular-progresso")
+async def calcular_progresso_fase(
+    fase_id: int,
+    metodo: str = "hibrido",
+    db: Session = Depends(get_db)
+):
+    """
+    Calcula automaticamente o progresso de uma fase específica
+    
+    Métodos disponíveis:
+    - temporal: Baseado no tempo decorrido
+    - orcamentario: Baseado na execução orçamentária  
+    - metas: Baseado no cumprimento das metas
+    - campanhas: Baseado na performance das campanhas
+    - hibrido: Combina todos os métodos (recomendado)
+    """
+    try:
+        calculadora = CalculadorProgressoFases(db)
+        resultado = calculadora.atualizar_progresso_automatico(fase_id, metodo)
+        
+        if not resultado["success"]:
+            raise HTTPException(status_code=400, detail=resultado["error"])
+        
+        return resultado
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao calcular progresso: {str(e)}")
+
+@router.post("/fases-estrategicas/recalcular-todas")
+async def recalcular_progresso_todas_fases(
+    metodo: str = "hibrido",
+    db: Session = Depends(get_db)
+):
+    """Recalcula o progresso de todas as fases ativas"""
+    try:
+        calculadora = CalculadorProgressoFases(db)
+        resultados = calculadora.recalcular_todas_fases(metodo)
+        
+        sucessos = [r for r in resultados if r.get("success")]
+        erros = [r for r in resultados if not r.get("success")]
+        
+        return {
+            "success": True,
+            "total_fases": len(resultados),
+            "sucessos": len(sucessos),
+            "erros": len(erros),
+            "detalhes": resultados
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao recalcular progressos: {str(e)}")
+
+class AlternarProgressoRequest(BaseModel):
+    progresso_manual: bool
+    progresso_percentual: Optional[float] = None
+
+@router.post("/fases-estrategicas/{fase_id}/alternar-progresso")
+async def alternar_modo_progresso(
+    fase_id: int,
+    request: AlternarProgressoRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Alterna entre progresso manual e automático
+    
+    - progresso_manual: True para manual, False para automático
+    - progresso_percentual: Se manual, define o valor (0-100)
+    """
+    try:
+        from app.models.fases_planejamento import FasesPlanejamento
+        from services.calculo_progresso_fases import CalculadorProgressoFases
+        
+        # Buscar a fase
+        fase = db.query(FasesPlanejamento).filter(FasesPlanejamento.id == fase_id).first()
+        if not fase:
+            raise HTTPException(status_code=404, detail="Fase não encontrada")
+        
+        # Atualizar modo
+        fase.progresso_manual = request.progresso_manual
+        
+        if request.progresso_manual:
+            # Modo manual - usar valor fornecido
+            if request.progresso_percentual is not None:
+                fase.progresso_percentual = max(0.0, min(100.0, request.progresso_percentual))
+            fase.metodo_calculo = "manual"
+        else:
+            # Modo automático - recalcular
+            calculadora = CalculadorProgressoFases(db)
+            metodo = getattr(fase, 'metodo_calculo', 'hibrido') if fase.metodo_calculo != "manual" else 'hibrido'
+            resultado = calculadora.atualizar_progresso_automatico(fase_id, metodo)
+            
+            if resultado.get('success'):
+                fase.progresso_percentual = resultado['progresso_novo']
+                fase.metodo_calculo = resultado['metodo_usado']
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "fase_id": fase_id,
+            "progresso_manual": fase.progresso_manual,
+            "progresso_percentual": fase.progresso_percentual,
+            "metodo_calculo": fase.metodo_calculo
+        }
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Erro ao alternar modo de progresso: {str(e)}")

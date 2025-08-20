@@ -2,7 +2,7 @@
 Model para gerenciar fases de planejamento do projeto de expansão
 """
 
-from sqlalchemy import Column, Integer, String, Date, Float, DateTime, Text
+from sqlalchemy import Column, Integer, String, Date, Float, DateTime, Text, Boolean
 from sqlalchemy.orm import relationship
 from app.database.db import Base
 from datetime import datetime
@@ -23,6 +23,8 @@ class FasesPlanejamento(Base):
     # Status da fase
     status = Column(String, default="planejada")  # "planejada", "em_execucao", "concluida", "suspensa"
     progresso_percentual = Column(Float, default=0.0)  # 0.0 a 100.0
+    progresso_manual = Column(Boolean, default=False)  # True se o progresso foi definido manualmente
+    metodo_calculo = Column(String, default="hibrido")  # Método usado no último cálculo automático
     
     # Orçamento e finanças
     orcamento_previsto = Column(Float, nullable=False)

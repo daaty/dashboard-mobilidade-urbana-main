@@ -9,6 +9,7 @@ import {
   CheckCircle, Clock, Pause, Play, RotateCcw
 } from 'lucide-react'
 import { useMetasEstrategicas } from '../hooks/useMetasEstrategicas'
+import CalculadorProgressoFases from './CalculadorProgressoFases'
 
 const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
   const {
@@ -264,6 +265,41 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
     }
   }
 
+  const alternarModoProgresso = async (faseId, progressoManual) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/fases-estrategicas/${faseId}/alternar-progresso`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          progresso_manual: progressoManual,
+          progresso_percentual: progressoManual ? 0 : null
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao alternar modo de progresso')
+      }
+
+      const resultado = await response.json()
+      
+      if (resultado.success) {
+        // Atualizar a lista de fases
+        carregarFases()
+        showToast(
+          progressoManual 
+            ? 'Progresso alterado para manual' 
+            : 'Progresso alterado para automático', 
+          'success'
+        )
+      }
+    } catch (err) {
+      console.error('Erro ao alternar modo de progresso:', err)
+      showToast(`Erro ao alternar modo: ${err.message}`, 'error')
+    }
+  }
+
   // ========== FUNÇÕES DE FILTRO ==========
 
   const metasFiltradas = metasProgressivas.filter(meta => {
@@ -513,20 +549,51 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
                       </div>
 
                       <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Progresso</span>
+                        <div className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-2">
+                            <span>Progresso</span>
+                            {fase.progresso_manual ? (
+                              <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
+                                Manual
+                              </span>
+                            ) : (
+                              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                Auto
+                              </span>
+                            )}
+                          </div>
                           <span className="font-bold">{fase.progresso_percentual?.toFixed(1) || 0}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
-                            className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full"
+                            className={`h-2 rounded-full ${
+                              fase.progresso_manual 
+                                ? 'bg-gradient-to-r from-orange-500 to-red-500'
+                                : 'bg-gradient-to-r from-purple-500 to-blue-500'
+                            }`}
                             style={{ width: `${fase.progresso_percentual || 0}%` }}
                           ></div>
                         </div>
+                        {!fase.progresso_manual && fase.metodo_usado && (
+                          <div className="text-xs text-gray-500">
+                            Método: {fase.metodo_usado}
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     <div className="flex gap-2 mt-4">
+                      <button
+                        onClick={() => alternarModoProgresso(fase.id, !fase.progresso_manual)}
+                        className={`p-2 rounded text-white text-xs px-3 py-1 ${
+                          fase.progresso_manual 
+                            ? 'bg-blue-600 hover:bg-blue-700' 
+                            : 'bg-orange-600 hover:bg-orange-700'
+                        }`}
+                        title={fase.progresso_manual ? 'Usar progresso automático' : 'Usar progresso manual'}
+                      >
+                        {fase.progresso_manual ? 'Auto' : 'Manual'}
+                      </button>
                       <button
                         onClick={() => handleEdit(fase, 'fase')}
                         className="p-2 text-blue-600 hover:bg-blue-100 rounded"
@@ -655,7 +722,7 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[95vh] overflow-y-auto"
             >
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-4">
@@ -830,8 +897,13 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Progresso (%)</label>
+                    </div>
+
+                    {/* Campo de Progresso com Calculador Integrado */}
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Progresso (%)</label>
+                      <div className="space-y-2">
+                        {/* Campo Manual */}
                         <input
                           type="number"
                           step="0.1"
@@ -840,7 +912,19 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
                           value={formData.progresso_percentual}
                           onChange={(e) => setFormData({...formData, progresso_percentual: e.target.value})}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          placeholder="Digite o progresso manual ou use o cálculo automático"
                         />
+                        
+                        {/* Calculador Automático - Só para edição */}
+                        {itemEditando && (
+                          <CalculadorProgressoFases
+                            faseId={itemEditando.id}
+                            progressoAtual={parseFloat(formData.progresso_percentual) || 0}
+                            onProgressoAtualizado={(novoProgresso) => {
+                              setFormData({...formData, progresso_percentual: novoProgresso.toString()})
+                            }}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>
