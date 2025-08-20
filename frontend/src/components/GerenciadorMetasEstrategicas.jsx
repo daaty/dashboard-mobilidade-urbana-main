@@ -52,6 +52,14 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [itemParaDeletar, setItemParaDeletar] = useState(null)
   const [filtros, setFiltros] = useState({ cidade: '', tipo: '', mes: '' })
+  const [refreshKey, setRefreshKey] = useState(0) // ✅ Para forçar re-renderização
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' }) // ✅ Sistema de toast
+
+  // ✅ Função para mostrar toast
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type })
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000)
+  }
 
   // Estados do formulário
   const [formData, setFormData] = useState({
@@ -181,13 +189,25 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
       }
 
       if (resultado.success) {
+        // ✅ Fechar formulário e limpar estado
         setShowFormulario(false)
         resetForm()
+        
+        // ✅ Forçar recarregamento completo dos dados
+        await recarregarTudo()
+        
+        // ✅ Forçar re-renderização da tabela
+        setRefreshKey(prev => prev + 1)
+        
+        // ✅ Mostrar feedback visual
+        const acao = itemEditando ? 'atualizado' : 'criado'
+        showToast(`Item ${acao} com sucesso!`, 'success')
       } else {
-        alert(`Erro: ${resultado.error}`)
+        showToast(`Erro: ${resultado.error}`, 'error')
       }
     } catch (err) {
-      alert(`Erro ao salvar: ${err.message}`)
+      console.error('Erro ao salvar:', err)
+      showToast(`Erro ao salvar: ${err.message}`, 'error')
     }
   }
 
@@ -202,13 +222,24 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
       }
 
       if (resultado.success) {
+        // ✅ Fechar modal e limpar estado imediatamente
         setShowConfirmDelete(false)
         setItemParaDeletar(null)
+        
+        // ✅ Forçar recarregamento completo dos dados
+        await recarregarTudo()
+        
+        // ✅ Forçar re-renderização da tabela
+        setRefreshKey(prev => prev + 1)
+        
+        // ✅ Mostrar feedback visual
+        showToast(resultado.message || 'Item deletado com sucesso!', 'success')
       } else {
-        alert(`Erro: ${resultado.error}`)
+        showToast(`Erro: ${resultado.error}`, 'error')
       }
     } catch (err) {
-      alert(`Erro ao deletar: ${err.message}`)
+      console.error('Erro ao deletar:', err)
+      showToast(`Erro ao deletar: ${err.message}`, 'error')
     }
   }
 
@@ -216,9 +247,9 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
     if (confirm('Tem certeza que deseja limpar todas as metas duplicadas?')) {
       const resultado = await limparMetasDuplicadas()
       if (resultado.success) {
-        alert(`${resultado.message}. Restam ${resultado.metasRestantes} metas únicas.`)
+        showToast(`${resultado.message}. Restam ${resultado.metasRestantes} metas únicas.`, 'success')
       } else {
-        alert(`Erro: ${resultado.error}`)
+        showToast(`Erro: ${resultado.error}`, 'error')
       }
     }
   }
@@ -353,7 +384,7 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
               </div>
 
               {/* Lista de Metas */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div key={`metas-${refreshKey}`} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{/* ✅ Key para forçar re-renderização */}
                 {cidadesComMetas.length > 0 ? (
                   cidadesComMetas.map(cidade => (
                     <div key={cidade.cidade_id} className="bg-gray-50 rounded-xl p-4">
@@ -434,7 +465,7 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
               </div>
 
               {/* Lista de Fases */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div key={`fases-${refreshKey}`} className="grid grid-cols-1 md:grid-cols-2 gap-6">{/* ✅ Key para forçar re-renderização */}
                 {fasesEstrategicas.map(fase => (
                   <div key={fase.id} className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
@@ -873,6 +904,29 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
                 </div>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ✅ Toast Component */}
+      <AnimatePresence>
+        {toast.show && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -50, x: '-50%' }}
+            className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-[60] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 ${
+              toast.type === 'success' 
+                ? 'bg-green-500 text-white' 
+                : 'bg-red-500 text-white'
+            }`}
+          >
+            {toast.type === 'success' ? (
+              <CheckCircle className="w-5 h-5" />
+            ) : (
+              <AlertCircle className="w-5 h-5" />
+            )}
+            <span className="font-medium">{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
