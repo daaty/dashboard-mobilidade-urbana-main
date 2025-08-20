@@ -95,12 +95,12 @@ class MetasEstrategicasService:
             print(f"Erro ao criar meta progressiva: {e}")
             return None
     
-    def atualizar_meta_progressiva(self, meta_id: int, dados: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def atualizar_meta_progressiva(self, meta_id: int, dados: Dict[str, Any]) -> Dict:
         """Atualiza uma meta progressiva existente"""
         try:
             meta = self.db.query(MetasProgressivas).filter(MetasProgressivas.id == meta_id).first()
             if not meta:
-                return None
+                return {'success': False, 'error': 'Meta não encontrada'}
             
             # Atualizar campos permitidos
             campos_permitidos = [
@@ -119,15 +119,19 @@ class MetasEstrategicasService:
             self.db.refresh(meta)
             
             return {
-                'id': meta.id,
-                'status': meta.status,
-                'updated_at': meta.updated_at.isoformat()
+                'success': True,
+                'message': 'Meta atualizada com sucesso',
+                'meta': {
+                    'id': meta.id,
+                    'status': meta.status,
+                    'updated_at': meta.updated_at.isoformat()
+                }
             }
             
         except Exception as e:
             self.db.rollback()
             print(f"Erro ao atualizar meta progressiva: {e}")
-            return None
+            return {'success': False, 'error': f'Erro interno: {str(e)}'}
     
     def deletar_meta_progressiva(self, meta_id: int) -> Dict:
         """Deleta uma meta progressiva"""
