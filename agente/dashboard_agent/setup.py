@@ -104,7 +104,7 @@ def testar_conectividade():
     
     # Testar dashboard
     import requests
-    dashboard_url = os.getenv("DASHBOARD_URL", "http://localhost:8000")
+    dashboard_url = os.getenv("DASHBOARD_URL", "https://fastapi.urbanmt.com.br")
     
     try:
         response = requests.get(f"{dashboard_url}/health", timeout=5)
@@ -140,7 +140,7 @@ def executar_teste_agente():
         from mobility_agent import MobilityDashboardAgent
         
         agent = MobilityDashboardAgent(
-            dashboard_url=os.getenv("DASHBOARD_URL", "http://localhost:8000"),
+            dashboard_url=os.getenv("DASHBOARD_URL", "https://fastapi.urbanmt.com.br"),
             openai_api_key=os.getenv("OPENAI_API_KEY")
         )
         

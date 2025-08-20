@@ -15,9 +15,30 @@ try:
     import json
     import psycopg2
     
-    # Importar nossas ferramentas customizadas
-    from tools.dashboard_api_tools import DashboardAPITools
-    from tools.business_analysis_tools import BusinessAnalysisTools
+    print("✅ AGNO imports funcionaram!")
+    
+    # Testar importação das nossas ferramentas individualmente
+    print("🔧 Testando importação das tools...")
+    
+    try:
+        from .tools.dashboard_api_tools import DashboardAPITools
+        print("✅ DashboardAPITools importado")
+    except Exception as e:
+        print(f"❌ Erro ao importar DashboardAPITools: {e}")
+        print(f"❌ Tipo do erro: {type(e)}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+    
+    try:
+        from .tools.business_analysis_tools import BusinessAnalysisTools
+        print("✅ BusinessAnalysisTools importado")
+    except Exception as e:
+        print(f"❌ Erro ao importar BusinessAnalysisTools: {e}")
+        print(f"❌ Tipo do erro: {type(e)}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
     
     AGNO_AVAILABLE = True
     print("✅ AGNO framework carregado com sucesso!")
@@ -42,7 +63,7 @@ class MobilityDashboardAgent:
     
     def __init__(
         self,
-        dashboard_url: str = "http://localhost:8000",
+        dashboard_url: str = "https://fastapi.urbanmt.com.br",
         openai_api_key: Optional[str] = None,
         memory_db_url: Optional[str] = None
     ):
@@ -122,6 +143,19 @@ class MobilityDashboardAgent:
                 print(f"  ✅ Tem get_drivers_overview")
             else:
                 print(f"  ❌ NÃO tem get_drivers_overview")
+            
+            # Verificar se é um Toolkit e listar seus tools
+            if hasattr(tool, 'tools'):
+                print(f"  📋 Tools do {type(tool).__name__}: {len(tool.tools)} tools")
+                for j, subtool in enumerate(tool.tools):
+                    tool_name = getattr(subtool, '__name__', str(subtool))
+                    print(f"    🔧 Tool {j}: {tool_name}")
+            
+            # Verificar métodos disponíveis
+            methods = [method for method in dir(tool) if not method.startswith('_') and callable(getattr(tool, method))]
+            print(f"  🔍 Métodos públicos: {len(methods)}")
+            if 'get_drivers_overview' in methods:
+                print(f"    ✅ get_drivers_overview encontrado nos métodos")
         
         # Base de conhecimento sobre mobilidade urbana
         self.knowledge_base = self._build_knowledge_base()
@@ -446,6 +480,18 @@ Se precisar de mais insights ou tiver outras perguntas, estarei aqui! 🚀"""
         elif intent == 'question':
             # Para perguntas diretas, FORÇAR uso de ferramentas
             print(f"🎯 [AGENT] Pergunta classificada como 'question': {user_question}")
+            print(f"🔧 [AGENT] Verificando ferramentas disponíveis antes de executar...")
+            
+            # Verificar ferramentas antes de executar
+            print(f"🛠️ [AGENT] Total de ferramentas: {len(self.agent.tools)}")
+            for i, tool in enumerate(self.agent.tools):
+                print(f"  📋 Tool {i}: {type(tool).__name__}")
+                if hasattr(tool, 'tools'):
+                    print(f"    ⚙️ Subtool count: {len(tool.tools)}")
+                    for j, subtool in enumerate(tool.tools):
+                        subtool_name = getattr(subtool, '__name__', str(subtool))
+                        print(f"      🔧 Subtool {j}: {subtool_name}")
+            
             print(f"🔧 [AGENT] Executando agent.run() com instruções para usar ferramentas...")
             
             result = self.agent.run(f"""
@@ -465,6 +511,9 @@ Se precisar de mais insights ou tiver outras perguntas, estarei aqui! 🚀"""
             """)
             
             print(f"📤 [AGENT] Resposta gerada: {str(result)[:200]}...")
+            
+            # Verificar se as ferramentas foram chamadas
+            print(f"🔍 [AGENT] Verificando se ferramentas foram chamadas após execução...")
             
             # Garantir que retornamos string
             if hasattr(result, 'content'):
@@ -552,11 +601,11 @@ def main():
     load_dotenv()
     
     print("🚀 Iniciando Agente de Mobilidade Urbana...")
-    print(f"📡 Dashboard URL: {os.getenv('DASHBOARD_URL', 'http://localhost:8000')}")
+    print(f"📡 Dashboard URL: {os.getenv('DASHBOARD_URL', 'https://fastapi.urbanmt.com.br')}")
     
     # Configurar agente com as variáveis de ambiente
     agent = MobilityDashboardAgent(
-        dashboard_url=os.getenv("DASHBOARD_URL", "http://localhost:8000"),
+        dashboard_url=os.getenv("DASHBOARD_URL", "https://fastapi.urbanmt.com.br"),
         openai_api_key=os.getenv("OPENAI_API_KEY"),
         memory_db_url=os.getenv("MEMORY_DB_URL")
     )

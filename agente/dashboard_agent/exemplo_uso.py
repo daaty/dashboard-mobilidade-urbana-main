@@ -25,7 +25,7 @@ def main():
     # Configurar agente
     try:
         agent = MobilityDashboardAgent(
-            dashboard_url=os.getenv("DASHBOARD_URL", "http://localhost:8000"),
+            dashboard_url=os.getenv("DASHBOARD_URL", "https://fastapi.urbanmt.com.br"),
             openai_api_key=os.getenv("OPENAI_API_KEY")
         )
         print("✅ Agente configurado com sucesso!")

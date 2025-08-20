@@ -26,16 +26,7 @@ class BusinessAnalysisTools(Toolkit):
         
         # 🎯 CORREÇÃO CRÍTICA: Adicionar métodos explicitamente à lista de tools
         tools = [
-            self.calculate_business_kpis,
-            self.analyze_growth_trends,
-            self.generate_actionable_insights,
-            self.compare_city_performance,
-            self.forecast_demand_patterns,
-            self.optimize_driver_allocation,
-            self.calculate_market_penetration,
-            self.analyze_customer_segments,
-            self.evaluate_marketing_roi,
-            self.generate_strategic_recommendations
+            self.calculate_business_kpis
         ]
         
         super().__init__(name="business_analysis_tools", tools=tools, **kwargs)

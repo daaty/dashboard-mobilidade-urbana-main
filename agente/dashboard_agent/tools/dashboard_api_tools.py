@@ -16,7 +16,7 @@ class DashboardAPITools(Toolkit):
     
     def __init__(
         self,
-        base_url: str = "http://localhost:8000",
+        base_url: str = "https://fastapi.urbanmt.com.br",
         timeout: int = 30,
         **kwargs
     ):
@@ -30,11 +30,14 @@ class DashboardAPITools(Toolkit):
             self.get_drivers_overview,
             self.get_drivers_by_city,
             self.get_financial_overview,
+            self.get_financial_by_category,
             self.get_strategic_goals,
+            self.get_progressive_goals,
+            self.get_planning_phases,
+            self.get_campaigns,
             self.get_cities_data,
-            self.analyze_ride_patterns,
-            self.get_driver_performance_metrics,
-            self.calculate_roi_metrics
+            self.compare_cities_performance,
+            self.get_market_penetration_analysis
         ]
         
         super().__init__(name="dashboard_api_tools", tools=tools, **kwargs)

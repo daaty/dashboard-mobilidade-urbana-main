@@ -26,7 +26,7 @@ except ImportError:
     
     class MobilityDashboardAgent:
         def __init__(self, **kwargs):
-            self.dashboard_url = kwargs.get('dashboard_url', 'http://localhost:8000')
+            self.dashboard_url = kwargs.get('dashboard_url', 'https://fastapi.urbanmt.com.br')
         
         def analyze_overall_performance(self):
             return "🚧 Agente em configuração inicial..."
@@ -79,7 +79,7 @@ async def startup_event():
     try:
         print("🚀 Inicializando Agente Inteligente...")
         
-        dashboard_url = os.getenv("DASHBOARD_URL", "http://localhost:8000")
+        dashboard_url = os.getenv("DASHBOARD_URL", "https://fastapi.urbanmt.com.br")
         print(f"🔗 [STARTUP] Dashboard URL: {dashboard_url}")
         
         agente = MobilityDashboardAgent(
