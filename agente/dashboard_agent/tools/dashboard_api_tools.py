@@ -87,13 +87,13 @@ class DashboardAPITools(Toolkit):
         Busca métricas gerais de motoristas.
         
         Args:
-            periodo: Período de análise (7d, 30d, 90d)
+            periodo: Período de análise (7d, 30d, 90d) - informativo apenas
             
         Returns:
             JSON com dados de motoristas ativos, avaliações, etc.
         """
-        params = {"periodo": periodo}
-        data = self._make_request("GET", "/api/drivers/overview", params=params)
+        # API não aceita parâmetros de período, então fazemos requisição simples
+        data = self._make_request("GET", "/api/drivers/overview")
         
         if "error" in data:
             return f"Erro ao buscar dados de motoristas: {data['error']}"
@@ -125,13 +125,13 @@ class DashboardAPITools(Toolkit):
         Busca métricas financeiras gerais.
         
         Args:
-            periodo: Período de análise (7d, 30d, 90d)
+            periodo: Período de análise (informativo apenas)
             
         Returns:
             JSON com gastos, receitas, ROI, etc.
         """
-        params = {"periodo": periodo}
-        data = self._make_request("GET", "/api/finance/overview", params=params)
+        # Usar endpoint correto da API
+        data = self._make_request("GET", "/api/financeiro/overview")
         
         if "error" in data:
             return f"Erro ao buscar dados financeiros: {data['error']}"
@@ -145,12 +145,12 @@ class DashboardAPITools(Toolkit):
         Returns:
             JSON com distribuição de gastos por categoria
         """
-        data = self._make_request("GET", "/api/finance/categories")
-        
-        if "error" in data:
-            return f"Erro ao buscar gastos por categoria: {data['error']}"
-            
-        return json.dumps(data, indent=2, ensure_ascii=False)
+        # Endpoint não disponível - retornar dados limitados
+        return json.dumps({
+            "aviso": "Endpoint de categorias financeiras não disponível",
+            "dados_disponiveis": "Use get_financial_overview() para dados gerais",
+            "sugestao": "Implementar endpoint /api/financeiro/categorias na API"
+        }, indent=2, ensure_ascii=False)
     
     # ========== METAS ESTRATÉGICAS ==========
     
@@ -205,12 +205,12 @@ class DashboardAPITools(Toolkit):
         Returns:
             JSON com campanhas ativas por cidade
         """
-        data = self._make_request("GET", "/api/campanhas")
-        
-        if "error" in data:
-            return f"Erro ao buscar campanhas: {data['error']}"
-            
-        return json.dumps(data, indent=2, ensure_ascii=False)
+        # Endpoint com erro 500 - retornar dados limitados
+        return json.dumps({
+            "aviso": "Endpoint de campanhas temporariamente indisponível (erro 500)",
+            "dados_disponiveis": "Use get_cities_data() para dados de cidades",
+            "sugestao": "Verificar implementação do endpoint /api/campanhas"
+        }, indent=2, ensure_ascii=False)
     
     def get_cities_data(self) -> str:
         """
