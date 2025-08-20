@@ -9,7 +9,9 @@ export const useDriversAnalytics = () => {
   const fetchDriversData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/drivers/analytics');
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      console.log('🔗 Usando API_URL:', API_URL);
+      const response = await fetch(`${API_URL}/api/drivers/analytics`);
       
       if (!response.ok) {
         throw new Error(`Erro ${response.status}: ${response.statusText}`);
@@ -17,11 +19,164 @@ export const useDriversAnalytics = () => {
       
       const data = await response.json();
       
-      if (data.success) {
-        setDriversData(data.drivers || []);
+      // AGORA TEMOS TODOS OS DADOS DOS MOTORISTAS! Array com 252 registros
+      console.log('🎯 Dados COMPLETOS recebidos:', data);
+      console.log('🎯 Tipo de dados:', Array.isArray(data) ? 'Array' : typeof data);
+      console.log('🎯 Estrutura:', Object.keys(data));
+      
+      // Processar dados para criar métricas agregadas E individuais
+      let driversArray = [];
+      
+      if (Array.isArray(data)) {
+        // Se data é um array direto
+        driversArray = data;
+      } else if (data.drivers && Array.isArray(data.drivers)) {
+        // Se data tem propriedade drivers (caso atual)
+        driversArray = data.drivers;
       } else {
-        throw new Error('Erro ao buscar dados dos motoristas');
+        console.error('❌ Estrutura de dados não reconhecida:', data);
+        throw new Error('Estrutura de dados inválida recebida da API');
       }
+      
+      console.log('🚗 Array de motoristas encontrado:', driversArray.length, 'registros');
+      console.log('🚗 Primeiro motorista:', driversArray[0]);
+      
+      // RESOLVER PROBLEMA DE CHAVES DUPLICADAS - motoristas com mesmo ID mas dados diferentes
+      const uniqueDriversMap = new Map();
+      
+      driversArray.forEach((driver, index) => {
+        const driverId = driver.driver_id;
+        
+        if (!uniqueDriversMap.has(driverId)) {
+          // Primeira ocorrência do motorista
+          uniqueDriversMap.set(driverId, {
+            ...driver,
+            unique_key: `${driverId}-${index}`, // Chave única para React
+            records_count: 1,
+            all_data: [driver.data] // Array de todos os dados deste motorista
+          });
+        } else {
+          // Motorista já existe - agregar dados
+          const existing = uniqueDriversMap.get(driverId);
+          existing.records_count += 1;
+          existing.all_data.push(driver.data);
+          
+          // Agregar métricas se possível
+          if (driver.data?.metrics && existing.data?.metrics) {
+            const existingMetrics = existing.data.metrics;
+            const newMetrics = driver.data.metrics;
+            
+            // Somar métricas acumulativas
+            existingMetrics.total_rides = (existingMetrics.total_rides || 0) + (newMetrics.total_rides || 0);
+            existingMetrics.online_hours = (existingMetrics.online_hours || 0) + (newMetrics.online_hours || 0);
+            existingMetrics.active_days = Math.max(existingMetrics.active_days || 0, newMetrics.active_days || 0);
+            existingMetrics.success_rides = (existingMetrics.success_rides || 0) + (newMetrics.success_rides || 0);
+            existingMetrics.missed_rides = (existingMetrics.missed_rides || 0) + (newMetrics.missed_rides || 0);
+            existingMetrics.requests_received = (existingMetrics.requests_received || 0) + (newMetrics.requests_received || 0);
+            existingMetrics.user_cancelled = (existingMetrics.user_cancelled || 0) + (newMetrics.user_cancelled || 0);
+            existingMetrics.driver_cancelled = (existingMetrics.driver_cancelled || 0) + (newMetrics.driver_cancelled || 0);
+            
+            // Recalcular success_rate
+            const totalRequests = existingMetrics.requests_received || 1;
+            existingMetrics.success_rate = totalRequests > 0 ? (existingMetrics.success_rides / totalRequests * 100) : 0;
+          }
+        }
+      });
+      
+      // Converter Map de volta para array
+      const processedDriversArray = Array.from(uniqueDriversMap.values());
+      
+      // Calcular rating estimado para cada motorista baseado na performance
+      const driversWithRatings = processedDriversArray.map(driver => {
+        const metrics = driver.data?.metrics || {};
+        const totalRides = metrics.total_rides || 0;
+        const onlineHours = metrics.online_hours || 0;
+        
+        // Rating estimado baseado na performance
+        let estimatedRating = 3.5; // Base
+        
+        // Bônus por produtividade (corridas por hora)
+        if (onlineHours > 0) {
+          const ridesPerHour = totalRides / onlineHours;
+          if (ridesPerHour > 0.1) estimatedRating += 0.5;
+          if (ridesPerHour > 0.2) estimatedRating += 0.3;
+          if (ridesPerHour > 0.3) estimatedRating += 0.2;
+        }
+        
+        // Bônus por volume de corridas
+        if (totalRides > 10) estimatedRating += 0.2;
+        if (totalRides > 50) estimatedRating += 0.3;
+        
+        // Bônus por horas online (comprometimento)
+        if (onlineHours > 100) estimatedRating += 0.2;
+        if (onlineHours > 300) estimatedRating += 0.3;
+        
+        // Limitar entre 1.0 e 5.0
+        estimatedRating = Math.min(5.0, Math.max(1.0, estimatedRating));
+        
+        return {
+          ...driver,
+          estimated_rating: Number(estimatedRating.toFixed(1))
+        };
+      });
+      
+      // Criar dados agregados a partir dos dados individuais
+      const totalDrivers = driversWithRatings.length;
+      const uniqueDrivers = driversWithRatings.length; // Já são únicos
+      
+      // Calcular métricas agregadas
+      const totalRides = driversWithRatings.reduce((sum, d) => sum + (d.data?.metrics?.total_rides || 0), 0);
+      const totalOnlineHours = driversWithRatings.reduce((sum, d) => sum + (d.data?.metrics?.online_hours || 0), 0);
+      const activeDriversCount = driversWithRatings.filter(d => (d.data?.metrics?.active_days || 0) > 0).length;
+      
+      // Calcular rating médio
+      const avgRating = driversWithRatings.reduce((sum, d) => sum + (d.estimated_rating || 0), 0) / Math.max(driversWithRatings.length, 1);
+      
+      console.log(`🔧 Processados ${driversArray.length} registros → ${driversWithRatings.length} motoristas únicos`);
+      console.log('🔧 Estrutura final dos dados:', {
+        totalDrivers: uniqueDrivers,
+        activeDriversCount,
+        totalRides,
+        totalOnlineHours,
+        avgRating: avgRating.toFixed(1),
+        sampleDriver: driversWithRatings[0]
+      });
+      
+      console.log('🔍 DADOS EXATOS DA API:', {
+        total_drivers: uniqueDrivers,
+        active_drivers: activeDriversCount,
+        total_rides_completed: totalRides,
+        total_online_hours: totalOnlineHours,
+        average_rating: avgRating.toFixed(1)
+      });
+      
+      // Estruturar dados para o componente
+      const structuredData = {
+        // Dados RAW completos para o componente processar
+        rawData: {
+          total_drivers: uniqueDrivers,
+          active_drivers: activeDriversCount,
+          total_rides_completed: totalRides,
+          total_online_hours: totalOnlineHours,
+          average_rating: avgRating, // Rating médio calculado
+          drivers_analytics: driversWithRatings, // TODOS os dados dos motoristas com ratings!
+          total_records: data.total_records || totalDrivers
+        },
+        // Lista completa dos motoristas para tabelas/listagens
+        drivers: driversWithRatings, // Usar motoristas com ratings
+        // Métricas globais calculadas
+        globalMetrics: {
+          totalDrivers: uniqueDrivers,
+          activeDrivers: activeDriversCount,
+          totalRidesCompleted: totalRides,
+          totalOnlineHours: totalOnlineHours,
+          avgRidesPerDriver: uniqueDrivers > 0 ? (totalRides / uniqueDrivers) : 0,
+          avgRating: avgRating // Rating médio
+        }
+      };
+      
+      setDriversData(structuredData);
+      
     } catch (err) {
       setError(err.message);
       console.error('Erro ao buscar dados dos motoristas:', err);
@@ -63,16 +218,57 @@ export const useDriversAnalytics = () => {
   };
 
   // Função para calcular métricas agregadas
-  const calculateAggregatedMetrics = (drivers, daysFilter = 30) => {
-    if (!drivers || drivers.length === 0) return null;
+  const calculateAggregatedMetrics = (data, daysFilter = 30) => {
+    // Se os dados já vêm agregados da API (nova estrutura)
+    if (data && (data.rawData || data.aggregated || data.globalMetrics)) {
+      // Retornar estrutura que o componente DriversOverview espera
+      return {
+        globalMetrics: data.globalMetrics || {
+          totalDrivers: data.rawData?.total_drivers || data.aggregated?.total_drivers || 0,
+          activeDrivers: data.rawData?.active_drivers || data.aggregated?.active_drivers || 0,
+          inactiveDrivers: data.rawData?.inactive_drivers || data.aggregated?.inactive_drivers || 0,
+          onlineDrivers: data.rawData?.online_drivers || data.aggregated?.online_drivers || 0,
+          avgDriverRating: data.rawData?.average_rating || data.aggregated?.average_rating || 0,
+          totalRides: data.rawData?.total_rides_completed || data.aggregated?.total_rides_completed || 0,
+          avgRidesPerDriver: data.rawData?.avg_rides_per_driver || data.aggregated?.avg_rides_per_driver || 0,
+          totalOnlineHours: 0,
+          avgHoursPerDriver: 0,
+          totalRevenue: 0,
+          totalCommission: 0,
+          totalBonus: 0,
+          totalPenalty: 0,
+          netRevenue: 0,
+          avgRevenuePerDriver: 0,
+          avgRevenuePerHour: 0,
+          commissionRate: 0,
+          totalDistance: 0,
+          totalMissedRides: 0,
+          avgAcceptanceRate: data.rawData?.kpi_metrics?.activation_rate || 0,
+          avgCompletionRate: 100, // Assumir 100% se não há dados de cancelamento
+          avgResponseTime: 0,
+          totalCancelled: 0,
+          cityAnalysis: {},
+          vehicleAnalysis: {},
+          alerts: []
+        },
+        drivers: data.drivers || data.rawData?.top_drivers || data.aggregated?.top_drivers || [],
+        performanceMetrics: data.performanceMetrics || data.rawData?.performance_metrics || data.aggregated?.performance_metrics || {},
+        kpiMetrics: data.kpiMetrics || data.rawData?.kpi_metrics || data.aggregated?.kpi_metrics || {},
+        driversByStatus: data.driversByStatus || data.rawData?.drivers_by_status || data.aggregated?.drivers_by_status || {},
+        rawData: data.rawData || data.aggregated || data // ESSENCIAL: o componente acessa aggregatedData.rawData
+      };
+    }
+    
+    // Fallback para estrutura antiga (dados individuais)
+    if (!data || data.length === 0) return null;
 
     const now = new Date();
-    const filteredDrivers = drivers.filter(driver => {
+    const filteredDrivers = Array.isArray(data) ? data.filter(driver => {
       if (!driver.data?.profile?.data_date) return true;
       const dataDate = new Date(driver.data.profile.data_date);
       const diffDays = (now - dataDate) / (1000 * 60 * 60 * 24);
       return diffDays <= daysFilter;
-    });
+    }) : [];
 
     // Agrupar por motorista para calcular totais
     const driverSummaries = {};
@@ -142,7 +338,7 @@ export const useDriversAnalytics = () => {
       const completionRate = (successRides + driverCancelled + userCancelled) > 0 ? (successRides / (successRides + driverCancelled + userCancelled) * 100) : 0;
       
       // Simular dados financeiros baseados na atividade (já que não temos no Excel)
-      const estimatedRevenuePerRide = 15.50; // Valor médio estimado
+      const estimatedRevenuePerRide = 2.50; // Valor correto por corrida
       const estimatedRevenue = successRides * estimatedRevenuePerRide;
       const estimatedCommission = estimatedRevenue * 0.15; // 15% de comissão
       const estimatedBonus = successRides > 10 ? successRides * 2.5 : 0; // Bônus por volume
@@ -515,38 +711,47 @@ export const useDriversAnalytics = () => {
   };
 
   // Função para obter top motoristas por critério
-  const getTopDrivers = (metric = 'total_online_hours', limit = 10, daysFilter = 30) => {
-    const aggregated = calculateAggregatedMetrics(driversData, daysFilter);
-    if (!aggregated) return [];
+  const getTopDrivers = (metric = 'total_rides', limit = 10, daysFilter = 30) => {
+    // Se temos dados agregados da nova API, retornar diretamente os top drivers
+    if (driversData && driversData.drivers && Array.isArray(driversData.drivers)) {
+      return driversData.drivers.slice(0, limit).map(driver => ({
+        ...driver,
+        efficiency_score: driver.efficiency || 100,
+        performance_grade: calculatePerformanceGrade(driver),
+        avg_rating: driver.rating || driver.avg_rating || 0
+      }));
+    }
+    
+    // Se temos dados agregados dentro da estrutura, usar os top_drivers da API
+    if (driversData && driversData.aggregated && driversData.aggregated.top_drivers) {
+      return driversData.aggregated.top_drivers.slice(0, limit).map(driver => ({
+        ...driver,
+        efficiency_score: driver.efficiency || 100,
+        performance_grade: calculatePerformanceGrade(driver),
+        avg_rating: driver.rating || driver.avg_rating || 0
+      }));
+    }
+    
+    // Fallback para dados individuais (estrutura antiga)
+    try {
+      const aggregated = calculateAggregatedMetrics(driversData, daysFilter);
+      if (!aggregated || !aggregated.drivers) return [];
 
-    return aggregated.drivers
-      .sort((a, b) => (b[metric] || 0) - (a[metric] || 0))
-      .slice(0, limit)
-      .map(driver => {
-        // Calcular média do rating a partir dos registros originais
-        const driverRecords = driversData.filter(d => d.driver_id === driver.driver_id);
-        let totalRating = 0;
-        let ratingCount = 0;
-        
-        driverRecords.forEach(record => {
-          const rating = Number(record.additional_data?.Rating || 0);
-          if (rating > 0) {
-            totalRating += rating;
-            ratingCount++;
-          }
+      return aggregated.drivers
+        .sort((a, b) => (b[metric] || 0) - (a[metric] || 0))
+        .slice(0, limit)
+        .map(driver => {
+          return {
+            ...driver,
+            efficiency_score: calculateEfficiencyScore(driver),
+            performance_grade: calculatePerformanceGrade(driver),
+            avg_rating: driver.rating || driver.avg_rating || 0
+          };
         });
-        
-        const averageRating = ratingCount > 0 ? (totalRating / ratingCount) : 0;
-        
-        return {
-          ...driver,
-          name: driver.name || `Motorista ${driver.driver_id}`,
-          rating: averageRating, // Média do rating
-          total_rides: driver.total_success_rides || 0,
-          total_hours: driver.total_online_hours || 0, // Total de horas
-          status: driver.total_online_hours > 0 ? 'active' : 'inactive'
-        };
-      });
+    } catch (error) {
+      console.error('Erro em getTopDrivers:', error);
+      return [];
+    }
   };
 
   // Função para análise temporal - evolução por período
@@ -654,6 +859,23 @@ export const useDriversAnalytics = () => {
 
   // Função para filtros avançados
   const getFilteredDrivers = (filters = {}) => {
+    // Se temos dados agregados, retornar os drivers disponíveis
+    if (driversData && driversData.drivers) {
+      return driversData.drivers.filter(driver => {
+        // Filtros básicos - adaptar conforme estrutura dos dados agregados
+        if (filters.status && driver.status !== filters.status) return false;
+        if (filters.performanceGrade) {
+          const grade = calculatePerformanceGrade(driver);
+          if (filters.performanceGrade === 'excellent' && !['A+', 'A'].includes(grade)) return false;
+          if (filters.performanceGrade === 'good' && grade !== 'B') return false;
+          if (filters.performanceGrade === 'average' && grade !== 'C') return false;
+          if (filters.performanceGrade === 'below' && !['D', 'F'].includes(grade)) return false;
+        }
+        return true;
+      });
+    }
+    
+    // Fallback para estrutura antiga
     if (!driversData || driversData.length === 0) return [];
 
     return driversData.filter(driver => {
@@ -669,7 +891,7 @@ export const useDriversAnalytics = () => {
       // Filtro por faixa de receita (usar receita simulada baseada em corridas)
       if (filters.revenueRange && Array.isArray(filters.revenueRange)) {
         const successRides = Number(rawData['Success Rides'] || 0);
-        const estimatedRevenue = successRides * 15.50; // Valor médio estimado
+        const estimatedRevenue = successRides * 2.50; // Valor correto por corrida
         const [min, max] = filters.revenueRange;
         if (estimatedRevenue < min || estimatedRevenue > max) return false;
       }
