@@ -88,10 +88,10 @@ const FloatingChat = () => {
       <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4 rounded-full shadow-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-purple-300"
+          className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-5 rounded-full shadow-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-purple-300"
           title="Chat com Agente AGNO"
         >
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="h-8 w-8" />
         </button>
       </div>
     );
@@ -99,29 +99,29 @@ const FloatingChat = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <div className={`bg-white rounded-lg shadow-2xl border border-gray-200 w-96 transition-all duration-300 ${
-        isMinimized ? 'h-16' : 'h-96'
+      <div className={`bg-white rounded-lg shadow-2xl border border-gray-200 w-[500px] transition-all duration-300 ${
+        isMinimized ? 'h-16' : 'h-[600px]'
       }`}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
           <div className="flex items-center space-x-2">
-            <Brain className="h-5 w-5" />
-            <span className="font-semibold text-sm">Chat AGNO</span>
+            <Brain className="h-6 w-6" />
+            <span className="font-semibold text-base">Chat AGNO</span>
           </div>
           <div className="flex space-x-1">
             <button
               onClick={() => setIsMinimized(!isMinimized)}
-              className="p-1.5 hover:bg-white hover:bg-opacity-20 rounded transition-colors"
+              className="p-2 hover:bg-white hover:bg-opacity-20 rounded transition-colors"
               title={isMinimized ? "Expandir" : "Minimizar"}
             >
-              {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+              {isMinimized ? <Maximize2 className="h-5 w-5" /> : <Minimize2 className="h-5 w-5" />}
             </button>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1.5 hover:bg-white hover:bg-opacity-20 rounded transition-colors"
+              className="p-2 hover:bg-white hover:bg-opacity-20 rounded transition-colors"
               title="Fechar"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -132,7 +132,7 @@ const FloatingChat = () => {
             {/* Messages */}
             <div 
               ref={messagesRef}
-              className="flex-1 overflow-y-auto p-3 space-y-3 h-64"
+              className="flex-1 overflow-y-auto p-4 space-y-4 h-[460px]"
             >
               {messages.map((msg, index) => (
                 <div
@@ -140,7 +140,7 @@ const FloatingChat = () => {
                   className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                    className={`max-w-sm px-4 py-3 rounded-lg text-sm ${
                       msg.type === 'user'
                         ? 'bg-blue-600 text-white'
                         : msg.type === 'error'
@@ -158,9 +158,9 @@ const FloatingChat = () => {
               
               {loading && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-100 text-gray-800 max-w-xs px-3 py-2 rounded-lg">
+                  <div className="bg-gray-100 text-gray-800 max-w-sm px-4 py-3 rounded-lg">
                     <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-purple-600"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
                       <span className="text-sm">Pensando...</span>
                     </div>
                   </div>
@@ -169,23 +169,23 @@ const FloatingChat = () => {
             </div>
 
             {/* Input */}
-            <div className="p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-              <div className="flex space-x-2">
+            <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+              <div className="flex space-x-3">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                   placeholder="Digite sua pergunta..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                   disabled={loading}
                 />
                 <button
                   onClick={sendMessage}
                   disabled={loading || !input.trim()}
-                  className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
+                  className="px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-5 w-5" />
                 </button>
               </div>
             </div>

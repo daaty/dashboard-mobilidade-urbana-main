@@ -245,10 +245,10 @@ const SistemaIA = () => {
           <div className="flex space-x-2">
             <button
               onClick={() => setChatOpen(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg"
+              className="flex items-center space-x-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg"
             >
-              <MessageCircle className="h-4 w-4" />
-              <span>Chat com Agente</span>
+              <MessageCircle className="h-5 w-5" />
+              <span className="font-medium">Chat com Agente</span>
             </button>
             
             <button
@@ -412,27 +412,27 @@ const SistemaIA = () => {
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setChatOpen(false)}></div>
           
-          <div className={`absolute right-4 top-4 bottom-4 w-96 bg-white rounded-lg shadow-2xl flex flex-col transition-transform ${
+          <div className={`absolute right-4 top-4 bottom-4 w-[600px] bg-white rounded-lg shadow-2xl flex flex-col transition-transform ${
             chatMinimized ? 'transform translate-y-full' : ''
           }`}>
             {/* Header do Chat */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
-              <div className="flex items-center space-x-2">
-                <Brain className="h-5 w-5" />
-                <span className="font-semibold">Chat com Agente AGNO</span>
+            <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
+              <div className="flex items-center space-x-3">
+                <Brain className="h-6 w-6" />
+                <span className="font-semibold text-lg">Chat com Agente AGNO</span>
               </div>
               <div className="flex space-x-2">
                 <button
                   onClick={() => setChatMinimized(!chatMinimized)}
-                  className="p-1 hover:bg-white hover:bg-opacity-20 rounded"
+                  className="p-2 hover:bg-white hover:bg-opacity-20 rounded transition-colors"
                 >
-                  <Minimize2 className="h-4 w-4" />
+                  <Minimize2 className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => setChatOpen(false)}
-                  className="p-1 hover:bg-white hover:bg-opacity-20 rounded"
+                  className="p-2 hover:bg-white hover:bg-opacity-20 rounded transition-colors"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
             </div>
@@ -442,7 +442,7 @@ const SistemaIA = () => {
                 {/* Mensagens do Chat */}
                 <div 
                   ref={chatMessagesRef}
-                  className="flex-1 overflow-y-auto p-4 space-y-4"
+                  className="flex-1 overflow-y-auto p-5 space-y-4"
                 >
                   {chatMessages.map((msg, index) => (
                     <div
@@ -450,7 +450,7 @@ const SistemaIA = () => {
                       className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                        className={`max-w-lg px-4 py-3 rounded-lg ${
                           msg.type === 'user'
                             ? 'bg-blue-600 text-white'
                             : msg.type === 'error'
@@ -468,7 +468,7 @@ const SistemaIA = () => {
                   
                   {chatLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-gray-100 text-gray-800 max-w-xs lg:max-w-md px-4 py-2 rounded-lg">
+                      <div className="bg-gray-100 text-gray-800 max-w-lg px-4 py-3 rounded-lg">
                         <div className="flex items-center space-x-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
                           <span className="text-sm">Agente pensando...</span>
@@ -479,23 +479,23 @@ const SistemaIA = () => {
                 </div>
 
                 {/* Input do Chat */}
-                <div className="p-4 border-t border-gray-200">
-                  <div className="flex space-x-2">
+                <div className="p-5 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+                  <div className="flex space-x-3">
                     <input
                       type="text"
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendChatMessage()}
                       placeholder="Digite sua pergunta..."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                       disabled={chatLoading}
                     />
                     <button
                       onClick={sendChatMessage}
                       disabled={chatLoading || !chatInput.trim()}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
+                      className="px-5 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
                     >
-                      <Send className="h-4 w-4" />
+                      <Send className="h-5 w-5" />
                     </button>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
