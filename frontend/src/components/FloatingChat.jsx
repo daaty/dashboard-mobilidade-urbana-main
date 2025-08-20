@@ -13,7 +13,7 @@ const FloatingChat = () => {
   const [messages, setMessages] = useState([
     {
       type: 'agent',
-      message: 'Olá! Sou o agente AGNO inteligente. Como posso ajudá-lo hoje?',
+      message: 'Olá! Sou seu assistente inteligente. Como posso ajudá-lo hoje?',
       timestamp: new Date()
     }
   ]);
@@ -89,7 +89,7 @@ const FloatingChat = () => {
         <button
           onClick={() => setIsOpen(true)}
           className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-5 rounded-full shadow-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-purple-300"
-          title="Chat com Agente AGNO"
+          title="Chat Inteligente"
         >
           <MessageCircle className="h-8 w-8" />
         </button>
@@ -106,7 +106,7 @@ const FloatingChat = () => {
         <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
           <div className="flex items-center space-x-2">
             <Brain className="h-6 w-6" />
-            <span className="font-semibold text-base">Chat AGNO</span>
+            <span className="font-semibold text-base">Chat</span>
           </div>
           <div className="flex space-x-1">
             <button

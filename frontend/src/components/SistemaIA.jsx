@@ -23,7 +23,7 @@ const SistemaIA = () => {
   const [chatMessages, setChatMessages] = useState([
     {
       type: 'agent',
-      message: 'Olá! Sou o agente AGNO inteligente. Como posso ajudá-lo hoje?',
+      message: 'Olá! Sou seu assistente inteligente. Como posso ajudá-lo hoje?',
       timestamp: new Date()
     }
   ]);
@@ -419,7 +419,7 @@ const SistemaIA = () => {
             <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
               <div className="flex items-center space-x-3">
                 <Brain className="h-6 w-6" />
-                <span className="font-semibold text-lg">Chat com Agente AGNO</span>
+                <span className="font-semibold text-lg">Chat</span>
               </div>
               <div className="flex space-x-2">
                 <button
