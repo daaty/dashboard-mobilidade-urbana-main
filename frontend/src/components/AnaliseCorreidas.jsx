@@ -126,7 +126,21 @@ export default function AnaliseCorreidas() {
 
   // Dados reais para gráficos
   const statusData = data?.distribuicao_status || []
-  const evolucaoData = data?.evolucao || []
+  
+  // Criar dados de evolução temporal baseados nos dados disponíveis
+  const evolucaoData = React.useMemo(() => {
+    if (!data?.comparativo_horarios || data.comparativo_horarios.length === 0) {
+      return []
+    }
+    
+    // Converter dados por hora em dados de evolução temporal
+    return data.comparativo_horarios.map(item => ({
+      data: `${item.hora}:00`,
+      taxa_conclusao: item.taxa_conclusao || 0,
+      taxa_cancelamento: item.taxa_cancelamento || 0,
+      taxa_perda: item.taxa_perda || 0
+    }))
+  }, [data?.comparativo_horarios])
 
   if (loading) {
     return (
@@ -335,53 +349,87 @@ export default function AnaliseCorreidas() {
         {/* Gráfico de Tendências - Largura Total */}
         <div className="mb-8">
           <div className="bg-gradient-to-br from-emerald-50 to-green-100 border border-emerald-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-emerald-600 rounded-xl">
-                <TrendingUp className="w-5 h-5 text-white" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-600 rounded-xl">
+                  <TrendingUp className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-emerald-800">
+                  Evolução das Taxas de Performance por Horário
+                </h3>
               </div>
-              <h3 className="text-lg font-semibold text-emerald-800">
-                Evolução das Taxas de Performance
-              </h3>
+              <div className="text-xs text-emerald-600 bg-emerald-100 px-3 py-1 rounded-lg">
+                Performance ao longo do dia
+              </div>
             </div>
             <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-emerald-200 p-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={evolucaoData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="data" />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value, name) => [`${value}%`, name]}
-                    contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '14px'
-                    }}
-                  />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="taxa_conclusao" 
-                    stroke={COLORS.concluidas} 
-                    strokeWidth={2}
-                    name="Concluídas"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="taxa_cancelamento" 
-                    stroke={COLORS.canceladas} 
-                    strokeWidth={2}
-                    name="Canceladas"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="taxa_perda" 
-                    stroke={COLORS.perdidas} 
-                    strokeWidth={2}
-                    name="Perdidas"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {evolucaoData && evolucaoData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={evolucaoData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis 
+                      dataKey="data" 
+                      tick={{ fontSize: 12, fill: '#666' }}
+                      label={{ value: 'Horário', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } }}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12, fill: '#666' }}
+                      label={{ value: 'Taxa (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
+                      domain={[0, 100]}
+                    />
+                    <Tooltip 
+                      formatter={(value, name) => [`${value.toFixed(1)}%`, name]}
+                      labelFormatter={(hora) => `Horário: ${hora}`}
+                      contentStyle={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                    <Legend 
+                      verticalAlign="top" 
+                      height={36}
+                      iconType="line"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="taxa_conclusao" 
+                      stroke={COLORS.concluidas} 
+                      strokeWidth={3}
+                      name="Taxa de Conclusão"
+                      dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="taxa_cancelamento" 
+                      stroke={COLORS.canceladas} 
+                      strokeWidth={3}
+                      name="Taxa de Cancelamento"
+                      dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="taxa_perda" 
+                      stroke={COLORS.perdidas} 
+                      strokeWidth={3}
+                      name="Taxa de Perda"
+                      dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="text-emerald-600 text-lg font-medium">Sem dados de performance</div>
+                    <div className="text-emerald-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -389,25 +437,45 @@ export default function AnaliseCorreidas() {
         {/* Análise de Tempos - Largura Total */}
         <div className="mb-8">
           <div className="bg-gradient-to-br from-amber-50 to-yellow-100 border border-amber-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-amber-600 rounded-xl">
-                <Clock className="w-5 h-5 text-white" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-600 rounded-xl">
+                  <Clock className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-amber-800">
+                  Distribuição de Demanda por Horário
+                </h3>
               </div>
-              <h3 className="text-lg font-semibold text-amber-800">
-                Análise de Tempos Operacionais
-              </h3>
+              {data?.tempos_operacionais && (
+                <div className="flex gap-4 text-xs">
+                  {data.tempos_operacionais.tempo_medio_espera && (
+                    <div className="bg-amber-100 px-3 py-1 rounded-lg">
+                      <span className="text-amber-700">Espera: </span>
+                      <span className="font-semibold">{data.tempos_operacionais.tempo_medio_espera}min</span>
+                    </div>
+                  )}
+                  {data.tempos_operacionais.tempo_medio_chegada && (
+                    <div className="bg-amber-100 px-3 py-1 rounded-lg">
+                      <span className="text-amber-700">Chegada: </span>
+                      <span className="font-semibold">{data.tempos_operacionais.tempo_medio_chegada}min</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-amber-200 p-4">
               {data?.comparativo_horarios && data.comparativo_horarios.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={data.comparativo_horarios}>
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis 
                       dataKey="hora" 
-                      label={{ value: 'Hora do Dia', position: 'insideBottom', offset: -5 }}
+                      tick={{ fontSize: 12, fill: '#666' }}
+                      label={{ value: 'Horário (24h)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } }}
                     />
                     <YAxis 
-                      label={{ value: 'Quantidade', angle: -90, position: 'insideLeft' }}
+                      tick={{ fontSize: 12, fill: '#666' }}
+                      label={{ value: 'Volume de Corridas', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
                     />
                     <Tooltip 
                       formatter={(value, name) => [
@@ -415,29 +483,46 @@ export default function AnaliseCorreidas() {
                         name === 'concluidas' ? 'Concluídas' : 
                         name === 'canceladas' ? 'Canceladas' : 'Perdidas'
                       ]}
-                      labelFormatter={(hora) => `${hora}:00h`}
+                      labelFormatter={(hora) => `${hora}:00 - ${hora}:59`}
+                      contentStyle={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
                     />
-                    <Legend />
+                    <Legend 
+                      verticalAlign="top" 
+                      height={36}
+                      iconType="line"
+                    />
                     <Line 
                       type="monotone" 
                       dataKey="concluidas" 
                       stroke={COLORS.concluidas} 
-                      strokeWidth={2}
+                      strokeWidth={3}
                       name="Concluídas"
+                      dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="canceladas" 
                       stroke={COLORS.canceladas} 
-                      strokeWidth={2}
+                      strokeWidth={3}
                       name="Canceladas"
+                      dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="perdidas" 
                       stroke={COLORS.perdidas} 
-                      strokeWidth={2}
+                      strokeWidth={3}
                       name="Perdidas"
+                      dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -445,7 +530,7 @@ export default function AnaliseCorreidas() {
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
                     <div className="text-amber-600 text-lg font-medium">Sem dados de horários</div>
-                    <div className="text-amber-500 text-sm mt-1">Nenhum dado encontrado no período</div>
+                    <div className="text-amber-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
                   </div>
                 </div>
               )}
