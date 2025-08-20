@@ -82,6 +82,26 @@ class MobilityDashboardAgent:
         print(f"✅ [INIT] DashboardAPITools configurado com base_url: {dashboard_tools.base_url}")
         print(f"✅ [INIT] BusinessAnalysisTools configurado")
         
+        # TESTE: Verificar se as ferramentas têm os métodos corretos
+        print(f"🔍 [INIT] Verificando métodos das ferramentas...")
+        dashboard_methods = [method for method in dir(dashboard_tools) if not method.startswith('_')]
+        print(f"📋 [INIT] Métodos DashboardAPITools: {dashboard_methods}")
+        
+        # Verificar se get_drivers_overview existe e é chamável
+        if hasattr(dashboard_tools, 'get_drivers_overview'):
+            print(f"✅ [INIT] get_drivers_overview encontrado")
+            try:
+                # Teste rápido da ferramenta
+                test_result = dashboard_tools.get_drivers_overview()
+                if "active_drivers" in test_result:
+                    print(f"✅ [INIT] Teste da ferramenta SUCESSO")
+                else:
+                    print(f"⚠️ [INIT] Teste da ferramenta retornou resultado inesperado")
+            except Exception as e:
+                print(f"❌ [INIT] Erro no teste da ferramenta: {e}")
+        else:
+            print(f"❌ [INIT] get_drivers_overview NÃO encontrado!")
+        
         self.agent = Agent(
             name="MobilityInsightAgent",
             model=OpenAIChat(**model_config),
@@ -94,6 +114,14 @@ class MobilityDashboardAgent:
         
         print(f"🎯 [INIT] Agente criado com {len(self.agent.tools)} ferramentas")
         print(f"🔍 [INIT] show_tool_calls habilitado: True")
+        
+        # VERIFICAR: As ferramentas do agente
+        for i, tool in enumerate(self.agent.tools):
+            print(f"🛠️ [INIT] Ferramenta {i}: {type(tool).__name__}")
+            if hasattr(tool, 'get_drivers_overview'):
+                print(f"  ✅ Tem get_drivers_overview")
+            else:
+                print(f"  ❌ NÃO tem get_drivers_overview")
         
         # Base de conhecimento sobre mobilidade urbana
         self.knowledge_base = self._build_knowledge_base()

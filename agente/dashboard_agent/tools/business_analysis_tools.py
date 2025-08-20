@@ -15,7 +15,6 @@ class BusinessAnalysisTools(Toolkit):
     """Ferramentas de análise de negócio e geração de insights"""
     
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
         self.kpis_industry = {
             "taxa_cancelamento_ideal": 15.0,  # %
             "taxa_conversao_motoristas": 3.0,  # %
@@ -24,6 +23,23 @@ class BusinessAnalysisTools(Toolkit):
             "roi_campanha_minimo": 150.0,  # %
             "penetracao_mercado_meta": 2.5,  # %
         }
+        
+        # 🎯 CORREÇÃO CRÍTICA: Adicionar métodos explicitamente à lista de tools
+        tools = [
+            self.calculate_business_kpis,
+            self.analyze_growth_trends,
+            self.generate_actionable_insights,
+            self.compare_city_performance,
+            self.forecast_demand_patterns,
+            self.optimize_driver_allocation,
+            self.calculate_market_penetration,
+            self.analyze_customer_segments,
+            self.evaluate_marketing_roi,
+            self.generate_strategic_recommendations
+        ]
+        
+        super().__init__(name="business_analysis_tools", tools=tools, **kwargs)
+        print(f"✅ [INIT] BusinessAnalysisTools inicializado com {len(tools)} ferramentas")
     
     def calculate_business_kpis(self, data: str) -> str:
         """

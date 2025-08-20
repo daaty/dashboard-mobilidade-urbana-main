@@ -20,9 +20,25 @@ class DashboardAPITools(Toolkit):
         timeout: int = 30,
         **kwargs
     ):
-        super().__init__(**kwargs)
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        
+        # 🎯 CORREÇÃO CRÍTICA: Adicionar métodos explicitamente à lista de tools
+        tools = [
+            self.get_rides_overview,
+            self.get_rides_by_city,
+            self.get_drivers_overview,
+            self.get_drivers_by_city,
+            self.get_financial_overview,
+            self.get_strategic_goals,
+            self.get_cities_data,
+            self.analyze_ride_patterns,
+            self.get_driver_performance_metrics,
+            self.calculate_roi_metrics
+        ]
+        
+        super().__init__(name="dashboard_api_tools", tools=tools, **kwargs)
+        print(f"✅ [INIT] DashboardAPITools inicializado com {len(tools)} ferramentas")
         
     def _make_request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
         """Método auxiliar para fazer requisições HTTP"""
@@ -104,19 +120,26 @@ class DashboardAPITools(Toolkit):
         """
         print(f"🚗 [TOOL] get_drivers_overview() chamada com periodo={periodo}")
         print(f"🔗 [TOOL] URL base configurada: {self.base_url}")
+        print(f"🤖 [TOOL] Chamada vem do framework AGNO")
         
-        # API não aceita parâmetros de período, então fazemos requisição simples
-        data = self._make_request("GET", "/api/drivers/overview")
-        
-        if "error" in data:
-            error_msg = f"Erro ao buscar dados de motoristas: {data['error']}"
-            print(f"❌ [TOOL] {error_msg}")
+        try:
+            # API não aceita parâmetros de período, então fazemos requisição simples
+            data = self._make_request("GET", "/api/drivers/overview")
+            
+            if "error" in data:
+                error_msg = f"Erro ao buscar dados de motoristas: {data['error']}"
+                print(f"❌ [TOOL] {error_msg}")
+                return error_msg
+            
+            print(f"✅ [TOOL] Dados de motoristas obtidos: {data.get('active_drivers', 'N/A')} ativos")
+            result = json.dumps(data, indent=2, ensure_ascii=False)
+            print(f"📤 [TOOL] Retornando dados de motoristas ({len(result)} caracteres)")
+            return result
+            
+        except Exception as e:
+            error_msg = f"❌ [TOOL] EXCEÇÃO em get_drivers_overview(): {str(e)}"
+            print(error_msg)
             return error_msg
-        
-        print(f"✅ [TOOL] Dados de motoristas obtidos: {data.get('active_drivers', 'N/A')} ativos")
-        result = json.dumps(data, indent=2, ensure_ascii=False)
-        print(f"📤 [TOOL] Retornando dados de motoristas ({len(result)} caracteres)")
-        return result
     
     def get_drivers_by_city(self, cidade: str) -> str:
         """
