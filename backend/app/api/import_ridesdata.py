@@ -246,7 +246,7 @@ def map_excel_to_driver_api(row, index):
         'name': name,
         'email': '',
         'mobile': phone,
-        'data_type': 'driver_daily_data',  # Mudando o tipo para indicar dados diários
+        'data_type': 'active',  # PADRONIZADO com o scraper que usa 'active'
         'page_source': 'excel_import',
         'additional_data': json.dumps(structured_data, ensure_ascii=False),
         'data_hash': data_hash,
@@ -264,7 +264,7 @@ async def get_drivers_analytics():
         conn = psycopg2.connect(DATABASE_URL)
         cursor = conn.cursor()
         
-        # Query para buscar todos os dados de motoristas
+        # Query para buscar todos os dados de motoristas - CORRIGIDO para usar dados existentes
         cursor.execute("""
             SELECT 
                 driver_id, 
@@ -273,7 +273,7 @@ async def get_drivers_analytics():
                 additional_data,
                 scraped_at
             FROM drivers_data 
-            WHERE data_type = 'driver_daily_data'
+            WHERE data_type = 'active'
             ORDER BY driver_id, scraped_at DESC
         """)
         

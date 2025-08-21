@@ -98,7 +98,7 @@ def map_excel_to_driver(row, index):
         'name': name,
         'email': '',  # Não disponível
         'mobile': phone,
-        'data_type': 'driver_profile',
+        'data_type': 'active',  # PADRONIZADO com o scraper
         'page_source': 'excel_import',
         'additional_data': json.dumps(additional_data, ensure_ascii=False),
         'data_hash': data_hash,
