@@ -464,7 +464,7 @@ async def get_metrics_overview(
         dt_ini_ant = dt_ini - timedelta(days=7)
         dt_fim_ant = dt_ini
     elif periodo == "30d":
-        dt_ini = now - timedelta(days=150)  # Ampliado para pegar dados de abril
+        dt_ini = now - timedelta(days=365)  # AMPLIADO PARA DEBUG - pegar TODOS os dados
         dt_fim = now
         dt_ini_ant = dt_ini - timedelta(days=30)
         dt_fim_ant = dt_ini
@@ -522,9 +522,20 @@ async def get_metrics_overview(
                 nome = nome_passageiro or nome_motorista or "Usuário"
                 
                 # Corrigir índices para corridas concluídas baseado na estrutura real da VPS
-                # rec[7] = data_solicitacao, rec[8] = data_conclusao 
-                hora_solicitacao = rec[7] if len(rec) > 7 else None
-                hora_conclusao = rec[8] if len(rec) > 8 else None
+                # Para dados do Excel: [6] = data_solicitacao, [7] = data_conclusao 
+                # Para dados do Scraper: [7] = data_solicitacao, [8] = data_conclusao
+                hora_solicitacao = None
+                hora_conclusao = None
+                
+                # Detectar se é dado do scraper ou Excel pela fonte
+                if r.source == "monitoring-service-adapted":
+                    # Dados do scraper
+                    hora_solicitacao = rec[7] if len(rec) > 7 else None
+                    hora_conclusao = rec[8] if len(rec) > 8 else None
+                else:
+                    # Dados do Excel
+                    hora_solicitacao = rec[6] if len(rec) > 6 else None
+                    hora_conclusao = rec[7] if len(rec) > 7 else None
                 
                 dt_corrida = None
                 hora_formatada = None
@@ -544,6 +555,7 @@ async def get_metrics_overview(
                             hora_formatada = str(hora)  # fallback
                     else:
                         hora_formatada = str(hora)  # fallback
+                        
                 # Detectar cidade usando função unificada
                 cidade_detectada = extract_city_from_record(rec)
                 
