@@ -10,8 +10,59 @@ import json
 from datetime import datetime, timedelta
 import os
 import sys
+import re
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from services.city_service import get_cities_from_rides_data
+
+def extract_datetime_from_record(rec, index):
+    """Extrai data/hora de um registro, lidando com AMBOS os formatos (scraper + frontend)"""
+    if index >= len(rec):
+        return None
+    
+    value = str(rec[index]).strip()
+    
+    # Formato do scraper: "202508202025-08-20 16:59:50"
+    scraper_match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", value)
+    if scraper_match:
+        return scraper_match.group(1)
+    
+    # Formato do frontend: "2025-08-20 16:59:50" (sem prefixo)
+    frontend_match = re.search(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$", value)
+    if frontend_match:
+        return frontend_match.group(1)
+    
+    return None
+
+def extract_city_from_record(rec):
+    """Detecta cidade baseada nos dados do registro"""
+    # Diferentes índices dependendo do tipo de corrida
+    possible_city_indices = [15, 17, 8, 9, 10]  # Diferentes posições onde a cidade pode estar
+    
+    for idx in possible_city_indices:
+        if idx < len(rec) and rec[idx]:
+            city_str = str(rec[idx]).strip().upper()
+            # Limpar dados de cidade
+            if city_str in ["MATUPA", "MATUPÁ"]:
+                return "MATUPA"
+            elif city_str == "PEIXOTO":
+                return "PEIXOTO"
+            elif "GUARANTA" in city_str:
+                return "GUARANTA DO NORTE"
+    
+    # Fallback: detectar pela localização (índices 5 e 6)
+    if len(rec) > 6:
+        local_str = str(rec[5]) if len(rec) > 5 else ""
+        destino_str = str(rec[6]) if len(rec) > 6 else ""
+        local_destino = (local_str + " " + destino_str).upper()
+        
+        if "MATUPA" in local_destino or "MATUPÁ" in local_destino:
+            return "MATUPA"
+        elif "PEIXOTO" in local_destino:
+            return "PEIXOTO"
+        elif "GUARANTA" in local_destino:
+            return "GUARANTA DO NORTE"
+    
+    return "Unnamed"  # Default se não conseguir detectar
 
 router = APIRouter()
 
@@ -470,32 +521,42 @@ async def get_metrics_overview(
                 # Usar nome do passageiro como principal, motorista como fallback
                 nome = nome_passageiro or nome_motorista or "Usuário"
                 
-                hora = rec[6] if len(rec) > 6 else None
+                # Corrigir índices para corridas concluídas baseado na estrutura real da VPS
+                # rec[7] = data_solicitacao, rec[8] = data_conclusao 
+                hora_solicitacao = rec[7] if len(rec) > 7 else None
+                hora_conclusao = rec[8] if len(rec) > 8 else None
+                
                 dt_corrida = None
                 hora_formatada = None
+                
+                # Usar hora de conclusão como principal, solicitação como fallback
+                hora = hora_conclusao or hora_solicitacao
+                
                 if hora:
-                    import re
-                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
-                    if match:
-                        dt_str = match.group(1)
+                    # Usar função unificada para extrair datetime
+                    dt_str = extract_datetime_from_record([hora], 0)
+                    if dt_str:
                         try:
                             dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
                             hora_formatada = dt_str
                         except Exception:
                             dt_corrida = None
-                            hora_formatada = None
+                            hora_formatada = str(hora)  # fallback
                     else:
-                        hora_formatada = hora  # fallback
+                        hora_formatada = str(hora)  # fallback
+                # Detectar cidade usando função unificada
+                cidade_detectada = extract_city_from_record(rec)
+                
                 item = {
                     "id_corrida": id_corrida,
                     "nome": nome,
                     "avatar": gerar_avatar(nome),
                     "hora": hora_formatada,
                     "dt_corrida": dt_corrida,
-                    "grupo": rec[9] if len(rec) > 9 else None,
-                    "local": rec[4] if len(rec) > 4 else None,
-                    "destino": rec[5] if len(rec) > 5 else None,
-                    "cidade": rec[15] if len(rec) > 15 else None,  # Cidade no índice 15 para corridas concluídas
+                    "grupo": rec[9] if len(rec) > 9 else None,  # Categoria
+                    "local": rec[5] if len(rec) > 5 else None,  # Origem  
+                    "destino": rec[6] if len(rec) > 6 else None,  # Destino
+                    "cidade": cidade_detectada,
                     "tempo": None
                 }
                 # Verificar filtro de cidade
@@ -524,18 +585,17 @@ async def get_metrics_overview(
                 dt_corrida = None
                 hora_formatada = None
                 if hora:
-                    import re
-                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
-                    if match:
-                        dt_str = match.group(1)
+                    # Usar função unificada para extrair datetime
+                    dt_str = extract_datetime_from_record([hora], 0)
+                    if dt_str:
                         try:
                             dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
                             hora_formatada = dt_str
                         except Exception:
                             dt_corrida = None
-                            hora_formatada = None
+                            hora_formatada = str(hora)
                     else:
-                        hora_formatada = hora
+                        hora_formatada = str(hora)
                 item = {
                     "id_corrida": id_corrida,
                     "nome": nome,
@@ -575,18 +635,17 @@ async def get_metrics_overview(
                 dt_corrida = None
                 hora_formatada = None
                 if hora:
-                    import re
-                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
-                    if match:
-                        dt_str = match.group(1)
+                    # Usar função unificada para extrair datetime
+                    dt_str = extract_datetime_from_record([hora], 0)
+                    if dt_str:
                         try:
                             dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
                             hora_formatada = dt_str
                         except Exception:
                             dt_corrida = None
-                            hora_formatada = None
+                            hora_formatada = str(hora)
                     else:
-                        hora_formatada = hora
+                        hora_formatada = str(hora)
                 item = {
                     "id_corrida": id_corrida,
                     "nome": nome,
@@ -620,18 +679,17 @@ async def get_metrics_overview(
                 dt_corrida = None
                 hora_formatada = None
                 if hora:
-                    import re
-                    match = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", hora)
-                    if match:
-                        dt_str = match.group(1)
+                    # Usar função unificada para extrair datetime
+                    dt_str = extract_datetime_from_record([hora], 0)
+                    if dt_str:
                         try:
                             dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
                             hora_formatada = dt_str
                         except Exception:
                             dt_corrida = None
-                            hora_formatada = None
+                            hora_formatada = str(hora)
                     else:
-                        hora_formatada = hora
+                        hora_formatada = str(hora)
                 item = {
                     "id_corrida": id_corrida,
                     "nome": nome,
