@@ -229,10 +229,6 @@ export default function DriversOverview({ onPeriodChange }) {
       return total + driverTotal;
     }, 0),
     
-    // Rating médio estimado baseado na performance
-    average_rating: aggregatedData.rawData.total_drivers > 0 && Number(aggregatedData.rawData.total_rides_completed || 0) > 0 ? 
-      Math.min(5.0, 3.8 + (Number(aggregatedData.rawData.total_rides_completed || 0) / aggregatedData.rawData.total_drivers / 10)) : 0,
-    
     // Análises vazias (não vêm da API atual)
     city_analysis: {},
     vehicle_analysis: {},
