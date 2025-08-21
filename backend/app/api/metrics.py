@@ -464,7 +464,7 @@ async def get_metrics_overview(
         dt_ini_ant = dt_ini - timedelta(days=7)
         dt_fim_ant = dt_ini
     elif periodo == "30d":
-        dt_ini = now - timedelta(days=365)  # AMPLIADO PARA DEBUG - pegar TODOS os dados
+        dt_ini = now - timedelta(days=30)
         dt_fim = now
         dt_ini_ant = dt_ini - timedelta(days=30)
         dt_fim_ant = dt_ini
