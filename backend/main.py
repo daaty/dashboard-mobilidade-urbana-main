@@ -10,6 +10,7 @@ from app.api import campanha
 from app.api import metas_performance
 from app.api import fases_planejamento
 from app.api import metas_progressivas
+from app.api import driver_personal_details
 from routes import cidades_demografia
 from routes import dashboard_executivo
 from routes import metas_estrategicas_routes
@@ -50,6 +51,7 @@ app.add_middleware(
 
 app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
 app.include_router(drivers.router, prefix="/api/drivers", tags=["drivers"])
+app.include_router(driver_personal_details.router, prefix="/api/drivers", tags=["driver-personal-details"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
 app.include_router(financeiro.router, prefix="/api/financeiro", tags=["financeiro"])
 app.include_router(performance.router, prefix="/api/metrics", tags=["performance"])
