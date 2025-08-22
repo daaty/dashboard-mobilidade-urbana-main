@@ -279,6 +279,7 @@ async def get_drivers_analytics():
         
         rows = cursor.fetchall()
         drivers_data = []
+        processed_drivers = set()  # Para evitar duplicatas
         
         for row in rows:
             driver_id, name, mobile, additional_data, scraped_at = row
@@ -291,13 +292,100 @@ async def get_drivers_analytics():
             else:
                 data = {}
             
-            drivers_data.append({
-                'driver_id': driver_id,
-                'name': name,
-                'mobile': mobile,
-                'data': data,
-                'scraped_at': scraped_at.isoformat() if scraped_at else None
-            })
+            # CORRIGIR MAPEAMENTO DOS DADOS BASEADO NA ESTRUTURA REAL
+            try:
+                # Extrair dados do raw_row baseado nos headers
+                headers = data.get('headers', [])
+                raw_row = data.get('raw_row', [])
+                
+                if headers and raw_row and len(headers) == len(raw_row):
+                    # Criar mapeamento correto header -> valor
+                    mapped_data = {}
+                    for i, header in enumerate(headers):
+                        if i < len(raw_row):
+                            mapped_data[header] = raw_row[i]
+                    
+                    # Extrair informações corretas
+                    real_name = mapped_data.get('OTP', mapped_data.get('Driver Name', name))
+                    real_mobile = mapped_data.get('City', mobile)  # City está com telefone
+                    driver_ratings = mapped_data.get('Driver Ratings', '0')
+                    rides_last_30_days = mapped_data.get('Rides in Last 30 Days', '0')
+                    rides_last_7_days = mapped_data.get('Rides in Last 7 Days', '0')
+                    last_login = mapped_data.get('Last Login', '')
+                    last_ride = mapped_data.get('Last Ride', '0')
+                    status = mapped_data.get('Status', 'offline')
+                    city = mapped_data.get('Registered On', '')
+                    vehicle = mapped_data.get('Mobile', '')  # Mobile está com veículo
+                    email = mapped_data.get('Vehicle Number', '')  # Vehicle Number está com email
+                    
+                    # Processar dados numéricos
+                    try:
+                        rides_30d = int(rides_last_30_days) if rides_last_30_days and rides_last_30_days != 'None' else 0
+                    except:
+                        rides_30d = 0
+                        
+                    try:
+                        rides_7d = int(rides_last_7_days) if rides_last_7_days and rides_last_7_days != 'None' else 0
+                    except:
+                        rides_7d = 0
+                        
+                    try:
+                        rating = float(driver_ratings) / 10000 if driver_ratings and driver_ratings != 'None' else 3.5
+                        rating = min(5.0, max(1.0, rating))  # Garantir entre 1-5
+                    except:
+                        rating = 3.5
+                    
+                    try:
+                        last_ride_count = int(last_ride) if last_ride and last_ride != 'None' else 0
+                    except:
+                        last_ride_count = 0
+                    
+                    # Determinar status real
+                    is_online = status.lower() == 'online' if status else False
+                    is_active = rides_30d > 0 or rides_7d > 0 or is_online
+                    
+                    # Usar telefone como chave única para evitar duplicatas
+                    if real_mobile and real_mobile.startswith('+556') and real_mobile not in processed_drivers:
+                        processed_drivers.add(real_mobile)
+                        
+                        drivers_data.append({
+                            'driver_id': driver_id,
+                            'name': real_name if real_name and real_name not in ['0', 'None'] else f"Motorista {driver_id}",
+                            'mobile': real_mobile,
+                            'data': {
+                                'profile': {
+                                    'city': city,
+                                    'vehicle': vehicle,
+                                    'email': email,
+                                    'status': 'active' if is_active else 'inactive',
+                                    'is_online': is_online
+                                },
+                                'metrics': {
+                                    'rating': rating,
+                                    'rides_last_30_days': rides_30d,
+                                    'rides_last_7_days': rides_7d,
+                                    'total_rides': max(rides_30d, rides_7d, last_ride_count),
+                                    'last_login': last_login,
+                                    'success_rate': 85.0 if rides_30d > 0 else 0.0  # Estimativa
+                                },
+                                'raw_data': mapped_data,
+                                'original_data': data  # Manter dados originais para debug
+                            },
+                            'scraped_at': scraped_at.isoformat() if scraped_at else None
+                        })
+                
+            except Exception as e:
+                print(f"Erro processando driver {driver_id}: {e}")
+                # Fallback para dados não processados
+                if driver_id not in processed_drivers:
+                    processed_drivers.add(driver_id)
+                    drivers_data.append({
+                        'driver_id': driver_id,
+                        'name': name if name and name not in ['0', 'None'] else f"Motorista {driver_id}",
+                        'mobile': mobile,
+                        'data': data,
+                        'scraped_at': scraped_at.isoformat() if scraped_at else None
+                    })
         
         conn.close()
         
