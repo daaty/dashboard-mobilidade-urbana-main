@@ -264,7 +264,7 @@ async def get_drivers_analytics():
         conn = psycopg2.connect(DATABASE_URL)
         cursor = conn.cursor()
         
-        # Query para buscar todos os dados de motoristas - CORRIGIDO para usar dados existentes
+        # Query para buscar motoristas ativos - USANDO CAMPOS CORRETOS E FILTROS ESPECÍFICOS
         cursor.execute("""
             SELECT 
                 driver_id, 
@@ -273,16 +273,25 @@ async def get_drivers_analytics():
                 additional_data,
                 scraped_at
             FROM drivers_data 
-            WHERE data_type = 'active'
-            ORDER BY driver_id, scraped_at DESC
+            WHERE data_type = 'active' 
+            AND name IS NOT NULL 
+            AND name != 'None'
+            AND driver_id ~ '^[0-9]+$'  -- Apenas IDs numéricos
+            AND LENGTH(driver_id) >= 8  -- IDs com pelo menos 8 dígitos
+            ORDER BY driver_id
         """)
         
         rows = cursor.fetchall()
         drivers_data = []
-        processed_drivers = set()  # Para evitar duplicatas
+        processed_drivers = set()  # Para evitar duplicatas por driver_id
         
         for row in rows:
             driver_id, name, mobile, additional_data, scraped_at = row
+            
+            # Evitar duplicatas pelo driver_id
+            if driver_id in processed_drivers:
+                continue
+            processed_drivers.add(driver_id)
             
             # Parse do JSON - verificar se é string ou dict
             if isinstance(additional_data, str):
@@ -292,100 +301,113 @@ async def get_drivers_analytics():
             else:
                 data = {}
             
-            # CORRIGIR MAPEAMENTO DOS DADOS BASEADO NA ESTRUTURA REAL
+            # USAR CAMPOS CORRETOS DA TABELA - Agora nome e mobile estão nos lugares certos
             try:
-                # Extrair dados do raw_row baseado nos headers
+                # Extrair dados do raw_row se disponível para métricas adicionais
                 headers = data.get('headers', [])
                 raw_row = data.get('raw_row', [])
                 
+                # Dados principais da tabela (já corretos)
+                real_driver_id = driver_id  # ID numérico único
+                real_name = name  # Nome real do motorista 
+                real_mobile = mobile  # Telefone correto
+                
+                # Extrair métricas do raw_row se disponível
+                rides_last_30_days = 0
+                rides_last_7_days = 0
+                rating = 3.5
+                last_login = ''
+                status = 'inactive'
+                city = 'Matupá'
+                vehicle = ''
+                email = ''
+                
                 if headers and raw_row and len(headers) == len(raw_row):
-                    # Criar mapeamento correto header -> valor
+                    # Criar mapeamento header -> valor
                     mapped_data = {}
                     for i, header in enumerate(headers):
                         if i < len(raw_row):
                             mapped_data[header] = raw_row[i]
                     
-                    # Extrair informações corretas
-                    real_name = mapped_data.get('OTP', mapped_data.get('Driver Name', name))
-                    real_mobile = mapped_data.get('City', mobile)  # City está com telefone
-                    driver_ratings = mapped_data.get('Driver Ratings', '0')
-                    rides_last_30_days = mapped_data.get('Rides in Last 30 Days', '0')
-                    rides_last_7_days = mapped_data.get('Rides in Last 7 Days', '0')
-                    last_login = mapped_data.get('Last Login', '')
-                    last_ride = mapped_data.get('Last Ride', '0')
-                    status = mapped_data.get('Status', 'offline')
-                    city = mapped_data.get('Registered On', '')
-                    vehicle = mapped_data.get('Mobile', '')  # Mobile está com veículo
-                    email = mapped_data.get('Vehicle Number', '')  # Vehicle Number está com email
-                    
-                    # Processar dados numéricos
+                    # Extrair métricas se disponíveis
                     try:
-                        rides_30d = int(rides_last_30_days) if rides_last_30_days and rides_last_30_days != 'None' else 0
+                        rides_30d_str = mapped_data.get('Rides in Last 30 Days', '0')
+                        rides_30d = int(rides_30d_str) if rides_30d_str and rides_30d_str.isdigit() else 0
+                        rides_last_30_days = rides_30d
                     except:
-                        rides_30d = 0
+                        rides_last_30_days = 0
                         
                     try:
-                        rides_7d = int(rides_last_7_days) if rides_last_7_days and rides_last_7_days != 'None' else 0
+                        rides_7d_str = mapped_data.get('Rides in Last 7 Days', '0')
+                        rides_7d = int(rides_7d_str) if rides_7d_str and rides_7d_str.isdigit() else 0
+                        rides_last_7_days = rides_7d
                     except:
-                        rides_7d = 0
+                        rides_last_7_days = 0
                         
                     try:
-                        rating = float(driver_ratings) / 10000 if driver_ratings and driver_ratings != 'None' else 3.5
-                        rating = min(5.0, max(1.0, rating))  # Garantir entre 1-5
+                        rating_str = mapped_data.get('Driver Ratings', '35000')
+                        rating_val = float(rating_str) if rating_str and rating_str.isdigit() else 35000
+                        rating = min(5.0, max(1.0, rating_val / 10000))  # Converter para escala 1-5
                     except:
                         rating = 3.5
                     
-                    try:
-                        last_ride_count = int(last_ride) if last_ride and last_ride != 'None' else 0
-                    except:
-                        last_ride_count = 0
-                    
-                    # Determinar status real
-                    is_online = status.lower() == 'online' if status else False
-                    is_active = rides_30d > 0 or rides_7d > 0 or is_online
-                    
-                    # Usar telefone como chave única para evitar duplicatas
-                    if real_mobile and real_mobile.startswith('+556') and real_mobile not in processed_drivers:
-                        processed_drivers.add(real_mobile)
-                        
-                        drivers_data.append({
-                            'driver_id': driver_id,
-                            'name': real_name if real_name and real_name not in ['0', 'None'] else f"Motorista {driver_id}",
-                            'mobile': real_mobile,
-                            'data': {
-                                'profile': {
-                                    'city': city,
-                                    'vehicle': vehicle,
-                                    'email': email,
-                                    'status': 'active' if is_active else 'inactive',
-                                    'is_online': is_online
-                                },
-                                'metrics': {
-                                    'rating': rating,
-                                    'rides_last_30_days': rides_30d,
-                                    'rides_last_7_days': rides_7d,
-                                    'total_rides': max(rides_30d, rides_7d, last_ride_count),
-                                    'last_login': last_login,
-                                    'success_rate': 85.0 if rides_30d > 0 else 0.0  # Estimativa
-                                },
-                                'raw_data': mapped_data,
-                                'original_data': data  # Manter dados originais para debug
-                            },
-                            'scraped_at': scraped_at.isoformat() if scraped_at else None
-                        })
+                    # Outros campos
+                    last_login = mapped_data.get('Last Login', '')
+                    status_str = mapped_data.get('Status', 'Offline')
+                    status = 'active' if status_str.lower() == 'online' else 'inactive'
+                    city = mapped_data.get('Registered On', 'Matupá')
+                    vehicle = mapped_data.get('Mobile', '')  # Veículo pode estar em Mobile
+                    email = mapped_data.get('Email', '')
+                
+                # Determinar se está ativo baseado em corridas recentes
+                total_rides = max(rides_last_30_days, rides_last_7_days)
+                is_active = total_rides > 0 or status == 'active'
+                
+                drivers_data.append({
+                    'driver_id': str(real_driver_id),  # ID numérico como string
+                    'name': real_name,  # Nome real da tabela
+                    'mobile': real_mobile,  # Telefone da tabela
+                    'data': {
+                        'profile': {
+                            'city': city,
+                            'vehicle': vehicle,
+                            'email': email,
+                            'status': 'active' if is_active else 'inactive',
+                            'is_online': status == 'active'
+                        },
+                        'metrics': {
+                            'rating': rating,
+                            'rides_last_30_days': rides_last_30_days,
+                            'rides_last_7_days': rides_last_7_days,
+                            'total_rides': total_rides,
+                            'last_login': last_login,
+                            'success_rate': 85.0 if total_rides > 0 else 0.0  # Estimativa
+                        },
+                        'raw_data': mapped_data if headers and raw_row else {},
+                        'original_data': data  # Manter dados originais para debug
+                    },
+                    'scraped_at': scraped_at.isoformat() if scraped_at else None
+                })
                 
             except Exception as e:
                 print(f"Erro processando driver {driver_id}: {e}")
-                # Fallback para dados não processados
-                if driver_id not in processed_drivers:
-                    processed_drivers.add(driver_id)
-                    drivers_data.append({
-                        'driver_id': driver_id,
-                        'name': name if name and name not in ['0', 'None'] else f"Motorista {driver_id}",
-                        'mobile': mobile,
-                        'data': data,
-                        'scraped_at': scraped_at.isoformat() if scraped_at else None
-                    })
+                # Fallback básico usando apenas dados da tabela
+                drivers_data.append({
+                    'driver_id': str(driver_id),
+                    'name': name,
+                    'mobile': mobile,
+                    'data': {
+                        'profile': {
+                            'city': 'Matupá',
+                            'status': 'active'
+                        },
+                        'metrics': {
+                            'rating': 3.5,
+                            'total_rides': 0
+                        }
+                    },
+                    'scraped_at': scraped_at.isoformat() if scraped_at else None
+                })
         
         conn.close()
         

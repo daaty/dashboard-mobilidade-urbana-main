@@ -41,23 +41,24 @@ export const useDriversAnalytics = () => {
       console.log('🚗 Array de motoristas encontrado:', driversArray.length, 'registros');
       console.log('🚗 Primeiro motorista:', driversArray[0]);
       
-      // RESOLVER PROBLEMA DE CHAVES DUPLICADAS - motoristas com mesmo ID mas dados diferentes
+      // RESOLVER PROBLEMA DE CHAVES DUPLICADAS - usar driver_id como chave única
       const uniqueDriversMap = new Map();
       
       driversArray.forEach((driver, index) => {
-        const driverId = driver.driver_id;
+        // Usar driver_id como chave única (ID numérico único na tabela)
+        const uniqueKey = driver.driver_id || `unknown-${index}`;
         
-        if (!uniqueDriversMap.has(driverId)) {
+        if (!uniqueDriversMap.has(uniqueKey)) {
           // Primeira ocorrência do motorista
-          uniqueDriversMap.set(driverId, {
+          uniqueDriversMap.set(uniqueKey, {
             ...driver,
-            unique_key: `${driverId}-${index}`, // Chave única para React
+            unique_key: `${uniqueKey}-${index}`, // Chave única para React
             records_count: 1,
             all_data: [driver.data] // Array de todos os dados deste motorista
           });
         } else {
           // Motorista já existe - agregar dados
-          const existing = uniqueDriversMap.get(driverId);
+          const existing = uniqueDriversMap.get(uniqueKey);
           existing.records_count += 1;
           existing.all_data.push(driver.data);
           
