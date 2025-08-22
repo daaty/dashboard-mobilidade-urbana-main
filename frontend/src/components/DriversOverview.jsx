@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { Users, Star, TrendingUp, UserCheck, Activity, Award, AlertTriangle, Clock, BarChart3, Wifi, Filter, Target, DollarSign, MapPin, Car, AlertCircle, CheckCircle, XCircle, TrendingDown, Calendar, Lightbulb } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
 import { useDriversAnalytics } from '../hooks/useDriversAnalytics';
-import { useDriverPersonalDetails } from '../hooks/useDriverPersonalDetails';
+import DriverDetailsModal from './DriverDetailsModal';
+import { useDriverModal } from '../hooks/useDriverModal';
 
 // Simulação dos componentes de UI, já que não temos acesso a eles.
 // Em um projeto real, você importaria de '@/components/ui/card'.
@@ -76,6 +77,9 @@ export default function DriversOverview({ onPeriodChange }) {
     const [showComparison, setShowComparison] = useState(false);
     const [selectedAlert, setSelectedAlert] = useState('');
 
+    // Hook para modal de detalhes do motorista
+    const { isModalOpen, selectedDriverId, selectedDriverName, openModal, closeModal } = useDriverModal();
+
     // Hook para dados reais dos motoristas - expandido COM TRATAMENTO DE ERRO
     let driversData, loading, error, calculateAggregatedMetrics, getTopDrivers, getFilteredDrivers, getTemporalComparison, getSpecificAlerts;
     
@@ -101,19 +105,7 @@ export default function DriversOverview({ onPeriodChange }) {
       getSpecificAlerts = () => [];
     }
 
-    // Hook para dados pessoais detalhados dos motoristas (NOVOS DADOS)
-    const {
-      personalData,
-      summary: personalSummary,
-      cities: availableCities,
-      loading: personalLoading,
-      error: personalError,
-      detailedMetrics,
-      getTopDrivers: getTopDriversPersonal,
-      filterDrivers: filterPersonalDrivers
-    } = useDriverPersonalDetails();
-
-  // Calcular métricas baseadas no período selecionado
+    // Calcular métricas baseadas no período selecionado
   const daysMap = {
     'hoje': 1,
     '7d': 7,
@@ -238,7 +230,7 @@ export default function DriversOverview({ onPeriodChange }) {
       const userCancelled = driver.data?.metrics?.user_cancelled || 0;
       const driverCancelled = driver.data?.metrics?.driver_cancelled || 0;
       const driverTotal = userCancelled + driverCancelled;
-      console.log(`🚫 ${driver.name}: ${driverTotal} canceladas (user: ${userCancelled}, driver: ${driverCancelled})`);
+      console.log(`🚫 ${driver.name || 'Motorista'}: ${driverTotal} canceladas (user: ${userCancelled}, driver: ${driverCancelled})`);
       return total + driverTotal;
     }, 0),
     
@@ -365,9 +357,9 @@ export default function DriversOverview({ onPeriodChange }) {
               <span className="text-sm text-gray-600">Dados Analíticos: {loading ? 'Carregando...' : 'Conectado'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className={`w-3 h-3 rounded-full ${personalLoading ? 'bg-yellow-500 animate-pulse' : personalError ? 'bg-red-500' : 'bg-green-500'}`}></div>
+              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
               <span className="text-sm text-gray-600">
-                Dados Pessoais: {personalLoading ? 'Carregando...' : personalError ? 'Erro' : `${personalData.length} motoristas`}
+                Modal de Detalhes: Disponível
               </span>
             </div>
           </div>
@@ -640,165 +632,6 @@ export default function DriversOverview({ onPeriodChange }) {
               </motion.div>
             )}
 
-            {/* Dados Detalhados dos Motoristas - NOVOS ENDPOINTS */}
-            {personalSummary && detailedMetrics && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-                <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
-                  <div className="bg-gradient-to-r from-emerald-900 to-emerald-800 text-white rounded-t-2xl p-6">
-                    <div className="flex items-center gap-3 text-lg font-semibold">
-                      <div className="bg-emerald-500/20 p-2 rounded-lg">
-                        <Users className="w-5 h-5 text-emerald-400" />
-                      </div>
-                      Dados Pessoais e Financeiros dos Motoristas
-                      <span className="text-emerald-300 text-sm">({personalSummary.total_drivers} motoristas)</span>
-                    </div>
-                  </div>
-                  <div className="p-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      
-                      {/* Ganhos Totais Reais */}
-                      <div className="bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-green-200 text-sm font-medium tracking-wide uppercase">Ganhos Totais</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-green-300 to-emerald-300 bg-clip-text text-transparent mt-2">
-                              R$ {Number(personalSummary.total_earnings || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </p>
-                            <p className="text-green-300 text-sm mt-2">Receita real dos motoristas</p>
-                          </div>
-                          <div className="bg-green-500/20 p-4 rounded-xl"><DollarSign className="w-8 h-8 text-green-400" /></div>
-                        </div>
-                      </div>
-
-                      {/* Corridas Realizadas */}
-                      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-blue-200 text-sm font-medium tracking-wide uppercase">Total de Corridas</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent mt-2">
-                              {Number(personalSummary.total_rides || 0).toLocaleString('pt-BR')}
-                            </p>
-                            <p className="text-blue-300 text-sm mt-2">Corridas registradas</p>
-                          </div>
-                          <div className="bg-blue-500/20 p-4 rounded-xl"><Car className="w-8 h-8 text-blue-400" /></div>
-                        </div>
-                      </div>
-
-                      {/* Rating Real Médio */}
-                      <div className="bg-gradient-to-br from-yellow-600 via-yellow-700 to-orange-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-yellow-200 text-sm font-medium tracking-wide uppercase">Rating Real</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent mt-2">
-                              {Number(personalSummary.average_rating || 0).toFixed(1)} ⭐
-                            </p>
-                            <p className="text-yellow-300 text-sm mt-2">Avaliação real dos usuários</p>
-                          </div>
-                          <div className="bg-yellow-500/20 p-4 rounded-xl"><Star className="w-8 h-8 text-yellow-400" /></div>
-                        </div>
-                      </div>
-
-                      {/* Motoristas Ativos */}
-                      <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-purple-200 text-sm font-medium tracking-wide uppercase">Ativos</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent mt-2">
-                              {personalSummary.active_drivers}
-                            </p>
-                            <p className="text-purple-300 text-sm mt-2">De {personalSummary.total_drivers} total</p>
-                          </div>
-                          <div className="bg-purple-500/20 p-4 rounded-xl"><UserCheck className="w-8 h-8 text-purple-400" /></div>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    {/* Métricas de Performance Detalhadas */}
-                    {detailedMetrics.performance && (
-                      <div className="mt-8">
-                        <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                          <Award className="w-5 h-5 text-yellow-600" />
-                          Distribuição de Performance
-                        </h4>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-                            <div className="text-2xl font-bold text-green-700">{detailedMetrics.performance.excellent}</div>
-                            <div className="text-green-600 text-sm">Excelente (4.5+)</div>
-                          </div>
-                          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
-                            <div className="text-2xl font-bold text-blue-700">{detailedMetrics.performance.good}</div>
-                            <div className="text-blue-600 text-sm">Bom (4.0-4.5)</div>
-                          </div>
-                          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
-                            <div className="text-2xl font-bold text-yellow-700">{detailedMetrics.performance.average}</div>
-                            <div className="text-yellow-600 text-sm">Médio (3.5-4.0)</div>
-                          </div>
-                          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
-                            <div className="text-2xl font-bold text-red-700">{detailedMetrics.performance.below}</div>
-                            <div className="text-red-600 text-sm">Abaixo (&lt; 3.5)</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Top Performers baseado nos dados reais */}
-                    {personalData.length > 0 && (
-                      <div className="mt-8">
-                        <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                          <TrendingUp className="w-5 h-5 text-green-600" />
-                          Top 5 Motoristas por Ganhos
-                        </h4>
-                        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                          <table className="w-full">
-                            <thead className="bg-gray-50">
-                              <tr>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Motorista</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cidade</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Corridas</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ganhos</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                              </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                              {getTopDriversPersonal('total_earnings', 5).map((driver, index) => (
-                                <tr key={driver.driver_id} className="hover:bg-gray-50">
-                                  <td className="px-4 py-4 whitespace-nowrap">
-                                    <div className="flex items-center">
-                                      <div className="flex-shrink-0 h-8 w-8">
-                                        <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                                          index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : index === 2 ? 'bg-orange-600' : 'bg-blue-500'
-                                        }`}>
-                                          {index + 1}
-                                        </div>
-                                      </div>
-                                      <div className="ml-3">
-                                        <div className="text-sm font-medium text-gray-900">{driver.name || 'N/A'}</div>
-                                        <div className="text-sm text-gray-500">ID: {driver.driver_id}</div>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{driver.city}</td>
-                                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{driver.total_rides}</td>
-                                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                                    R$ {Number(driver.total_earnings).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                  </td>
-                                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {driver.average_rating ? `${Number(driver.average_rating).toFixed(1)} ⭐` : 'N/A'}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    )}
-
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
             {/* Gráficos e Detalhes - Estilo Executivo */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
               <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
@@ -889,16 +722,20 @@ export default function DriversOverview({ onPeriodChange }) {
                         <CardContent className="pt-6">
                             <div className="space-y-4">
                                 {dashboardData.top_drivers?.length > 0 ? dashboardData.top_drivers.map((driver, index) => (
-                                    <div key={`top-driver-${driver.unique_key || driver.driver_id || driver.name}-${index}`} className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-yellow-50 dark:from-gray-700 dark:to-yellow-900/20 rounded-xl shadow-md border border-yellow-100 dark:border-yellow-800 hover:shadow-lg transition-all duration-300">
+                                    <div 
+                                      key={`top-driver-${driver.unique_key || driver.driver_id || driver.name}-${index}`} 
+                                      className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-yellow-50 dark:from-gray-700 dark:to-yellow-900/20 rounded-xl shadow-md border border-yellow-100 dark:border-yellow-800 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                                      onClick={() => openModal(driver.driver_id || driver.id, driver.name || 'Motorista')}
+                                    >
                                         <div className="flex items-center gap-4">
                                             <div className="relative">
-                                                <img src={getAvatarUrl(driver.name)} alt={driver.name} className="w-12 h-12 rounded-full shadow-lg border-2 border-yellow-200 dark:border-yellow-700"/>
+                                                <img src={getAvatarUrl(driver.name || 'Motorista')} alt={driver.name || 'Motorista'} className="w-12 h-12 rounded-full shadow-lg border-2 border-yellow-200 dark:border-yellow-700"/>
                                                 <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
                                                     {index + 1}
                                                 </div>
                                             </div>
                                             <div>
-                                                <p className="font-bold text-gray-900 dark:text-white text-lg">{driver.name.replace("Motorista ", "")}</p>
+                                                <p className="font-bold text-gray-900 dark:text-white text-lg">{(driver.name || 'Motorista').replace("Motorista ", "")}</p>
                                                 <p className="text-sm text-gray-600 dark:text-gray-400">{Number(driver.data?.metrics?.total_rides || 0)} corridas</p>
                                                 <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{Number(driver.data?.metrics?.online_hours || 0).toFixed(1)}h online</p>
                                             </div>
@@ -1136,16 +973,20 @@ export default function DriversOverview({ onPeriodChange }) {
                               const cancelledRides = Number(driver.data?.metrics?.user_cancelled || 0) + Number(driver.data?.metrics?.driver_cancelled || 0);
                               
                               return (
-                                <div key={`all-driver-${driver.unique_key || driver.driver_id || driver.name}-${index}`} className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                                <div 
+                                  key={`all-driver-${driver.unique_key || driver.driver_id || driver.name}-${index}`} 
+                                  className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+                                  onClick={() => openModal(driver.driver_id || driver.id, driver.name || 'Motorista')}
+                                >
                                   <div className="flex items-center gap-4">
                                     <div className="relative">
-                                      <img src={getAvatarUrl(driver.name)} alt={driver.name} className="w-12 h-12 rounded-full shadow-lg border-2 border-gray-200"/>
+                                      <img src={getAvatarUrl(driver.name || 'Motorista')} alt={driver.name || 'Motorista'} className="w-12 h-12 rounded-full shadow-lg border-2 border-gray-200"/>
                                       <div className="absolute -top-1 -right-1 bg-gradient-to-r from-gray-400 to-gray-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
                                         {index + 1}
                                       </div>
                                     </div>
                                     <div>
-                                      <p className="font-bold text-gray-900 text-lg">{driver.name.replace("Motorista ", "")}</p>
+                                      <p className="font-bold text-gray-900 text-lg">{(driver.name || 'Motorista').replace("Motorista ", "")}</p>
                                       <div className="flex gap-4 text-sm text-gray-600">
                                         <span>{onlineHours.toFixed(1)}h online</span>
                                         <span>{totalRides} corridas</span>
@@ -1350,16 +1191,20 @@ export default function DriversOverview({ onPeriodChange }) {
                       </CardHeader>
                       <CardContent className="space-y-4 pt-6">
                         {getTopDrivers('total_online_hours', 5, daysFilter).map((driver, index) => (
-                          <div key={`hours-${driver.unique_key || driver.driver_id}-${index}`} className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-100">
+                          <div 
+                            key={`hours-${driver.unique_key || driver.driver_id}-${index}`} 
+                            className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-100 cursor-pointer hover:shadow-lg transition-all duration-300"
+                            onClick={() => openModal(driver.driver_id || driver.id, driver.name || 'Motorista')}
+                          >
                             <div className="flex items-center gap-3">
                               <div className="relative">
-                                <img src={getAvatarUrl(driver.name)} alt={driver.name} className="w-10 h-10 rounded-full border-2 border-emerald-200"/>
+                                <img src={getAvatarUrl(driver.name || 'Motorista')} alt={driver.name || 'Motorista'} className="w-10 h-10 rounded-full border-2 border-emerald-200"/>
                                 <div className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                                   {index + 1}
                                 </div>
                               </div>
                               <div>
-                                <p className="font-semibold text-gray-900">{driver.name.replace("Motorista ", "")}</p>
+                                <p className="font-semibold text-gray-900">{(driver.name || 'Motorista').replace("Motorista ", "")}</p>
                                 <p className="text-sm text-gray-600">{Number(driver.data?.metrics?.total_rides || 0)} corridas</p>
                               </div>
                             </div>
@@ -1386,16 +1231,20 @@ export default function DriversOverview({ onPeriodChange }) {
                         {getTopDrivers('rating', 5, daysFilter)
                           .sort((a, b) => (b.estimated_rating || 0) - (a.estimated_rating || 0))
                           .map((driver, index) => (
-                          <div key={`rating-${driver.unique_key || driver.driver_id}-${index}`} className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border border-yellow-100">
+                          <div 
+                            key={`rating-${driver.unique_key || driver.driver_id}-${index}`} 
+                            className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border border-yellow-100 cursor-pointer hover:shadow-lg transition-all duration-300"
+                            onClick={() => openModal(driver.driver_id || driver.id, driver.name || 'Motorista')}
+                          >
                             <div className="flex items-center gap-3">
                               <div className="relative">
-                                <img src={getAvatarUrl(driver.name)} alt={driver.name} className="w-10 h-10 rounded-full border-2 border-yellow-200"/>
+                                <img src={getAvatarUrl(driver.name || 'Motorista')} alt={driver.name || 'Motorista'} className="w-10 h-10 rounded-full border-2 border-yellow-200"/>
                                 <div className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                                   {index + 1}
                                 </div>
                               </div>
                               <div>
-                                <p className="font-semibold text-gray-900">{driver.name.replace("Motorista ", "")}</p>
+                                <p className="font-semibold text-gray-900">{(driver.name || 'Motorista').replace("Motorista ", "")}</p>
                                 <p className="text-sm text-gray-600">{Number(driver.data?.metrics?.online_hours || 0).toFixed(1)}h online</p>
                               </div>
                             </div>
@@ -1578,6 +1427,14 @@ export default function DriversOverview({ onPeriodChange }) {
           </div>
         )}
       </div>
+
+      {/* Modal de Detalhes do Motorista */}
+      <DriverDetailsModal 
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        driverId={selectedDriverId}
+        driverName={selectedDriverName}
+      />
     </div>
   );
   

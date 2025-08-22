@@ -11,6 +11,8 @@ export const useDriversAnalytics = () => {
       setLoading(true);
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       console.log('🔗 Usando API_URL:', API_URL);
+      
+      // VOLTAR PARA A API ORIGINAL (drivers_data) QUE TEM OS DADOS CORRETOS
       const response = await fetch(`${API_URL}/api/drivers/analytics`);
       
       if (!response.ok) {
@@ -19,9 +21,7 @@ export const useDriversAnalytics = () => {
       
       const data = await response.json();
       
-      // AGORA TEMOS TODOS OS DADOS DOS MOTORISTAS! Array com 252 registros
-      console.log('🎯 Dados COMPLETOS recebidos:', data);
-      console.log('🎯 Tipo de dados:', Array.isArray(data) ? 'Array' : typeof data);
+      console.log('🎯 Dados ORIGINAIS (drivers_data) recebidos:', data);
       console.log('🎯 Estrutura:', Object.keys(data));
       
       // Processar dados para criar métricas agregadas E individuais
@@ -31,7 +31,7 @@ export const useDriversAnalytics = () => {
         // Se data é um array direto
         driversArray = data;
       } else if (data.drivers && Array.isArray(data.drivers)) {
-        // Se data tem propriedade drivers (caso atual)
+        // Se data tem propriedade drivers (caso da API analytics)
         driversArray = data.drivers;
       } else {
         console.error('❌ Estrutura de dados não reconhecida:', data);
@@ -41,10 +41,30 @@ export const useDriversAnalytics = () => {
       console.log('🚗 Array de motoristas encontrado:', driversArray.length, 'registros');
       console.log('🚗 Primeiro motorista:', driversArray[0]);
       
+      // Processar dados dos motoristas da API analytics
+      const processedDrivers = driversArray.map(driver => {
+        return {
+          driver_id: driver.driver_id,
+          name: driver.name || `Motorista ${driver.driver_id}`,
+          phone: driver.mobile || '',
+          data: driver.data || {
+            metrics: {
+              total_rides: 0,
+              online_hours: 0,
+              rating: 4.0,
+              total_earnings: 0
+            }
+          }
+        };
+      });
+      
+      console.log('🚗 Array de motoristas processado:', processedDrivers.length, 'registros');
+      console.log('🚗 Primeiro motorista processado:', processedDrivers[0]);
+      
       // RESOLVER PROBLEMA DE CHAVES DUPLICADAS - usar driver_id como chave única
       const uniqueDriversMap = new Map();
       
-      driversArray.forEach((driver, index) => {
+      processedDrivers.forEach((driver, index) => {
         // Usar driver_id como chave única (ID numérico único na tabela)
         const uniqueKey = driver.driver_id || `unknown-${index}`;
         

@@ -20,6 +20,197 @@ async def get_db():
     async with SessionLocal() as session:
         yield session
 
+@router.get("/find-personal-data/{analytics_driver_id}")
+async def find_personal_data_by_analytics_id(
+    analytics_driver_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Endpoint para encontrar dados pessoais baseado no ID da tabela drivers_data
+    Faz cruzamento inteligente entre as duas tabelas
+    """
+    try:
+        # Buscar todos os registros de driver_personal_details
+        query = select(DriverPersonalDetails)
+        result = await db.execute(query)
+        all_personal_data = result.scalars().all()
+        
+        if not all_personal_data:
+            raise HTTPException(status_code=404, detail="Nenhum dado pessoal encontrado")
+        
+        # Tentar várias estratégias de mapeamento
+        found_driver = None
+        
+        # Estratégia 1: ID direto (caso sejam iguais)
+        for driver in all_personal_data:
+            if driver.driver_id == analytics_driver_id:
+                found_driver = driver
+                break
+        
+        # Estratégia 2: Buscar por nome similar (usando dados do analytics)
+        if not found_driver:
+            # Primeiro, buscar o nome na tabela analytics
+            import psycopg2
+            DATABASE_URL = "postgresql://n8n_user:n8n_pw@148.230.73.27:5432/n8n_db"
+            conn = psycopg2.connect(DATABASE_URL)
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                SELECT name FROM drivers_data 
+                WHERE driver_id = %s 
+                AND data_type = 'active'
+                LIMIT 1
+            """, (analytics_driver_id,))
+            
+            analytics_result = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            
+            if analytics_result:
+                analytics_name = analytics_result[0]
+                print(f"🔍 Procurando match para: {analytics_name} (ID: {analytics_driver_id})")
+                
+                # Buscar na tabela personal_details por nome similar
+                for driver in all_personal_data:
+                    personal_data = driver.personal_data
+                    if isinstance(personal_data, str):
+                        try:
+                            personal_data = json.loads(personal_data)
+                        except:
+                            continue
+                    
+                    if isinstance(personal_data, dict):
+                        driver_name = personal_data.get('driver_name', '')
+                        if driver_name and analytics_name:
+                            # Comparação simples de nomes
+                            if driver_name.strip().lower() == analytics_name.strip().lower():
+                                found_driver = driver
+                                print(f"✅ Match encontrado por nome: {driver_name} -> ID pessoal: {driver.driver_id}")
+                                break
+        
+        if not found_driver:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Dados pessoais não encontrados para driver_id {analytics_driver_id}"
+            )
+        
+        # Parse dos dados para retorno
+        personal_data = found_driver.personal_data
+        if isinstance(personal_data, str):
+            try:
+                personal_data = json.loads(personal_data)
+            except:
+                personal_data = {}
+        
+        rides_history = found_driver.rides_history
+        if isinstance(rides_history, str):
+            try:
+                rides_history = json.loads(rides_history)
+            except:
+                rides_history = []
+        
+        wallet_transactions = found_driver.wallet_transactions
+        if isinstance(wallet_transactions, str):
+            try:
+                wallet_transactions = json.loads(wallet_transactions)
+            except:
+                wallet_transactions = []
+        
+        return {
+            "analytics_driver_id": analytics_driver_id,
+            "personal_driver_id": found_driver.driver_id,
+            "city": found_driver.city,
+            "personal_data": personal_data,
+            "rides_history": rides_history,
+            "wallet_transactions": wallet_transactions,
+            "extracted_at": found_driver.extracted_at,
+            "mapping_strategy": "direct_id" if found_driver.driver_id == analytics_driver_id else "name_match"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar dados pessoais: {str(e)}")
+
+@router.get("/summary/basic-list")
+async def get_drivers_basic_list(db: AsyncSession = Depends(get_db)):
+    """
+    Endpoint para obter lista básica de motoristas para o dashboard
+    Compatível com o formato esperado pelo frontend
+    """
+    try:
+        # Buscar todos os motoristas
+        query = select(DriverPersonalDetails).order_by(desc(DriverPersonalDetails.updated_at))
+        result = await db.execute(query)
+        drivers_data = result.scalars().all()
+        
+        drivers_list = []
+        
+        for driver in drivers_data:
+            # Parse do personal_data se for string
+            personal_data = driver.personal_data
+            if isinstance(personal_data, str):
+                try:
+                    personal_data = json.loads(personal_data)
+                except:
+                    personal_data = {}
+            
+            # Parse do rides_history se for string  
+            rides_history = driver.rides_history
+            if isinstance(rides_history, str):
+                try:
+                    rides_history = json.loads(rides_history)
+                except:
+                    rides_history = []
+            
+            # Calcular métricas básicas
+            total_rides = len(rides_history) if isinstance(rides_history, list) else 0
+            
+            # Calcular ganhos totais das corridas
+            total_earnings = 0
+            if isinstance(rides_history, list):
+                for ride in rides_history:
+                    if isinstance(ride, dict) and 'fare' in ride:
+                        try:
+                            total_earnings += float(ride['fare'])
+                        except:
+                            pass
+            
+            # Obter nome do motorista - garantir que nunca seja null
+            driver_name = "Motorista"
+            if isinstance(personal_data, dict):
+                driver_name = personal_data.get('driver_name', '')
+                if not driver_name or driver_name.strip() == '' or driver_name.strip().lower() == 'status':
+                    driver_name = f"Motorista {driver.driver_id}"
+            
+            # Estruturar dados no formato esperado pelo frontend
+            driver_item = {
+                'driver_id': driver.driver_id,
+                'name': driver_name,  # Garantido não ser null
+                'phone': personal_data.get('phone_no', '') if isinstance(personal_data, dict) else '',
+                'data': {
+                    'metrics': {
+                        'total_rides': total_rides,
+                        'online_hours': 0,  # Não disponível nos dados atuais
+                        'rating': 4.0,  # Valor padrão
+                        'total_earnings': total_earnings
+                    }
+                }
+            }
+            
+            drivers_list.append(driver_item)
+        
+        return {
+            'success': True,
+            'drivers': drivers_list,
+            'total_drivers': len(drivers_list),
+            'active_drivers': len([d for d in drivers_list if d['data']['metrics']['total_rides'] > 0]),
+            'average_rating': 4.0
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar lista de motoristas: {str(e)}")
+
 @router.get("/personal-details", response_model=DriversListResponse)
 async def get_drivers_personal_details(
     page: int = Query(1, ge=1, description="Número da página"),
