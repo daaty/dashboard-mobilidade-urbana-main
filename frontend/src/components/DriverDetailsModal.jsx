@@ -21,7 +21,30 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
       
       console.log('🔍 Buscando dados para driver ID:', id);
       
-      // NOVA ABORDAGEM: Buscar da lista analytics e fazer match inteligente
+      // PRIORIDADE 1: Tentar endpoint específico de personal-details primeiro
+      let personalData = null;
+      let personalAnalytics = null;
+      
+      try {
+        console.log('🎯 Tentando endpoint específico primeiro:', `${API_URL}/api/drivers/personal-details/${id}`);
+        const specificPersonalResponse = await fetch(`${API_URL}/api/drivers/personal-details/${id}`);
+        
+        if (specificPersonalResponse.ok) {
+          personalData = await specificPersonalResponse.json();
+          console.log('✅ DADOS ESPECÍFICOS ENCONTRADOS:', personalData);
+          
+          // Se encontrou dados específicos, pular busca na lista geral
+          if (personalData && (personalData.personal_data || personalData.rides_history)) {
+            console.log('🎯 Usando dados específicos completos!');
+          }
+        } else {
+          console.log('⚠️ Endpoint específico não funcionou, status:', specificPersonalResponse.status);
+        }
+      } catch (e) {
+        console.log('⚠️ Erro no endpoint específico:', e.message);
+      }
+      
+      // FALLBACK: Buscar da lista analytics e fazer match inteligente (apenas se não encontrou dados específicos)
       // 1. Buscar dados analytics (dados coletivos da lista)
       const analyticsResponse = await fetch(`${API_URL}/api/drivers/analytics`);
       const analyticsData = await analyticsResponse.json();
@@ -53,45 +76,49 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
         data_metrics: driverFromAnalytics.data?.metrics
       });
       
-      // 2. Buscar dados pessoais usando match inteligente
-      let personalData = null;
-      let personalAnalytics = null;
+      // 2. Buscar dados pessoais usando match inteligente (apenas se não encontrou dados específicos)
       
-      // Tentar buscar dados pessoais por vários métodos
-      try {
-        // Método 1: Buscar todos os dados pessoais e fazer match por nome
-        const allPersonalResponse = await fetch(`${API_URL}/api/drivers/personal-details?limit=100`);
-        if (allPersonalResponse.ok) {
-          const allPersonal = await allPersonalResponse.json();
-          
-          // Tentar match por nome (removendo espaços extras e normalizando)
-          const driverName = driverFromAnalytics.name?.trim().toLowerCase().replace(/\s+/g, ' ');
-          console.log('🔍 Procurando por nome:', driverName);
-          
-          personalData = allPersonal.drivers?.find(d => {
-            const personalName = d.personal_data?.driver_name?.trim().toLowerCase().replace(/\s+/g, ' ');
-            if (!personalName || !driverName) return false;
+      // Tentar buscar dados pessoais por vários métodos (apenas se personalData ainda for null)
+      if (!personalData || !personalData.personal_data) {
+        try {
+          // Método 1: Buscar todos os dados pessoais e fazer match por nome
+          const allPersonalResponse = await fetch(`${API_URL}/api/drivers/personal-details?limit=100`);
+          if (allPersonalResponse.ok) {
+            const allPersonal = await allPersonalResponse.json();
             
-            // Match exato
-            if (personalName === driverName) return true;
+            // Tentar match por nome (removendo espaços extras e normalizando)
+            const driverName = driverFromAnalytics.name?.trim().toLowerCase().replace(/\s+/g, ' ');
+            console.log('🔍 Procurando por nome:', driverName);
             
-            // Match parcial (primeiro e último nome)
-            const driverWords = driverName.split(' ');
-            const personalWords = personalName.split(' ');
+            const foundPersonalData = allPersonal.drivers?.find(d => {
+              const personalName = d.personal_data?.driver_name?.trim().toLowerCase().replace(/\s+/g, ' ');
+              if (!personalName || !driverName) return false;
+              
+              // Match exato
+              if (personalName === driverName) return true;
+              
+              // Match parcial (primeiro e último nome)
+              const driverWords = driverName.split(' ');
+              const personalWords = personalName.split(' ');
+              
+              if (driverWords.length >= 2 && personalWords.length >= 2) {
+                const firstMatch = driverWords[0] === personalWords[0];
+                const lastMatch = driverWords[driverWords.length - 1] === personalWords[personalWords.length - 1];
+                return firstMatch && lastMatch;
+              }
+              
+              return false;
+            });
             
-            if (driverWords.length >= 2 && personalWords.length >= 2) {
-              const firstMatch = driverWords[0] === personalWords[0];
-              const lastMatch = driverWords[driverWords.length - 1] === personalWords[personalWords.length - 1];
-              return firstMatch && lastMatch;
+            // Só sobrescrever se não tínhamos dados ou se encontrou dados melhores
+            if (foundPersonalData && (!personalData || foundPersonalData.personal_data)) {
+              personalData = foundPersonalData;
+              console.log('✅ Match encontrado na lista geral:', personalData?.driver_id, personalData?.personal_data?.driver_name);
             }
-            
-            return false;
-          });
-          
-          console.log('✅ Match encontrado:', personalData?.driver_id, personalData?.personal_data?.driver_name);
+          }
+        } catch (e) {
+          console.log('⚠️ Erro na busca por dados pessoais:', e.message);
         }
-      } catch (e) {
-        console.log('⚠️ Erro na busca por dados pessoais:', e.message);
       }
       
       // 3. Buscar analytics individuais se temos personal_data

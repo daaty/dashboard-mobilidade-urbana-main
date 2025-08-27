@@ -211,7 +211,40 @@ async def get_drivers_basic_list(db: AsyncSession = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar lista de motoristas: {str(e)}")
 
-@router.get("/personal-details", response_model=DriversListResponse)
+@router.get("/test-debug/{driver_id}")
+async def test_debug_driver(
+    driver_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Endpoint de teste para debug de dados específicos
+    """
+    try:
+        query = select(DriverPersonalDetails).where(DriverPersonalDetails.driver_id == driver_id)
+        result = await db.execute(query)
+        driver = result.scalar_one_or_none()
+        
+        if not driver:
+            return {"error": "Driver não encontrado", "driver_id": driver_id}
+        
+        # Debug completo
+        return {
+            "driver_id": driver.driver_id,
+            "city": driver.city,
+            "personal_data_type": str(type(driver.personal_data)),
+            "personal_data_raw": str(driver.personal_data)[:500] if driver.personal_data else "NULL",
+            "rides_history_type": str(type(driver.rides_history)),
+            "rides_history_length": len(driver.rides_history) if driver.rides_history else "NULL",
+            "wallet_transactions_type": str(type(driver.wallet_transactions)),
+            "wallet_transactions_length": len(driver.wallet_transactions) if driver.wallet_transactions else "NULL",
+            "extracted_at": driver.extracted_at,
+            "updated_at": driver.updated_at
+        }
+        
+    except Exception as e:
+        return {"error": str(e), "driver_id": driver_id}
+
+@router.get("/personal-details")
 async def get_drivers_personal_details(
     page: int = Query(1, ge=1, description="Número da página"),
     limit: int = Query(20, ge=1, le=100, description="Itens por página"),
@@ -220,7 +253,7 @@ async def get_drivers_personal_details(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Endpoint para listar motoristas com dados pessoais detalhados
+    Endpoint para listar motoristas com dados pessoais detalhados - ATUALIZADO
     """
     try:
         # Construir query base
@@ -249,34 +282,101 @@ async def get_drivers_personal_details(
         result = await db.execute(query)
         drivers_data = result.scalars().all()
 
-        # Processar dados completos para resposta
+        # Processar dados completos para resposta (incluindo dados JSON parseados)
         drivers_full = []
         for driver in drivers_data:
+            # Debug: log dos dados brutos
+            if driver.driver_id == "17147322":
+                print(f"🔍 DEBUG - Driver {driver.driver_id}:")
+                print(f"   personal_data type: {type(driver.personal_data)}")
+                print(f"   personal_data value: {driver.personal_data}")
+                print(f"   rides_history type: {type(driver.rides_history)}")
+                print(f"   rides_history length: {len(driver.rides_history) if driver.rides_history else 'NULL'}")
+            
             # Parse campos JSON se necessário
             def parse_json_field(field):
                 if isinstance(field, str):
                     try:
                         return json.loads(field)
-                    except:
-                        return None
-                return field
+                    except json.JSONDecodeError:
+                        return {}
+                return field if field is not None else {}
 
-            drivers_full.append(DriverPersonalDetailsResponse(
-                id=driver.id,
-                driver_id=driver.driver_id,
-                city=driver.city,
-                personal_data=parse_json_field(driver.personal_data),
-                rides_history=parse_json_field(driver.rides_history),
-                wallet_transactions=parse_json_field(driver.wallet_transactions),
-                subscription_history=parse_json_field(driver.subscription_history),
-                additional_info=parse_json_field(driver.additional_info),
-                extracted_at=driver.extracted_at,
-                updated_at=driver.updated_at,
-                extraction_source=driver.extraction_source,
-                data_hash=driver.data_hash
-            ))
+            # Parse de todos os campos JSON
+            personal_data = parse_json_field(driver.personal_data)
+            rides_history = parse_json_field(driver.rides_history)
+            wallet_transactions = parse_json_field(driver.wallet_transactions)
+            subscription_history = parse_json_field(driver.subscription_history)
+            additional_info = parse_json_field(driver.additional_info)
+
+            # Debug adicional para o driver específico
+            if driver.driver_id == "17147322":
+                print(f"   parsed personal_data: {personal_data}")
+                print(f"   parsed rides_history length: {len(rides_history) if isinstance(rides_history, list) else 'NOT LIST'}")
+
+            # Garantir que rides_history seja uma lista
+            if not isinstance(rides_history, list):
+                rides_history = []
+                
+            # Garantir que wallet_transactions seja uma lista
+            if not isinstance(wallet_transactions, list):
+                wallet_transactions = []
+
+            # Calcular métricas básicas para compatibilidade
+            total_rides = len(rides_history)
+            total_earnings = 0.0
+            
+            # Calcular ganhos totais das corridas
+            for ride in rides_history:
+                if isinstance(ride, dict) and 'fare' in ride:
+                    try:
+                        total_earnings += float(ride['fare'])
+                    except (ValueError, TypeError):
+                        pass
+
+            # Extrair nome do motorista
+            driver_name = "Motorista"
+            if isinstance(personal_data, dict):
+                driver_name = personal_data.get('driver_name', f"Motorista {driver.driver_id}")
+                if not driver_name or driver_name.strip() == '':
+                    driver_name = f"Motorista {driver.driver_id}"
+
+            # Extrair telefone
+            phone = ""
+            if isinstance(personal_data, dict):
+                phone = personal_data.get('phone_no', '') or personal_data.get('phone', '')
+
+            # Debug final para o driver específico
+            if driver.driver_id == "17147322":
+                print(f"   final driver_name: {driver_name}")
+                print(f"   final phone: {phone}")
+                print(f"   final total_rides: {total_rides}")
+                print(f"   final total_earnings: {total_earnings}")
+
+            drivers_full.append({
+                "id": driver.id,
+                "driver_id": driver.driver_id,
+                "name": driver_name,
+                "phone": phone,
+                "city": driver.city,
+                "total_rides": total_rides,
+                "total_earnings": total_earnings,
+                "average_rating": 3.5,  # Valor padrão
+                "status": personal_data.get('status', 'unknown') if isinstance(personal_data, dict) else 'unknown',
+                "last_activity": personal_data.get('last_ride_on', None) if isinstance(personal_data, dict) else None,
+                "personal_data": personal_data,
+                "rides_history": rides_history,
+                "wallet_transactions": wallet_transactions,
+                "subscription_history": subscription_history,
+                "additional_info": additional_info,
+                "extracted_at": driver.extracted_at,
+                "updated_at": driver.updated_at,
+                "extraction_source": driver.extraction_source,
+                "data_hash": driver.data_hash
+            })
 
         return {
+            "success": True,
             "drivers": drivers_full,
             "total_count": total_count,
             "page": page,
