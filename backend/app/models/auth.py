@@ -1,6 +1,19 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
+class SignupRequest(BaseModel):
+    username: str
+    email: str
+    password: str
+    first_name: str
+    last_name: str
+    signup_token: str
+
+class SignupResponse(BaseModel):
+    success: bool
+    message: str
+
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -21,4 +34,7 @@ class UserResponse(BaseModel):
     id: int
     username: str
     email: str
+    first_name: str
+    last_name: str
+    full_name: str
     roles: list[str]

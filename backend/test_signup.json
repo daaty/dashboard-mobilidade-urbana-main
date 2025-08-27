@@ -1,0 +1,8 @@
+{
+  "username": "admin",
+  "email": "admin@empresa.com", 
+  "password": "senha123",
+  "first_name": "João",
+  "last_name": "Silva",
+  "signup_token": "meu_token_super_secreto"
+}

@@ -1,0 +1,8 @@
+{
+  "username": "pedro",
+  "email": "pedro@empresa.com", 
+  "password": "senha789",
+  "first_name": "Pedro",
+  "last_name": "Costa",
+  "signup_token": "TOKEN_ERRADO_123"
+}

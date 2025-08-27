@@ -16,7 +16,6 @@ import ImportacaoAvancada from './ImportacaoAvancada'
 import { SistemaAlertas } from './SistemaAlertas'
 import { ResumoPerformance } from './ResumoPerformance'
 import FloatingChat from './FloatingChat'
-import '../App.css'
 
 // Configuração da URL da API baseada no ambiente
 const API_URL = import.meta.env.VITE_API_URL || 
@@ -24,8 +23,7 @@ const API_URL = import.meta.env.VITE_API_URL ||
                  ? 'https://fastapi.urbanmt.com.br' 
                  : 'http://localhost:8000')
 
-
-function App() {
+function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [metricsData, setMetricsData] = useState(null)
@@ -47,23 +45,11 @@ function App() {
     fetchAlertasData()
   }, [])
 
-  const fetchMetricsData = async (period = '7d') => {
+  const fetchMetricsData = async () => {
     try {
       setLoading(true)
-      // Ajusta o valor para o backend: 'hoje', '7d', '30d'
-      let periodoParam = '7d';
-      if (period === 'hoje') periodoParam = 'hoje';
-      else if (period === '30dias' || period === '30d') periodoParam = '30d';
-      else if (period === '7dias' || period === '7d') periodoParam = '7d';
-      const response = await fetch(`${API_URL}/api/metrics/overview?periodo=${periodoParam}`)
+      const response = await fetch(`${API_URL}/api/metrics/overview`)
       const data = await response.json()
-      
-      // DEBUG: Verificar se os dados de canceladas estão chegando
-      console.log('🔍 Dados recebidos da API:', data);
-      console.log('🔍 Atividade recente:', data.atividade_recente);
-      console.log('🔍 Canceladas:', data.atividade_recente?.canceladas);
-      console.log('🔍 Métricas principais:', data.metricas_principais);
-      
       setMetricsData(data)
     } catch (error) {
       console.error('Erro ao buscar métricas:', error)
@@ -75,23 +61,7 @@ function App() {
   const fetchDriversData = async (period = '30d') => {
     try {
       setLoadingDrivers(true)
-      // Converte período para número de dias
-      let periodoDias = 30;
-      if (period === 'hoje') periodoDias = 1;
-      else if (period === '7d') periodoDias = 7;
-      else if (period === '30d') periodoDias = 30;
-      else if (period === '3m') periodoDias = 90;
-      else if (period === '6m') periodoDias = 180;
-      else if (period === '12m') periodoDias = 365;
-      
-      console.log(`Buscando dados dos motoristas para período: ${period} (${periodoDias} dias)`);
-      
-      const response = await fetch(`${API_URL}/api/drivers/overview?periodo=${periodoDias}`)
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
+      const response = await fetch(`${API_URL}/api/drivers/analytics?period=${period}`)
       const data = await response.json()
       console.log('Dados dos motoristas recebidos:', data);
       setDriversData(data)
@@ -144,14 +114,7 @@ function App() {
       setLoadingAlertas(true)
       const response = await fetch(`${API_URL}/api/metrics/alertas`)
       const data = await response.json()
-      // Adaptar para o formato esperado pelo componente SistemaAlertas
-      const mapped = data.map((item) => ({
-        tipo: item.level === 'critical' ? 'crítico' : item.level === 'warning' ? 'aviso' : item.level === 'info' ? 'info' : 'sucesso',
-        titulo: item.type.charAt(0).toUpperCase() + item.type.slice(1),
-        mensagem: item.message,
-        icone: null // O componente pode decidir o ícone pelo tipo
-      }))
-      setAlertasData({ alertas: mapped })
+      setAlertasData(data)
     } catch (error) {
       console.error('Erro ao buscar alertas:', error)
     } finally {
@@ -159,38 +122,48 @@ function App() {
     }
   }
 
-  // Handler para troca de período na dashboard
-  const handlePeriodChange = (period) => {
-    fetchMetricsData(period)
-  }
-
-  // Handler para troca de período dos motoristas
-  const handleDriversPeriodChange = (period) => {
-    fetchDriversData(period)
-  }
-
-  // Handler para troca de período financeiro
   const handleFinanceiroPeriodChange = (period) => {
     fetchFinanceiroData(period)
   }
 
-  const renderContent = () => {
-    const contentVariants = {
-      hidden: { opacity: 0, y: 20 },
-      visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
-    }
+  const handleDriversPeriodChange = (period) => {
+    fetchDriversData(period)
+  }
 
+  const contentVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  }
+
+  const renderContent = () => {
     switch (activeTab) {
-      case 'overview':
+      case 'financeiro':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <MetricsOverview data={metricsData} loading={loading} onPeriodChange={handlePeriodChange} />
+            <FinanceiroOverview 
+              data={financeiroData} 
+              loading={loadingFinanceiro} 
+              onPeriodChange={handleFinanceiroPeriodChange}
+            />
           </motion.div>
         )
       case 'metas':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
             <MetasCidades />
+          </motion.div>
+        )
+      case 'config':
+        return (
+          <motion.div variants={contentVariants} initial="hidden" animate="visible">
+            <ConfiguracaoSheets />
           </motion.div>
         )
       case 'executivo':
@@ -247,18 +220,6 @@ function App() {
             <ImportacaoAvancada />
           </motion.div>
         )
-      case 'configuracao':
-        return (
-          <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <ConfiguracaoSheets />
-          </motion.div>
-        )
-      case 'financeiro':
-        return (
-          <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <FinanceiroOverview data={financeiroData} loading={loadingFinanceiro} onPeriodChange={handleFinanceiroPeriodChange} />
-          </motion.div>
-        )
       default:
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
@@ -308,5 +269,4 @@ function App() {
   )
 }
 
-export default App
-
+export default Dashboard

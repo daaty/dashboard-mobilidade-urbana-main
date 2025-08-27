@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion'
-import { RefreshCw, Sun, Moon, Bell } from 'lucide-react'
+import { RefreshCw, Sun, Moon, Bell, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 
 export function Header({ sidebarOpen, setSidebarOpen, onRefresh }) {
   const [isDark, setIsDark] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const { user, logout } = useAuth()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -105,6 +107,30 @@ export function Header({ sidebarOpen, setSidebarOpen, onRefresh }) {
             <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">
               Online
             </span>
+          </div>
+
+          {/* User Info & Logout */}
+          <div className="flex items-center space-x-3 border-l border-gray-200 dark:border-gray-700 pl-3">
+            <div className="hidden sm:block text-right">
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {user?.username || 'Usuário'}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Administrador
+              </p>
+            </div>
+            
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800 text-gray-600 hover:text-red-600"
+                title="Sair"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </motion.div>
           </div>
         </div>
       </div>

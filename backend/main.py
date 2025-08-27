@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Importar módulos da API principais
-from app.api import metrics, drivers, dashboard, financeiro, performance, alert
+from app.api import metrics, drivers, dashboard, financeiro, performance, alert, auth
 from app.api import import_ridesdata
 from app.api import analise_operacional
 from app.api import campanha
@@ -47,8 +47,7 @@ app.add_middleware(
 
 # Incluir rotas principais
 
-
-
+app.include_router(auth.router, prefix="/api", tags=["auth"])
 app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
 app.include_router(drivers.router, prefix="/api/drivers", tags=["drivers"])
 app.include_router(driver_personal_details.router, prefix="/api/drivers", tags=["driver-personal-details"])
