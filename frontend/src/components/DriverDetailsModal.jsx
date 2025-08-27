@@ -10,6 +10,9 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
   const fetchDriverDetails = async (id) => {
     if (!id) return;
     
+    console.log('🚀 INICIANDO fetchDriverDetails para ID:', id);
+    console.log('🚀 Nome do motorista:', driverName);
+    
     try {
       setLoading(true);
       setError(null);
@@ -23,6 +26,8 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
       const analyticsResponse = await fetch(`${API_URL}/api/drivers/analytics`);
       const analyticsData = await analyticsResponse.json();
       
+      console.log('📊 DADOS COMPLETOS DA API ANALYTICS:', analyticsData);
+      
       // Encontrar o motorista específico na lista analytics
       const driverFromAnalytics = analyticsData.drivers?.find(d => d.driver_id === id);
       console.log('📊 Driver encontrado em analytics:', driverFromAnalytics);
@@ -30,6 +35,23 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
       if (!driverFromAnalytics) {
         throw new Error('Motorista não encontrado na base de dados');
       }
+      
+      console.log('📊 ESTRUTURA DETALHADA DO DRIVER:', {
+        driver_id: driverFromAnalytics.driver_id,
+        name: driverFromAnalytics.name,
+        phone: driverFromAnalytics.phone,
+        mobile: driverFromAnalytics.mobile,
+        city: driverFromAnalytics.city,
+        vehicle: driverFromAnalytics.vehicle,
+        email: driverFromAnalytics.email,
+        status: driverFromAnalytics.status,
+        join_date: driverFromAnalytics.join_date,
+        data: driverFromAnalytics.data,
+        // VERIFICAR ESTRUTURA DENTRO DE DATA
+        data_profile: driverFromAnalytics.data?.profile,
+        data_original: driverFromAnalytics.data?.original_data,
+        data_metrics: driverFromAnalytics.data?.metrics
+      });
       
       // 2. Buscar dados pessoais usando match inteligente
       let personalData = null;
@@ -75,14 +97,26 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
       // 3. Buscar analytics individuais se temos personal_data
       if (personalData) {
         try {
+          console.log('📈 Tentando buscar analytics individuais para driver_id:', personalData.driver_id);
           const personalAnalyticsResponse = await fetch(`${API_URL}/api/drivers/analytics/${personalData.driver_id}`);
+          console.log('📈 Status da resposta analytics individuais:', personalAnalyticsResponse.status);
+          
           if (personalAnalyticsResponse.ok) {
             personalAnalytics = await personalAnalyticsResponse.json();
-            console.log('📈 Analytics pessoais encontrados:', personalAnalytics);
+            console.log('📈 ANALYTICS PESSOAIS ENCONTRADOS:', personalAnalytics);
+            console.log('📈 Estrutura analytics pessoais:', {
+              data: personalAnalytics.data,
+              profile: personalAnalytics.profile,
+              metrics: personalAnalytics.metrics
+            });
+          } else {
+            console.log('⚠️ Analytics individuais não disponíveis');
           }
         } catch (e) {
-          console.log('⚠️ Sem analytics específicos para este motorista');
+          console.log('⚠️ Erro ao buscar analytics específicos:', e.message);
         }
+      } else {
+        console.log('⚠️ Sem personal_data, pulando busca de analytics individuais');
       }
       
       // 4. Processar dados pessoais se encontrados
@@ -91,15 +125,23 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
       let processedWalletTransactions = [];
       
       if (personalData) {
+        console.log('📋 PROCESSANDO DADOS PESSOAIS:', personalData);
+        
         // Parse do personal_data
         processedPersonalData = personalData.personal_data;
+        console.log('📋 Personal data original:', processedPersonalData);
+        
         if (typeof processedPersonalData === 'string') {
           try {
             processedPersonalData = JSON.parse(processedPersonalData);
+            console.log('📋 Personal data após parse JSON:', processedPersonalData);
           } catch (e) {
+            console.log('❌ Erro ao fazer parse do personal_data:', e.message);
             processedPersonalData = {};
           }
         }
+        
+        console.log('📋 DADOS PESSOAIS PROCESSADOS:', processedPersonalData);
         
         // Parse do rides_history
         processedRidesHistory = personalData.rides_history;
@@ -122,35 +164,120 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
         }
       }
       
-      // 5. Combinar dados de forma inteligente
-      const combinedData = {
-        // Dados da lista (sempre corretos para nome e ID na lista)
-        listData: driverFromAnalytics,
-        
-        // Dados pessoais processados
-        personal: personalData ? {
-          ...personalData,
-          personal_data: processedPersonalData,
-          rides_history: processedRidesHistory,
-          wallet_transactions: processedWalletTransactions
-        } : {
-          driver_id: id,
-          city: 'N/A',
-          personal_data: { driver_name: driverFromAnalytics.name },
-          rides_history: [],
-          wallet_transactions: []
-        },
-        
-        // Analytics
-        analytics: personalAnalytics || {
-          total_earnings: 0,
-          total_rides: driverFromAnalytics.data?.metrics?.total_rides || 0,
-          average_rating: null,
-          completion_rate: 0
-        }
-      };
+      // 5. Combinar dados de forma inteligente e preencher todos os campos esperados
+      const metrics = driverFromAnalytics.data?.metrics || {};
+      const originalMetrics = driverFromAnalytics.data?.original_data || {};
       
+      console.log('📊 DADOS PARA MÉTRICAS:', {
+        metrics,
+        originalMetrics,
+        total_rides_metrics: metrics.total_rides,
+        rides_last_30_original: originalMetrics['Rides in Last 30 Days'],
+        driver_ratings_original: originalMetrics['Driver Ratings'],
+        status_original: originalMetrics.Status
+      });
+      
+      const analyticsMergedData = {
+        total_earnings: metrics.total_earnings ?? 0,
+        total_rides: originalMetrics['Rides in Last 30 Days'] || (metrics.total_rides ?? 0),
+        average_rating: originalMetrics['Driver Ratings'] || (metrics.rating ?? 3.5),
+        completion_rate: metrics.success_rate ?? 0,
+        completed_rides: originalMetrics['Rides in Last 30 Days'] || (metrics.success_rides ?? 0),
+        cancelled_rides: (metrics.user_cancelled ?? 0) + (metrics.driver_cancelled ?? 0),
+        average_ride_value: metrics.total_earnings && metrics.total_rides ? (metrics.total_earnings / metrics.total_rides) : 0,
+        first_ride_date: metrics.first_ride_date ?? null,
+        last_ride_date: metrics.last_ride_date ?? null,
+        active_days: metrics.active_days ?? 0,
+        total_distance: metrics.total_distance ?? 0,
+        total_duration: metrics.online_hours ? Math.round(metrics.online_hours * 60) : 0, // minutos
+        current_subscription: metrics.current_subscription ?? null
+      };
+
+      // Se personalAnalytics existir, sobrescreve campos acima
+      if (personalAnalytics && typeof personalAnalytics === 'object') {
+        Object.assign(analyticsMergedData, personalAnalytics);
+      }
+
+      // Dados pessoais: usar o que vier do personalData, senão usar fallback do analytics
+      // EXTRAIR DADOS REAIS DO OBJETO DATA
+      const driverData = driverFromAnalytics.data || {};
+      const profileData = driverData.profile || {};
+      const originalData = driverData.original_data || {};
+      const metricsData = driverData.metrics || {};
+      
+      console.log('🔍 EXTRAINDO DADOS REAIS:', {
+        profileData,
+        originalData,
+        metricsData,
+        email_profile: profileData.email,
+        email_original: originalData.Email,
+        city_profile: profileData.city,
+        city_original: originalData.City,
+        vehicle_profile: profileData.vehicle,
+        vehicle_original: originalData['Vehicle Number'],
+        join_date_original: originalData['Registered On'],
+        mobile_original: originalData.Mobile,
+        status_original: originalData.Status,
+        rides_last_30: originalData['Rides in Last 30 Days'],
+        driver_ratings: originalData['Driver Ratings']
+      });
+      
+      const personalDataObj = personalData ? {
+        ...personalData,
+        personal_data: processedPersonalData,
+        rides_history: processedRidesHistory,
+        wallet_transactions: processedWalletTransactions
+      } : {
+        driver_id: id,
+        city: originalData.City || profileData.city || driverFromAnalytics.city || 'N/A',
+        personal_data: {
+          driver_name: driverFromAnalytics.name,
+          phone_no: originalData.Mobile || driverFromAnalytics.mobile || driverFromAnalytics.phone || '',
+          email: originalData.Email || profileData.email || driverFromAnalytics.email || '',
+          city: originalData.City || profileData.city || driverFromAnalytics.city || '',
+          status: originalData.Status || profileData.status || driverFromAnalytics.status || '',
+          joining_date: originalData['Registered On'] || driverFromAnalytics.join_date || '',
+          vehicle: originalData['Vehicle Number'] || profileData.vehicle || driverFromAnalytics.vehicle || '',
+          vehicle_no: originalData['Vehicle Number'] || profileData.vehicle || driverFromAnalytics.vehicle_no || '',
+          credit_wallet_balance: metrics.credit_wallet_balance ?? 0,
+          last_ride_on: metrics.last_ride_date ?? '',
+        },
+        rides_history: [],
+        wallet_transactions: []
+      };
+
+      const combinedData = {
+        listData: driverFromAnalytics,
+        personal: personalDataObj,
+        analytics: analyticsMergedData
+      };
+
       console.log('✅ Dados combinados finais:', combinedData);
+      console.log('🔍 DEBUG - Dados para o modal:');
+      console.log('📊 listData (analytics):', combinedData.listData);
+      console.log('👤 personal:', combinedData.personal);
+      console.log('📈 analytics:', combinedData.analytics);
+      console.log('📋 Campos específicos:');
+      console.log('- Nome:', combinedData.personal.personal_data?.name || combinedData.personal.personal_data?.driver_name || combinedData.listData?.name);
+      console.log('- Email:', combinedData.personal.personal_data?.email || combinedData.listData?.email);
+      console.log('- Cidade:', combinedData.personal.city || combinedData.personal.personal_data?.city || combinedData.listData?.city);
+      console.log('- Veículo:', combinedData.personal.personal_data?.vehicle || combinedData.personal.personal_data?.vehicle_no || combinedData.listData?.vehicle);
+      console.log('- Data de ingresso:', combinedData.personal.personal_data?.join_date || combinedData.personal.personal_data?.joining_date || combinedData.listData?.join_date);
+      console.log('- Total de corridas:', combinedData.analytics.total_rides || combinedData.listData?.data?.metrics?.total_rides);
+      console.log('- Rating:', combinedData.analytics.average_rating || combinedData.listData?.data?.metrics?.rating || combinedData.listData?.driver_ratings);
+      
+      console.log('🎯 VALORES FINAIS QUE SERÃO EXIBIDOS:');
+      console.log('🎯 Nome final:', combinedData.personal.personal_data?.name || combinedData.personal.personal_data?.driver_name || combinedData.listData?.name || 'N/A');
+      console.log('🎯 Email final:', combinedData.personal.personal_data?.email || combinedData.listData?.email || 'N/A');
+      console.log('🎯 Telefone final:', combinedData.personal.personal_data?.phone_no || combinedData.listData?.phone || combinedData.listData?.mobile || 'N/A');
+      console.log('🎯 Cidade final:', combinedData.personal.city || combinedData.personal.personal_data?.city || combinedData.listData?.city || 'N/A');
+      console.log('🎯 Veículo final:', combinedData.personal.personal_data?.vehicle || combinedData.personal.personal_data?.vehicle_no || combinedData.listData?.vehicle || 'N/A');
+      console.log('🎯 Data ingresso final:', combinedData.personal.personal_data?.joining_date || combinedData.personal.personal_data?.join_date || combinedData.listData?.join_date || 'N/A');
+      console.log('🎯 Total corridas final:', combinedData.analytics.total_rides || combinedData.listData?.data?.metrics?.total_rides || 0);
+      console.log('🎯 Rating final:', combinedData.analytics.average_rating || combinedData.listData?.data?.metrics?.rating || combinedData.listData?.driver_ratings || 'N/A');
+      
+      console.log('🚀 CHAMANDO setDriverDetails com:', combinedData);
+      
       setDriverDetails(combinedData);
 
     } catch (err) {
@@ -238,28 +365,73 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
                     <User className="w-5 h-5 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Nome</p>
-                      <p className="font-medium">{driverDetails.personal.personal_data?.driver_name || 'N/A'}</p>
+                      <p className="font-medium">{(() => {
+                        const nome = driverDetails.personal.personal_data?.name
+                          || driverDetails.personal.personal_data?.driver_name
+                          || driverDetails.listData?.name
+                          || driverName
+                          || 'N/A';
+                        console.log('🖥️ RENDERIZANDO Nome:', nome);
+                        console.log('🖥️ Opções de nome:', {
+                          'personal.personal_data.name': driverDetails.personal.personal_data?.name,
+                          'personal.personal_data.driver_name': driverDetails.personal.personal_data?.driver_name,
+                          'listData.name': driverDetails.listData?.name,
+                          'driverName': driverName
+                        });
+                        return nome;
+                      })()}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Phone className="w-5 h-5 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Telefone</p>
-                      <p className="font-medium">{driverDetails.personal.personal_data?.phone_no || 'N/A'}</p>
+                      <p className="font-medium">{(() => {
+                        const telefone = driverDetails.personal.personal_data?.phone
+                          || driverDetails.personal.personal_data?.phone_no
+                          || driverDetails.listData?.mobile
+                          || driverDetails.listData?.phone
+                          || 'N/A';
+                        console.log('🖥️ RENDERIZANDO Telefone:', telefone);
+                        console.log('🖥️ Opções de telefone:', {
+                          'personal.personal_data.phone': driverDetails.personal.personal_data?.phone,
+                          'personal.personal_data.phone_no': driverDetails.personal.personal_data?.phone_no,
+                          'listData.mobile': driverDetails.listData?.mobile,
+                          'listData.phone': driverDetails.listData?.phone
+                        });
+                        return telefone;
+                      })()}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Mail className="w-5 h-5 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Email</p>
-                      <p className="font-medium">{driverDetails.personal.personal_data?.email || 'N/A'}</p>
+                      <p className="font-medium">{(() => {
+                        const email = driverDetails.personal.personal_data?.email
+                          || driverDetails.listData?.email
+                          || 'N/A';
+                        console.log('🖥️ RENDERIZANDO Email:', email);
+                        console.log('🖥️ Opções de email:', {
+                          'personal.personal_data.email': driverDetails.personal.personal_data?.email,
+                          'listData.email': driverDetails.listData?.email,
+                          'listData.data.original_data.Email': driverDetails.listData?.data?.original_data?.Email,
+                          'listData.data.profile.email': driverDetails.listData?.data?.profile?.email
+                        });
+                        return email;
+                      })()}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <MapPin className="w-5 h-5 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Cidade</p>
-                      <p className="font-medium">{driverDetails.personal.city || driverDetails.personal.personal_data?.city || 'N/A'}</p>
+                      <p className="font-medium">{
+                        driverDetails.personal.city
+                        || driverDetails.personal.personal_data?.city
+                        || driverDetails.listData?.city
+                        || 'N/A'
+                      }</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -268,11 +440,18 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
                       <p className="text-sm text-gray-500">Status</p>
                       <p className="font-medium">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          driverDetails.personal.personal_data?.status === 'Active' 
+                          (driverDetails.personal.personal_data?.status 
+                            || driverDetails.listData?.status
+                            || '').toLowerCase().includes('active') || 
+                          (driverDetails.personal.personal_data?.status 
+                            || driverDetails.listData?.status
+                            || '').toLowerCase().includes('online')
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {driverDetails.personal.personal_data?.status || 'N/A'}
+                          {driverDetails.personal.personal_data?.status
+                            || driverDetails.listData?.status
+                            || 'Offline'}
                         </span>
                       </p>
                     </div>
@@ -281,7 +460,13 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
                     <Calendar className="w-5 h-5 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Data de Ingresso</p>
-                      <p className="font-medium">{driverDetails.personal.personal_data?.joining_date || 'N/A'}</p>
+                      <p className="font-medium">{
+                        driverDetails.personal.personal_data?.join_date
+                        || driverDetails.personal.personal_data?.joining_date
+                        || driverDetails.listData?.join_date
+                        || driverDetails.listData?.joining_date
+                        || 'N/A'
+                      }</p>
                     </div>
                   </div>
                 </div>
@@ -296,7 +481,11 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
                     <span className="text-sm font-medium text-green-800">Ganhos Totais</span>
                   </div>
                   <p className="text-2xl font-bold text-green-700">
-                    R$ {Number(driverDetails.analytics.total_earnings || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    R$ {Number(
+                      driverDetails.analytics.total_earnings 
+                      || driverDetails.listData?.data?.metrics?.total_earnings 
+                      || 0
+                    ).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
 
@@ -305,7 +494,12 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
                     <Car className="w-5 h-5 text-blue-600" />
                     <span className="text-sm font-medium text-blue-800">Total de Corridas</span>
                   </div>
-                  <p className="text-2xl font-bold text-blue-700">{driverDetails.analytics.total_rides || 0}</p>
+                  <p className="text-2xl font-bold text-blue-700">{
+                    driverDetails.analytics.total_rides 
+                    || driverDetails.listData?.data?.metrics?.total_rides 
+                    || driverDetails.listData?.data?.metrics?.rides_last_30_days
+                    || 0
+                  }</p>
                 </div>
 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
@@ -314,7 +508,12 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
                     <span className="text-sm font-medium text-yellow-800">Rating Médio</span>
                   </div>
                   <p className="text-2xl font-bold text-yellow-700">
-                    {driverDetails.analytics.average_rating ? Number(driverDetails.analytics.average_rating).toFixed(1) : 'N/A'} ⭐
+                    {(
+                      driverDetails.analytics.average_rating 
+                      || driverDetails.listData?.data?.metrics?.rating 
+                      || driverDetails.listData?.driver_ratings
+                      || 3.5
+                    )} ⭐
                   </p>
                 </div>
 
@@ -406,7 +605,11 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
                       <div className="flex justify-between">
                         <span className="text-gray-600">Veículo:</span>
                         <span className="font-medium">
-                          {driverDetails.personal.personal_data?.vehicle_no || 'N/A'}
+                          {driverDetails.personal.personal_data?.vehicle
+                            || driverDetails.personal.personal_data?.vehicle_no
+                            || driverDetails.listData?.vehicle
+                            || driverDetails.listData?.vehicle_no
+                            || 'N/A'}
                         </span>
                       </div>
                     </div>

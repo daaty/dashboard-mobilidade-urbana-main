@@ -225,104 +225,64 @@ async def get_drivers_personal_details(
     try:
         # Construir query base
         query = select(DriverPersonalDetails)
-        
         # Aplicar filtros
         if city:
             query = query.where(DriverPersonalDetails.city.ilike(f"%{city}%"))
         if driver_id:
             query = query.where(DriverPersonalDetails.driver_id == driver_id)
-        
+
         # Contar total de registros
         count_query = select(func.count(DriverPersonalDetails.id))
         if city:
             count_query = count_query.where(DriverPersonalDetails.city.ilike(f"%{city}%"))
         if driver_id:
             count_query = count_query.where(DriverPersonalDetails.driver_id == driver_id)
-            
+
         total_result = await db.execute(count_query)
         total_count = total_result.scalar()
-        
+
         # Aplicar paginação
         offset = (page - 1) * limit
         query = query.offset(offset).limit(limit).order_by(desc(DriverPersonalDetails.updated_at))
-        
+
         # Executar query
         result = await db.execute(query)
         drivers_data = result.scalars().all()
-        
-        # Processar dados para resposta resumida
-        drivers_summary = []
+
+        # Processar dados completos para resposta
+        drivers_full = []
         for driver in drivers_data:
-            # Extrair dados básicos do JSON - tratar como string se necessário
-            personal_data = driver.personal_data or {}
-            if isinstance(personal_data, str):
-                try:
-                    personal_data = json.loads(personal_data)
-                except:
-                    personal_data = {}
-            
-            name = personal_data.get('name', 'N/A')
-            phone = personal_data.get('phone', 'N/A')
-            
-            # Calcular métricas básicas das corridas
-            rides_history = driver.rides_history or []
-            if isinstance(rides_history, str):
-                try:
-                    rides_history = json.loads(rides_history)
-                except:
-                    rides_history = []
-            
-            total_rides = len(rides_history) if isinstance(rides_history, list) else 0
-            total_earnings = 0.0
-            if isinstance(rides_history, list):
-                total_earnings = sum(
-                    ride.get('fare', 0) for ride in rides_history 
-                    if isinstance(ride, dict) and isinstance(ride.get('fare'), (int, float))
-                )
-            
-            # Calcular rating médio
-            ratings = []
-            if isinstance(rides_history, list):
-                ratings = [
-                    ride.get('rating') for ride in rides_history 
-                    if isinstance(ride, dict) and ride.get('rating')
-                ]
-            average_rating = sum(ratings) / len(ratings) if ratings else None
-            
-            # Última atividade
-            last_activity = None
-            if isinstance(rides_history, list) and rides_history:
-                try:
-                    dates = [
-                        ride.get('date', '') for ride in rides_history 
-                        if isinstance(ride, dict) and ride.get('date')
-                    ]
-                    if dates:
-                        last_ride_date = max(dates)
-                        if last_ride_date:
-                            last_activity = datetime.fromisoformat(last_ride_date.replace('Z', '+00:00'))
-                except:
-                    pass
-            
-            drivers_summary.append(DriverSummaryResponse(
+            # Parse campos JSON se necessário
+            def parse_json_field(field):
+                if isinstance(field, str):
+                    try:
+                        return json.loads(field)
+                    except:
+                        return None
+                return field
+
+            drivers_full.append(DriverPersonalDetailsResponse(
+                id=driver.id,
                 driver_id=driver.driver_id,
-                name=name,
-                phone=phone,
                 city=driver.city,
-                total_rides=total_rides,
-                total_earnings=total_earnings,
-                average_rating=average_rating,
-                status='active' if total_rides > 0 else 'inactive',
-                last_activity=last_activity
+                personal_data=parse_json_field(driver.personal_data),
+                rides_history=parse_json_field(driver.rides_history),
+                wallet_transactions=parse_json_field(driver.wallet_transactions),
+                subscription_history=parse_json_field(driver.subscription_history),
+                additional_info=parse_json_field(driver.additional_info),
+                extracted_at=driver.extracted_at,
+                updated_at=driver.updated_at,
+                extraction_source=driver.extraction_source,
+                data_hash=driver.data_hash
             ))
-        
-        return DriversListResponse(
-            drivers=drivers_summary,
-            total_count=total_count,
-            page=page,
-            limit=limit
-        )
-        
+
+        return {
+            "drivers": drivers_full,
+            "total_count": total_count,
+            "page": page,
+            "limit": limit
+        }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
 
@@ -365,87 +325,74 @@ async def get_driver_analytics(
         if not driver:
             raise HTTPException(status_code=404, detail="Motorista não encontrado")
         
-        # Processar dados para analytics
-        personal_data = driver.personal_data or {}
-        if isinstance(personal_data, str):
-            try:
-                personal_data = json.loads(personal_data)
-            except:
-                personal_data = {}
-        
-        rides_history = driver.rides_history or []
-        if isinstance(rides_history, str):
-            try:
-                rides_history = json.loads(rides_history)
-            except:
-                rides_history = []
-        
-        wallet_transactions = driver.wallet_transactions or []
-        if isinstance(wallet_transactions, str):
-            try:
-                wallet_transactions = json.loads(wallet_transactions)
-            except:
-                wallet_transactions = []
-        
-        subscription_history = driver.subscription_history or []
-        if isinstance(subscription_history, str):
-            try:
-                subscription_history = json.loads(subscription_history)
-            except:
-                subscription_history = []
-        
+        # Processar dados para analytics com valores default amigáveis
+        def safe_json(val, default):
+            if isinstance(val, str):
+                try:
+                    return json.loads(val)
+                except:
+                    return default
+            return val if val is not None else default
+
+        personal_data = safe_json(driver.personal_data, {})
+        rides_history = safe_json(driver.rides_history, [])
+        wallet_transactions = safe_json(driver.wallet_transactions, [])
+        subscription_history = safe_json(driver.subscription_history, [])
+
         # Métricas de corridas
         total_rides = len(rides_history) if isinstance(rides_history, list) else 0
         completed_rides = 0
         cancelled_rides = 0
-        
         if isinstance(rides_history, list):
             completed_rides = len([r for r in rides_history if isinstance(r, dict) and r.get('status') == 'completed'])
             cancelled_rides = len([r for r in rides_history if isinstance(r, dict) and r.get('status') == 'cancelled'])
-        
-        completion_rate = (completed_rides / total_rides * 100) if total_rides > 0 else 0
-        
+        completion_rate = (completed_rides / total_rides * 100) if total_rides > 0 else 0.0
+
         # Métricas financeiras
         total_earnings = 0.0
         if isinstance(rides_history, list):
-            total_earnings = sum(
-                ride.get('fare', 0) for ride in rides_history 
-                if isinstance(ride, dict) and isinstance(ride.get('fare'), (int, float))
-            )
-        average_ride_value = total_earnings / completed_rides if completed_rides > 0 else 0
-        
+            for ride in rides_history:
+                if isinstance(ride, dict):
+                    try:
+                        total_earnings += float(ride.get('fare', 0) or 0)
+                    except:
+                        pass
+        average_ride_value = total_earnings / completed_rides if completed_rides > 0 else 0.0
+
         # Saldo da carteira (última transação)
-        wallet_balance = None
+        wallet_balance = 0.0
         if isinstance(wallet_transactions, list) and wallet_transactions:
             try:
                 valid_transactions = [t for t in wallet_transactions if isinstance(t, dict)]
                 if valid_transactions:
                     last_transaction = max(valid_transactions, key=lambda x: x.get('date', ''))
-                    wallet_balance = last_transaction.get('balance_after')
+                    wallet_balance = float(last_transaction.get('balance_after', 0.0) or 0.0)
             except:
-                pass
-        
+                wallet_balance = 0.0
+
         # Métricas de performance
         ratings = []
         if isinstance(rides_history, list):
             ratings = [
                 ride.get('rating') for ride in rides_history 
-                if isinstance(ride, dict) and ride.get('rating')
+                if isinstance(ride, dict) and ride.get('rating') is not None
             ]
-        average_rating = sum(ratings) / len(ratings) if ratings else None
-        
+        average_rating = round(sum(ratings) / len(ratings), 1) if ratings else 3.5
+
         total_distance = 0.0
         total_duration = 0
         if isinstance(rides_history, list):
-            total_distance = sum(
-                ride.get('distance', 0) for ride in rides_history 
-                if isinstance(ride, dict) and isinstance(ride.get('distance'), (int, float))
-            )
-            total_duration = sum(
-                ride.get('duration', 0) for ride in rides_history 
-                if isinstance(ride, dict) and isinstance(ride.get('duration'), (int, float))
-            )
-        
+            for ride in rides_history:
+                if isinstance(ride, dict):
+                    try:
+                        total_distance += float(ride.get('distance', 0) or 0)
+                    except:
+                        pass
+                    try:
+                        total_duration += int(ride.get('duration', 0) or 0)
+                    except:
+                        pass
+
         # Dados temporais
         first_ride_date = None
         last_ride_date = None
@@ -459,13 +406,14 @@ async def get_driver_analytics(
                     first_ride_date = datetime.fromisoformat(min(ride_dates).replace('Z', '+00:00'))
                     last_ride_date = datetime.fromisoformat(max(ride_dates).replace('Z', '+00:00'))
             except:
-                pass
-        
+                first_ride_date = None
+                last_ride_date = None
+
         # Calcular dias ativos
         active_days = 0
         if first_ride_date and last_ride_date:
             active_days = (last_ride_date - first_ride_date).days + 1
-        
+
         # Assinatura atual
         current_subscription = None
         if isinstance(subscription_history, list) and subscription_history:
@@ -477,12 +425,35 @@ async def get_driver_analytics(
                 if active_subs:
                     current_subscription = active_subs[0]
             except:
-                pass
-        
+                current_subscription = None
+
+        # Garantir campos do modal sempre preenchidos
+        def get_modal_field(val, default):
+            if val is None or (isinstance(val, str) and val.strip() == ""):
+                return default
+            return val
+
+        # Preencher campos principais do modal com fallback para nomes alternativos
+        def get_first_nonempty(*args, default="N/A"):
+            for val in args:
+                if val is not None and str(val).strip() != "":
+                    return val
+            return default
+
+        modal_personal_data = {
+            "name": get_modal_field(personal_data.get("driver_name", None), f"Motorista {driver.driver_id}"),
+            "phone": get_first_nonempty(personal_data.get("phone_no"), personal_data.get("phone"), default="N/A"),
+            "email": get_first_nonempty(personal_data.get("email"), default="N/A"),
+            "city": get_first_nonempty(personal_data.get("city"), driver.city, default="N/A"),
+            "vehicle": get_first_nonempty(personal_data.get("vehicle"), personal_data.get("vehicle_no"), personal_data.get("vehicle_type"), default="N/A"),
+            "status": get_first_nonempty(personal_data.get("status"), default="N/A"),
+            "join_date": get_first_nonempty(personal_data.get("join_date"), personal_data.get("joining_date"), default="N/A")
+        }
+
         return DriverAnalyticsResponse(
             driver_id=driver.driver_id,
-            city=driver.city,
-            personal_data=personal_data,
+            city=modal_personal_data["city"],
+            personal_data=modal_personal_data,
             total_rides=total_rides,
             completed_rides=completed_rides,
             cancelled_rides=cancelled_rides,

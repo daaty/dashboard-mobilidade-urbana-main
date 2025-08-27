@@ -6,12 +6,91 @@ import json
 from datetime import datetime, timedelta
 from app.database.db import SessionLocal
 from app.models.drivers_data import DriversData
+from app.models.driver_personal_details import DriverPersonalDetails
 
 router = APIRouter()
 
 async def get_db():
     async with SessionLocal() as session:
         yield session
+
+# NOVO ENDPOINT: /api/drivers/full-list
+@router.get("/full-list")
+async def get_drivers_full_list(
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Retorna todos os dados detalhados e estruturados de cada motorista,
+    cruzando drivers_data e driver_personal_details por driver_id.
+    """
+    try:
+        # Buscar todos os registros das duas tabelas
+        result_data = await db.execute(select(DriversData))
+        drivers_data = result_data.scalars().all()
+
+        result_personal = await db.execute(select(DriverPersonalDetails))
+        personal_details = result_personal.scalars().all()
+
+        # Indexar dados pessoais por driver_id
+        personal_map = {p.driver_id: p for p in personal_details}
+
+        full_drivers = []
+        for driver_record in drivers_data:
+            # Parse additional_data
+            additional_data = driver_record.additional_data
+            if isinstance(additional_data, str):
+                try:
+                    additional_data = json.loads(additional_data)
+                except:
+                    additional_data = {}
+            elif not isinstance(additional_data, dict):
+                additional_data = {}
+
+            # Dados pessoais
+            personal = personal_map.get(driver_record.driver_id)
+            def parse_json_field(field):
+                if isinstance(field, str):
+                    try:
+                        return json.loads(field)
+                    except:
+                        return None
+                return field
+
+            full_drivers.append({
+                "driver_id": driver_record.driver_id,
+                "name": driver_record.name,
+                "email": driver_record.email,
+                "mobile": driver_record.mobile,
+                "data_type": driver_record.data_type,
+                "page_source": driver_record.page_source,
+                "scraped_at": driver_record.scraped_at,
+                "session_info": driver_record.session_info,
+                "source": driver_record.source,
+                "unique_id": driver_record.unique_id,
+                "data_hash": driver_record.data_hash,
+                "additional_data": additional_data,
+                # Dados pessoais cruzados
+                "personal_details": {
+                    "city": personal.city if personal else None,
+                    "personal_data": parse_json_field(personal.personal_data) if personal else None,
+                    "rides_history": parse_json_field(personal.rides_history) if personal else None,
+                    "wallet_transactions": parse_json_field(personal.wallet_transactions) if personal else None,
+                    "subscription_history": parse_json_field(personal.subscription_history) if personal else None,
+                    "additional_info": parse_json_field(personal.additional_info) if personal else None,
+                    "extracted_at": personal.extracted_at if personal else None,
+                    "updated_at": personal.updated_at if personal else None,
+                    "extraction_source": personal.extraction_source if personal else None,
+                    "data_hash": personal.data_hash if personal else None
+                } if personal else None
+            })
+
+        return {
+            "drivers": full_drivers,
+            "total_count": len(full_drivers)
+        }
+    except Exception as e:
+        print(f"Erro no endpoint full-list: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
 
 @router.get("/overview")
 async def get_drivers_overview(

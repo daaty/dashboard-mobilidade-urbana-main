@@ -313,60 +313,50 @@ async def get_drivers_analytics():
                 real_mobile = mobile  # Telefone correto
                 
                 # Extrair métricas do raw_row se disponível
+                # Inicialização robusta
                 rides_last_30_days = 0
                 rides_last_7_days = 0
+                total_rides = 0
                 rating = 3.5
                 last_login = ''
                 status = 'inactive'
                 city = 'Matupá'
                 vehicle = ''
                 email = ''
-                
+                mapped_data = {}
+                # Extração robusta dos campos
                 if headers and raw_row and len(headers) == len(raw_row):
-                    # Criar mapeamento header -> valor
-                    mapped_data = {}
                     for i, header in enumerate(headers):
                         if i < len(raw_row):
                             mapped_data[header] = raw_row[i]
-                    
-                    # Extrair métricas se disponíveis
-                    try:
-                        rides_30d_str = mapped_data.get('Rides in Last 30 Days', '0')
-                        rides_30d = int(rides_30d_str) if rides_30d_str and rides_30d_str.isdigit() else 0
-                        rides_last_30_days = rides_30d
-                    except:
-                        rides_last_30_days = 0
-                        
-                    try:
-                        rides_7d_str = mapped_data.get('Rides in Last 7 Days', '0')
-                        rides_7d = int(rides_7d_str) if rides_7d_str and rides_7d_str.isdigit() else 0
-                        rides_last_7_days = rides_7d
-                    except:
-                        rides_last_7_days = 0
-                        
-                    try:
-                        rating_str = mapped_data.get('Driver Ratings', '35000')
-                        rating_val = float(rating_str) if rating_str and rating_str.isdigit() else 35000
-                        rating = min(5.0, max(1.0, rating_val / 10000))  # Converter para escala 1-5
-                    except:
-                        rating = 3.5
-                    
-                    # Outros campos
+                    # Extrair métricas
+                    def to_int(val):
+                        try:
+                            return int(float(str(val).replace(",", ".")))
+                        except:
+                            return 0
+                    def to_float(val):
+                        try:
+                            return float(str(val).replace(",", "."))
+                        except:
+                            return 0.0
+                    rides_last_30_days = to_int(mapped_data.get('Rides in Last 30 Days', 0))
+                    rides_last_7_days = to_int(mapped_data.get('Rides in Last 7 Days', 0))
+                    # total_rides pode ser a soma dos dois ou o maior
+                    total_rides = max(rides_last_30_days, rides_last_7_days)
+                    rating = to_float(mapped_data.get('Driver Ratings', 3.5))
                     last_login = mapped_data.get('Last Login', '')
                     status_str = mapped_data.get('Status', 'Offline')
                     status = 'active' if status_str.lower() == 'online' else 'inactive'
-                    city = mapped_data.get('Registered On', 'Matupá')
-                    vehicle = mapped_data.get('Mobile', '')  # Veículo pode estar em Mobile
+                    city = mapped_data.get('City', 'Matupá')
+                    vehicle = mapped_data.get('Vehicle Number', '')
                     email = mapped_data.get('Email', '')
-                
-                # Determinar se está ativo baseado em corridas recentes
-                total_rides = max(rides_last_30_days, rides_last_7_days)
                 is_active = total_rides > 0 or status == 'active'
-                
+                # Preencher todos os campos de métricas esperados pelo frontend
                 drivers_data.append({
-                    'driver_id': str(real_driver_id),  # ID numérico como string
-                    'name': real_name,  # Nome real da tabela
-                    'mobile': real_mobile,  # Telefone da tabela
+                    'driver_id': str(real_driver_id),
+                    'name': real_name,
+                    'mobile': real_mobile,
                     'data': {
                         'profile': {
                             'city': city,
@@ -381,10 +371,10 @@ async def get_drivers_analytics():
                             'rides_last_7_days': rides_last_7_days,
                             'total_rides': total_rides,
                             'last_login': last_login,
-                            'success_rate': 85.0 if total_rides > 0 else 0.0  # Estimativa
+                            'success_rate': 85.0 if total_rides > 0 else 0.0
                         },
                         'raw_data': mapped_data if headers and raw_row else {},
-                        'original_data': data  # Manter dados originais para debug
+                        'original_data': data
                     },
                     'scraped_at': scraped_at.isoformat() if scraped_at else None
                 })

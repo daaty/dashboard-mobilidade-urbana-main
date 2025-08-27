@@ -41,20 +41,44 @@ export const useDriversAnalytics = () => {
       console.log('🚗 Array de motoristas encontrado:', driversArray.length, 'registros');
       console.log('🚗 Primeiro motorista:', driversArray[0]);
       
-      // Processar dados dos motoristas da API analytics
+      // Mapear estrutura da nova API para o formato esperado pelo frontend/modal
       const processedDrivers = driversArray.map(driver => {
+        // Extrair dados diretamente dos campos estruturados (já são objetos)
+        const profile = driver.data?.profile || {};
+        const originalData = driver.data?.original_data || {};
+        const metrics = driver.data?.metrics || {};
+        
         return {
           driver_id: driver.driver_id,
-          name: driver.name || `Motorista ${driver.driver_id}`,
-          phone: driver.mobile || '',
-          data: driver.data || {
+          name: originalData['Driver Name'] || driver.name || `Motorista ${driver.driver_id}`,
+          phone: originalData.Mobile || driver.mobile || '',
+          city: originalData.City || profile.city || '',
+          vehicle: originalData['Vehicle Number'] || profile.vehicle || '',
+          join_date: originalData['Registered On'] || '',
+          status: originalData.Status || profile.status || '',
+          email: originalData.Email || profile.email || '',
+          last_ride: originalData['Last  Ride'] || originalData['Last Ride'] || '',
+          last_login: originalData['Last Login'] || '',
+          driver_ratings: Number(originalData['Driver Ratings']) || Number(metrics.rating) || 3.5,
+          data: {
             metrics: {
-              total_rides: 0,
-              online_hours: 0,
-              rating: 4.0,
-              total_earnings: 0
-            }
-          }
+              total_rides: Number(originalData['Rides in Last 30 Days']) || Number(metrics.rides_last_30_days) || 0,
+              online_hours: Number(metrics.online_hours) || 0,
+              rating: Number(originalData['Driver Ratings']) || Number(metrics.rating) || 3.5,
+              total_earnings: Number(metrics.total_earnings) || 0,
+              active_days: Number(metrics.active_days) || 0,
+              success_rides: Number(originalData['Rides in Last 30 Days']) || Number(metrics.rides_last_30_days) || 0,
+              missed_rides: Number(metrics.missed_rides) || 0,
+              requests_received: Number(metrics.requests_received) || 0,
+              user_cancelled: Number(metrics.user_cancelled) || 0,
+              driver_cancelled: Number(metrics.driver_cancelled) || 0,
+              rides_last_7_days: Number(originalData['Rides in Last 7 Days']) || Number(metrics.rides_last_7_days) || 0,
+              rides_last_30_days: Number(originalData['Rides in Last 30 Days']) || Number(metrics.rides_last_30_days) || 0,
+              success_rate: Number(metrics.success_rate) || 0,
+            },
+            profile: profile,
+            original_data: originalData,
+          },
         };
       });
       
