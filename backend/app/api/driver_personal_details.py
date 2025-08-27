@@ -166,15 +166,52 @@ async def get_drivers_basic_list(db: AsyncSession = Depends(get_db)):
             # Calcular métricas básicas
             total_rides = len(rides_history) if isinstance(rides_history, list) else 0
             
-            # Calcular ganhos totais das corridas
+            # Calcular ganhos totais das corridas - APENAS CORRIDAS CONCLUÍDAS
             total_earnings = 0
+            completed_rides = 0  # Contador de corridas realmente concluídas
+            
             if isinstance(rides_history, list):
                 for ride in rides_history:
                     if isinstance(ride, dict) and 'fare' in ride:
-                        try:
-                            total_earnings += float(ride['fare'])
-                        except:
+                        # Verificar se a corrida foi realmente concluída
+                        is_completed = True
+                        
+                        # Filtros para identificar corridas realmente concluídas:
+                        # 1. Deve ter drop_time (horário de término)
+                        if 'drop_time' not in ride or not ride['drop_time'] or ride['drop_time'].strip() == '':
+                            is_completed = False
+                        
+                        # 2. Deve ter distância percorrida > 0 (corridas canceladas podem ter distância 0)
+                        if 'distance_travelled' in ride:
+                            try:
+                                distance = float(ride['distance_travelled'])
+                                # Se a distância é menor que 0.1 km (100 metros), pode ser corrida cancelada/teste
+                                # Motoristas de teste frequentemente têm distâncias de 0.001
+                                # Corridas reais normalmente têm pelo menos algumas centenas de metros
+                                if distance < 0.1:
+                                    is_completed = False
+                            except:
+                                pass
+                        
+                        # 3. Se tem avaliação válida do motorista, provavelmente foi concluída
+                        if 'driver_rating' in ride and ride['driver_rating'] == '--':
+                            # Corridas sem avaliação podem ser suspeitas, mas não vamos descartar automaticamente
                             pass
+                        
+                        # 4. Verificar se start_end_case indica problema
+                        if 'start_end_case' in ride and ride['start_end_case'] != 'NO':
+                            is_completed = False
+                        
+                        # Se passou em todos os filtros, considerar como corrida concluída
+                        if is_completed:
+                            try:
+                                fare_value = float(ride['fare'])
+                                # Só somar se a tarifa é > 0
+                                if fare_value > 0:
+                                    total_earnings += fare_value
+                                    completed_rides += 1
+                            except:
+                                pass
             
             # Obter nome do motorista - garantir que nunca seja null
             driver_name = "Motorista"
@@ -190,10 +227,16 @@ async def get_drivers_basic_list(db: AsyncSession = Depends(get_db)):
                 'phone': personal_data.get('phone_no', '') if isinstance(personal_data, dict) else '',
                 'data': {
                     'metrics': {
-                        'total_rides': total_rides,
+                        'total_rides': completed_rides,  # Usar apenas corridas concluídas
+                        'total_rides_raw': total_rides,  # Total bruto para debug
                         'online_hours': 0,  # Não disponível nos dados atuais
                         'rating': 4.0,  # Valor padrão
-                        'total_earnings': total_earnings
+                        'total_earnings': total_earnings,  # Ganhos apenas de corridas concluídas
+                        'filtered_rides_info': {
+                            'total_in_history': total_rides,
+                            'completed_rides': completed_rides,
+                            'filtered_out': total_rides - completed_rides
+                        }
                     }
                 }
             }
@@ -443,20 +486,66 @@ async def get_driver_analytics(
         total_rides = len(rides_history) if isinstance(rides_history, list) else 0
         completed_rides = 0
         cancelled_rides = 0
+        
+        # Aplicar a mesma lógica de filtro usada na listagem
         if isinstance(rides_history, list):
-            completed_rides = len([r for r in rides_history if isinstance(r, dict) and r.get('status') == 'completed'])
-            cancelled_rides = len([r for r in rides_history if isinstance(r, dict) and r.get('status') == 'cancelled'])
+            for ride in rides_history:
+                if isinstance(ride, dict) and 'fare' in ride:
+                    # Verificar se a corrida foi realmente concluída
+                    is_completed = True
+                    
+                    # 1. Deve ter drop_time (horário de término)
+                    if 'drop_time' not in ride or not ride['drop_time'] or ride['drop_time'].strip() == '':
+                        is_completed = False
+                    
+                    # 2. Deve ter distância percorrida > 0.1 km (100 metros)
+                    if 'distance_travelled' in ride:
+                        try:
+                            distance = float(ride['distance_travelled'])
+                            if distance < 0.1:  # Filtrar corridas de teste
+                                is_completed = False
+                        except:
+                            is_completed = False
+                    
+                    # 3. Verificar se start_end_case indica problema
+                    if 'start_end_case' in ride and ride['start_end_case'] != 'NO':
+                        is_completed = False
+                    
+                    if is_completed:
+                        completed_rides += 1
+                    else:
+                        cancelled_rides += 1  # Considerar como cancelada se não passou nos filtros
+        
         completion_rate = (completed_rides / total_rides * 100) if total_rides > 0 else 0.0
 
-        # Métricas financeiras
+        # Métricas financeiras - calcular earnings apenas de corridas concluídas
         total_earnings = 0.0
         if isinstance(rides_history, list):
             for ride in rides_history:
-                if isinstance(ride, dict):
-                    try:
-                        total_earnings += float(ride.get('fare', 0) or 0)
-                    except:
-                        pass
+                if isinstance(ride, dict) and 'fare' in ride:
+                    # Aplicar os mesmos filtros para considerar apenas corridas concluídas
+                    is_completed = True
+                    
+                    if 'drop_time' not in ride or not ride['drop_time'] or ride['drop_time'].strip() == '':
+                        is_completed = False
+                    
+                    if 'distance_travelled' in ride:
+                        try:
+                            distance = float(ride['distance_travelled'])
+                            if distance < 0.1:
+                                is_completed = False
+                        except:
+                            is_completed = False
+                    
+                    if 'start_end_case' in ride and ride['start_end_case'] != 'NO':
+                        is_completed = False
+                    
+                    # Só somar earnings de corridas realmente concluídas
+                    if is_completed:
+                        try:
+                            total_earnings += float(ride.get('fare', 0) or 0)
+                        except:
+                            pass
         average_ride_value = total_earnings / completed_rides if completed_rides > 0 else 0.0
 
         # Saldo da carteira (última transação)

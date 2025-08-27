@@ -251,7 +251,21 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
       
       const personalDataObj = personalData ? {
         ...personalData,
-        personal_data: processedPersonalData,
+        personal_data: {
+          // MERGE INTELIGENTE: Usar dados do personal_data quando disponível, senão usar analytics
+          driver_name: processedPersonalData.driver_name || driverFromAnalytics.name,
+          phone_no: processedPersonalData.phone_no || originalData.Mobile || driverFromAnalytics.mobile || driverFromAnalytics.phone || '',
+          email: processedPersonalData.email || originalData.Email || profileData.email || driverFromAnalytics.email || '',  // PRIORIZAR EMAIL DO ANALYTICS!
+          city: processedPersonalData.city || originalData.City || profileData.city || driverFromAnalytics.city || '',
+          status: processedPersonalData.status || originalData.Status || profileData.status || driverFromAnalytics.status || '',
+          joining_date: processedPersonalData.joining_date || originalData['Registered On'] || driverFromAnalytics.join_date || '',
+          vehicle: processedPersonalData.vehicle_no || processedPersonalData.vehicle || originalData['Vehicle Number'] || profileData.vehicle || driverFromAnalytics.vehicle || '',
+          vehicle_no: processedPersonalData.vehicle_no || processedPersonalData.vehicle || originalData['Vehicle Number'] || profileData.vehicle || driverFromAnalytics.vehicle_no || '',
+          credit_wallet_balance: processedPersonalData.credit_wallet_balance || metrics.credit_wallet_balance || 0,
+          last_ride_on: processedPersonalData.last_ride_on || metrics.last_ride_date || '',
+          // Preservar todos os outros campos do processedPersonalData
+          ...processedPersonalData
+        },
         rides_history: processedRidesHistory,
         wallet_transactions: processedWalletTransactions
       } : {
