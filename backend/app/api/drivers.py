@@ -181,8 +181,8 @@ def get_drivers_kpis(
                     PARTITION BY dd.driver_id 
                     ORDER BY 
                         CASE dd.page_source 
-                            WHEN 'Active Drivers' THEN 1      -- PRIORIZAR Active Drivers que têm ratings
-                            WHEN 'Driver Performance' THEN 2  
+                            WHEN 'Driver Performance' THEN 1  -- PRIORIZAR Driver Performance que tem horas e cancelamentos
+                            WHEN 'Active Drivers' THEN 2      -- Active Drivers tem ratings
                             WHEN 'Leaderboard' THEN 3
                             WHEN 'Drivers Enrollment' THEN 4
                             WHEN 'Deactive Drivers' THEN 5
@@ -217,7 +217,49 @@ def get_drivers_kpis(
         cancellation_result = db.execute(text(cancellation_final_query))
         cancellation_records = cancellation_result.fetchall()
         
-        # SEGUNDA: Montar query final para drivers únicos
+        # SEGUNDA: Buscar dados de horas especificamente do Driver Performance
+        hours_query = """
+        SELECT driver_id, additional_data
+        FROM drivers_data 
+        WHERE page_source = 'Driver Performance'
+        AND additional_data IS NOT NULL
+        """
+        
+        hours_result = db.execute(text(hours_query))
+        hours_records = hours_result.fetchall()
+        
+        # Criar um dicionário de horas por driver
+        driver_hours_map = {}
+        for record in hours_records:
+            driver_id = record[0]
+            additional_data_raw = record[1]
+            
+            try:
+                if isinstance(additional_data_raw, dict):
+                    additional_data = additional_data_raw
+                elif isinstance(additional_data_raw, str):
+                    additional_data = json.loads(additional_data_raw)
+                else:
+                    continue
+                
+                # Extrair horas online
+                driver_hours = 0
+                if 'online_hours' in additional_data:
+                    driver_hours = float(additional_data.get('online_hours', 0))
+                elif 'Online Hours' in additional_data:
+                    driver_hours = float(additional_data.get('Online Hours', 0))
+                
+                if driver_hours > 0:
+                    if driver_id not in driver_hours_map:
+                        driver_hours_map[driver_id] = []
+                    driver_hours_map[driver_id].append(driver_hours)
+                    
+            except (json.JSONDecodeError, ValueError, TypeError):
+                continue
+        
+        print(f"DEBUG: Encontradas horas para {len(driver_hours_map)} drivers")
+        
+        # TERCEIRA: Montar query final para drivers únicos
         query = base_query
         if conditions:
             query += " " + " ".join(conditions)
@@ -331,12 +373,24 @@ def get_drivers_kpis(
                 total_revenue += period_revenue
                 total_distance += period_distance
                 
-                # USAR HORAS ONLINE REAIS DO ADDITIONAL_DATA (Driver Performance)
-                driver_hours = 0
-                if additional_data and isinstance(additional_data, dict):
-                    driver_hours = float(additional_data.get('online_hours', 0))
-                
-                hours_online.append(driver_hours)
+                # USAR HORAS ONLINE DO MAPA CRIADO ANTERIORMENTE
+                if driver.driver_id in driver_hours_map:
+                    # Usar a média das horas se houver múltiplos registros
+                    driver_hours_list = driver_hours_map[driver.driver_id]
+                    driver_hours = sum(driver_hours_list) / len(driver_hours_list)
+                    hours_online.append(driver_hours)
+                    print(f"DEBUG: Driver {driver.driver_id} - Horas: {driver_hours}")
+                else:
+                    # Fallback: tentar extrair do additional_data atual
+                    driver_hours = 0
+                    if additional_data and isinstance(additional_data, dict):
+                        if 'online_hours' in additional_data:
+                            driver_hours = float(additional_data.get('online_hours', 0))
+                        elif 'Online Hours' in additional_data:
+                            driver_hours = float(additional_data.get('Online Hours', 0))
+                    
+                    if driver_hours > 0:
+                        hours_online.append(driver_hours)
                 
                 # Calcular rating médio das corridas do período
                 period_ratings = []
@@ -421,6 +475,7 @@ def get_drivers_kpis(
         # Calcular métricas
         avg_rating = sum(ratings) / len(ratings) if ratings else 3.5
         avg_hours_online = sum(hours_online) / len(hours_online) if hours_online else 0.0
+        avg_hours_per_driver = avg_hours_online  # Média de horas por motorista
         acceptance_rate = completion_rate  # Usar taxa de conclusão como taxa de aceitação
         revenue_per_hour = (total_revenue / sum(hours_online)) if sum(hours_online) > 0 else 0.0
         
@@ -480,6 +535,7 @@ def get_drivers_kpis(
                 "cancelled_rides": total_cancelled_rides,  # Corridas canceladas (dados reais)
                 "total_rides_completed": total_rides,  # Corridas concluídas
                 "avg_hours_online": round(avg_hours_online, 1),
+                "avg_hours_per_driver": round(avg_hours_per_driver, 1),
                 "avg_rating": round(avg_rating, 1),
                 "average_rating": round(avg_rating, 1),
                 "total_revenue": round(receita_estimada, 2),

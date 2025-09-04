@@ -1193,7 +1193,10 @@ export default function DriversOverview({ onPeriodChange }) {
                           </div>
                           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-cyan-50 to-teal-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">Horas por Motorista</span>
-                            <span className="text-xl font-bold text-cyan-600">{Number(dashboardData.avg_hours_per_driver || 0).toFixed(1)}h</span>
+                            <span className="text-xl font-bold text-cyan-600">
+                              {Number(dashboardData.avg_hours_per_driver || 0).toFixed(1)}h
+                              {/* DEBUG: {JSON.stringify(dashboardData.avg_hours_per_driver)} */}
+                            </span>
                           </div>
                         </div>
                       </CardContent>
