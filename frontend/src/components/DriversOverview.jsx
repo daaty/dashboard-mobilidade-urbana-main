@@ -872,7 +872,7 @@ export default function DriversOverview({ onPeriodChange }) {
                         </CardHeader>
                         <CardContent className="space-y-4 pt-6">
                             {[
-                                { label: 'Excelente (ÔëÑ4.5)', value: kpis.performanceDistribution.excellent, color: 'from-green-500 to-green-600', bgColor: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', textColor: 'text-green-600 dark:text-green-400' },
+                                { label: 'Excelente (≥4.5)', value: kpis.performanceDistribution.excellent, color: 'from-green-500 to-green-600', bgColor: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', textColor: 'text-green-600 dark:text-green-400' },
                                 { label: 'Bom (4.0-4.4)', value: kpis.performanceDistribution.good, color: 'from-blue-500 to-blue-600', bgColor: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', textColor: 'text-blue-600 dark:text-blue-400' },
                                 { label: 'Médio (3.5-3.9)', value: kpis.performanceDistribution.average, color: 'from-yellow-500 to-yellow-600', bgColor: 'from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20', textColor: 'text-yellow-600 dark:text-yellow-400' },
                                 { label: 'Abaixo (< 3.5)', value: kpis.performanceDistribution.below, color: 'from-red-500 to-red-600', bgColor: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20', textColor: 'text-red-600 dark:text-red-400' }

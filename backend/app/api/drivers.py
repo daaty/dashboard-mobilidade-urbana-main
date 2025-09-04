@@ -181,8 +181,8 @@ def get_drivers_kpis(
                     PARTITION BY dd.driver_id 
                     ORDER BY 
                         CASE dd.page_source 
-                            WHEN 'Driver Performance' THEN 1  
-                            WHEN 'Active Drivers' THEN 2
+                            WHEN 'Active Drivers' THEN 1      -- PRIORIZAR Active Drivers que têm ratings
+                            WHEN 'Driver Performance' THEN 2  
                             WHEN 'Leaderboard' THEN 3
                             WHEN 'Drivers Enrollment' THEN 4
                             WHEN 'Deactive Drivers' THEN 5
@@ -284,7 +284,13 @@ def get_drivers_kpis(
         for driver in drivers_data:
             # Parse additional_data que contém as informações reais
             try:
-                additional_data = json.loads(driver.additional_data) if isinstance(driver.additional_data, str) else driver.additional_data
+                # CORRIGIR: additional_data pode já ser um dicionário ou uma string JSON
+                if isinstance(driver.additional_data, dict):
+                    additional_data = driver.additional_data
+                elif isinstance(driver.additional_data, str):
+                    additional_data = json.loads(driver.additional_data)
+                else:
+                    continue
                 
                 # Contar como ativo se vier da aba "Active Drivers" OU se status for ativo
                 is_active_by_page = hasattr(driver, 'page_source') and driver.page_source == 'Active Drivers'
@@ -349,15 +355,44 @@ def get_drivers_kpis(
                         continue
                 
                 # Usar rating do período ou fallback para additional_data
+                driver_rating = None
                 if period_ratings:
                     driver_rating = sum(period_ratings) / len(period_ratings)
                 else:
-                    driver_rating = float(additional_data.get('Driver Ratings', 3.5))
-                
-                if driver_rating > 0:
-                    ratings.append(driver_rating)
-                
-                if driver_rating > 0:
+                    # USAR MESMA LÓGICA DO SCRIPT QUE FUNCIONOU
+                    # Formato 1: "Driver Ratings"
+                    if 'Driver Ratings' in additional_data:
+                        rating_str = additional_data['Driver Ratings']
+                        if rating_str and rating_str != '--' and rating_str != 'N/A':
+                            try:
+                                driver_rating = float(rating_str)
+                            except:
+                                pass
+                    
+                    # Formato 2: "driver_ratings"
+                    if not driver_rating and 'driver_ratings' in additional_data:
+                        rating_str = additional_data['driver_ratings']
+                        if rating_str and rating_str != '--' and rating_str != 'N/A':
+                            try:
+                                driver_rating = float(rating_str)
+                            except:
+                                pass
+                    
+                    # Formato 3: "rating"
+                    if not driver_rating and 'rating' in additional_data:
+                        rating_str = additional_data['rating']
+                        if rating_str and rating_str != '--' and rating_str != 'N/A':
+                            try:
+                                driver_rating = float(rating_str)
+                            except:
+                                pass
+                    
+                    # Fallback para valor padrão se nada encontrado
+                    if not driver_rating:
+                        driver_rating = 3.5
+
+                # Adicionar rating válido à lista (sem duplicatas)
+                if driver_rating and 0 <= driver_rating <= 5:
                     ratings.append(driver_rating)
                     
             except (ValueError, TypeError, json.JSONDecodeError):
@@ -398,11 +433,27 @@ def get_drivers_kpis(
         excellence_rate = acceptance_rate
         efficiency_score = 85 if revenue_per_hour > 15 else 70 if revenue_per_hour > 10 else 50
         
-        # Distribuição dos motoristas por performance (estimativa)
-        excellent_drivers = int(active_drivers * 0.35)
-        good_drivers = int(active_drivers * 0.45)
-        average_drivers = int(active_drivers * 0.15)
-        below_average_drivers = int(active_drivers * 0.05)
+        print(f"DEBUG: Total de ratings coletados: {len(ratings)}")
+        print(f"DEBUG: Ratings: {ratings[:10] if len(ratings) > 10 else ratings}")  # Mostrar primeiros 10
+        
+        # Distribuição dos motoristas por performance REAL (baseada nos ratings coletados)
+        excellent_drivers = 0  # ≥4.5
+        good_drivers = 0       # 4.0-4.4
+        average_drivers = 0    # 3.5-3.9
+        below_average_drivers = 0  # <3.5
+        
+        # Classificar cada rating coletado
+        for rating in ratings:
+            if rating >= 4.5:
+                excellent_drivers += 1
+            elif rating >= 4.0:
+                good_drivers += 1
+            elif rating >= 3.5:
+                average_drivers += 1
+            else:
+                below_average_drivers += 1
+        
+        print(f"DEBUG: Distribuição real - Excelente: {excellent_drivers}, Bom: {good_drivers}, Médio: {average_drivers}, Abaixo: {below_average_drivers}")
         
         # Calcular receita estimada (Total corridas × R$ 2,50)
         receita_estimada = total_rides * 2.50
@@ -458,10 +509,10 @@ def get_drivers_kpis(
                     "efficiency_score": efficiency_score
                 },
                 "performance_metrics": {
-                    "excellent_drivers": excellent_drivers,
-                    "good_drivers": good_drivers,
-                    "average_drivers": average_drivers,
-                    "below_average_drivers": below_average_drivers
+                    "excellent": excellent_drivers,
+                    "good": good_drivers,
+                    "average": average_drivers,
+                    "below": below_average_drivers
                 },
                 "drivers_by_status": {
                     "ativo": active_drivers,
