@@ -8,7 +8,6 @@ import { FinanceiroOverview } from './FinanceiroOverview'
 import MetasCidades from './MetasCidades'
 import DashboardExecutivoIntegrado from './DashboardExecutivoIntegradoSimple'
 import AnaliseCorreidas from './AnaliseCorreidas'
-import { ComparativoTemporal } from './ComparativoTemporal'
 import { ConfiguracaoSheets } from './ConfiguracaoSheets'
 import SistemaIA from './SistemaIA'
 import RelatoriosExecutivos from './RelatoriosExecutivos'
@@ -102,9 +101,34 @@ function App() {
   const fetchPerformanceData = async () => {
     try {
       setLoadingPerformance(true)
-      const response = await fetch(`${API_URL}/api/metrics/performance`)
-      const data = await response.json()
-      setPerformanceData(data)
+      
+      // Buscar todos os dados necessários para a aba Performance
+      const [overviewRes, trendsRes, achievementsRes, alertsRes, predictionsRes] = await Promise.all([
+        fetch(`${API_URL}/api/analytics/performance/overview?period=7_days`),
+        fetch(`${API_URL}/api/analytics/performance/trends?period=30_days`),
+        fetch(`${API_URL}/api/analytics/performance/achievements`),
+        fetch(`${API_URL}/api/analytics/performance/alerts`),
+        fetch(`${API_URL}/api/analytics/performance/predictions`)
+      ])
+      
+      const [overview, trends, achievements, alerts, predictions] = await Promise.all([
+        overviewRes.json(),
+        trendsRes.json(),
+        achievementsRes.json(),
+        alertsRes.json(),
+        predictionsRes.json()
+      ])
+      
+      // Combinar todos os dados para a aba Performance
+      const combinedData = {
+        overview: overview.data || {},
+        trends: trends.trends || [],
+        achievements: achievements.achievements || [],
+        alerts: alerts.alerts || [],
+        predictions: predictions.predictions || []
+      }
+      
+      setPerformanceData(combinedData)
     } catch (error) {
       console.error('Erro ao buscar performance:', error)
     } finally {
@@ -180,12 +204,6 @@ function App() {
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
             <DriversOverview />
-          </motion.div>
-        )
-      case 'comparativo':
-        return (
-          <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <ComparativoTemporal />
           </motion.div>
         )
       case 'performance':

@@ -12,6 +12,7 @@ from app.api import metas_performance
 from app.api import fases_planejamento
 from app.api import metas_progressivas
 from app.api import driver_personal_details
+from app.api import performance_analytics  # NOVO: endpoints específicos para aba Performance
 from routes import cidades_demografia
 from routes import dashboard_executivo
 from routes import metas_estrategicas_routes
@@ -59,6 +60,7 @@ app.include_router(driver_personal_details.router, prefix="/api/drivers", tags=[
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
 app.include_router(financeiro.router, prefix="/api/financeiro", tags=["financeiro"])
 app.include_router(performance.router, prefix="/api/metrics", tags=["performance"])
+app.include_router(performance_analytics.router, prefix="/api/analytics", tags=["performance-analytics"])  # NOVO: endpoints específicos para aba Performance
 app.include_router(alert.router, prefix="/api/metrics", tags=["alerts"])
 app.include_router(import_ridesdata.router, prefix="/api", tags=["importação"])
 app.include_router(analise_operacional.router, prefix="/api", tags=["analise-operacional"])

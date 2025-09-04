@@ -11,7 +11,8 @@ import {
   AlertCircle,
   Users,
   DollarSign,
-  Building2
+  Building2,
+  Upload
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -24,11 +25,10 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
     { id: 'financeiro', label: 'Financeiro', icon: DollarSign },
     { id: 'performance', label: 'Performance', icon: TrendingUp },
     { id: 'metas', label: 'Metas por Cidade', icon: Target },
-    { id: 'comparativo', label: 'Comparativo Temporal', icon: TrendingUp },
-    { id: 'alertas', label: 'Alertas', icon: AlertCircle },
+    // { id: 'alertas', label: 'Alertas', icon: AlertCircle },
     { id: 'ia', label: 'IA & Insights', icon: BarChart3 },
-    { id: 'relatorios', label: 'Relatórios', icon: TrendingUp },
-    { id: 'importacao', label: 'Importação', icon: Settings },
+    // { id: 'relatorios', label: 'Relatórios', icon: TrendingUp },
+    { id: 'importacao', label: 'Importação', icon: Upload },
     { id: 'configuracao', label: 'Configurações', icon: Settings }
   ]
 
@@ -48,7 +48,7 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
             </div>
             <div>
               <h1 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">Dashboard</h1>
-              <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Transporte</p>
+              <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Urban</p>
             </div>
           </motion.div>
         )}
