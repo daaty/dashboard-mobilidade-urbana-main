@@ -1,8 +1,7 @@
-import { useState } from 'react';
+                                                                                    import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Star, TrendingUp, UserCheck, Activity, Award, AlertTriangle, Clock, BarChart3, Wifi, Filter, Target, DollarSign, MapPin, Car, AlertCircle, CheckCircle, XCircle, TrendingDown, Calendar, Lightbulb } from 'lucide-react';
+import { Users, Star, TrendingUp, UserCheck, Activity, Award, AlertTriangle, Clock, BarChart3, Wifi, Filter, Target, DollarSign, MapPin, Car, AlertCircle, CheckCircle, XCircle, TrendingDown, Calendar, Lightbulb, RefreshCw, Eye } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
-import { useDriversAnalytics } from '../hooks/useDriversAnalytics';
 import DriverDetailsModal from './DriverDetailsModal';
 import { useDriverModal } from '../hooks/useDriverModal';
 
@@ -16,11 +15,11 @@ const CardTitle = ({ children, className }) => <h3 className={`font-semibold ${c
 
 const periodOptions = [
   { label: 'Hoje', value: 'hoje' },
-  { label: '7 dias', value: '7d' },
-  { label: '30 dias', value: '30d' },
-  { label: '3 meses', value: '3m' },
-  { label: '6 meses', value: '6m' },
-  { label: '12 meses', value: '12m' }
+  { label: '7 dias', value: '7_days' },
+  { label: '30 dias', value: '30_days' },
+  { label: '3 meses', value: '3_months' },
+  { label: '6 meses', value: '6_months' },
+  { label: '12 meses', value: '12_months' }
 ];
 
 const statusOptions = [
@@ -62,16 +61,16 @@ const STATUS_COLORS = {
 
 export default function DriversOverview({ onPeriodChange }) {
   try {
-    const [period, setPeriod] = useState('6m'); // Mudado para 6 meses
+    const [period, setPeriod] = useState('6_months'); // Mudado para 6 meses
     const [filters, setFilters] = useState({
-      periodo: '6m', // Mudado para 6 meses para incluir dados históricos
-      status: '',
-      performance: '',
-      ordenacao: 'rating',
-      cidade: '',
-      veiculo: '',
-      faixaReceita: '',
-      alertas: true
+      period: '6_months', // Mudado para 6 meses para incluir dados históricos
+      status: 'all',
+      performance: 'all',
+      order_by: 'rating',
+      city: 'all',
+      vehicle: 'all',
+      revenue_range: 'all',
+      alerts: true
     });
 
     const [showComparison, setShowComparison] = useState(false);
@@ -80,61 +79,261 @@ export default function DriversOverview({ onPeriodChange }) {
     // Hook para modal de detalhes do motorista
     const { isModalOpen, selectedDriverId, selectedDriverName, openModal, closeModal } = useDriverModal();
 
-    // Hook para dados reais dos motoristas - expandido COM TRATAMENTO DE ERRO
-    let driversData, loading, error, calculateAggregatedMetrics, getTopDrivers, getFilteredDrivers, getTemporalComparison, getSpecificAlerts;
-    
-    try {
-      const hookResult = useDriversAnalytics();
-      driversData = hookResult.driversData || [];
-      loading = hookResult.loading || false;
-      error = hookResult.error || null;
-      calculateAggregatedMetrics = hookResult.calculateAggregatedMetrics || (() => null);
-      getTopDrivers = hookResult.getTopDrivers || (() => []);
-      getFilteredDrivers = hookResult.getFilteredDrivers || (() => []);
-      getTemporalComparison = hookResult.getTemporalComparison || (() => ({}));
-      getSpecificAlerts = hookResult.getSpecificAlerts || (() => []);
-    } catch (hookError) {
-      console.error('❌ Erro crítico no hook useDriversAnalytics:', hookError);
-      driversData = [];
-      loading = false;
-      error = 'Erro ao carregar dados dos motoristas';
-      calculateAggregatedMetrics = () => null;
-      getTopDrivers = () => [];
-      getFilteredDrivers = () => [];
-      getTemporalComparison = () => ({});
-      getSpecificAlerts = () => [];
-    }
+    // Estados para dados dos motoristas usando nossa API real
+    const [driversData, setDriversData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [kpisData, setKpisData] = useState({});
+    const [citiesData, setCitiesData] = useState([]);
+
+    // Configuração da API
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+    // Função para buscar KPIs da nossa API
+    const fetchKpis = async () => {
+      try {
+        console.log('Buscando KPIs com parâmetros:', { 
+          period: filters.period, 
+          city: filters.city, 
+          status: filters.status 
+        });
+        const response = await fetch(`${API_URL}/api/drivers/kpis?period=${filters.period}&city=${filters.city}&status=${filters.status}`);
+        const result = await response.json();
+        console.log('Resposta da API de KPIs:', result);
+        if (result.success) {
+          setKpisData(result.data);
+          return result.data;
+        }
+        return null;
+      } catch (err) {
+        console.error('Erro ao buscar KPIs:', err);
+        return null;
+      }
+    };
+
+    // Função para buscar lista de motoristas da nossa API
+    const fetchDrivers = async () => {
+      try {
+        const queryParams = new URLSearchParams({
+          period: filters.period,
+          city: filters.city,
+          status: filters.status,
+          performance: filters.performance,
+          revenue_range: filters.revenue_range,
+          order_by: filters.order_by,
+          limit: '1000', // Aumentado para garantir que pegue todos os motoristas
+          offset: '0'
+        });
+
+        console.log('Buscando motoristas com parâmetros:', Object.fromEntries(queryParams));
+        const response = await fetch(`${API_URL}/api/drivers/list?${queryParams}`);
+        const result = await response.json();
+        
+        console.log('Resposta da API de motoristas:', result);
+        if (result.success) {
+          console.log('🎯 SETANDO driversData com:', result.data.drivers);
+          console.log('🎯 TAMANHO DO ARRAY:', result.data.drivers?.length);
+          setDriversData(result.data.drivers);
+          return result.data.drivers;
+        } else {
+          console.log('❌ API retornou success: false');
+        }
+        return [];
+      } catch (err) {
+        console.error('Erro ao buscar motoristas:', err);
+        return [];
+      }
+    };
+
+    // Função para buscar cidades da nossa API
+    const fetchCities = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/drivers/cities`);
+        const result = await response.json();
+        console.log('Resposta da API de cidades:', result);
+        if (result.success) {
+          // A API agora retorna as cidades com codificação correta
+          console.log('Cidades recebidas:', result.data);
+          setCitiesData(result.data);
+          return result.data;
+        }
+        return [];
+      } catch (err) {
+        console.error('Erro ao buscar cidades:', err);
+        return [];
+      }
+    };
+
+    // Carregar dados quando componente monta ou filtros mudam
+    useEffect(() => {
+      const loadData = async () => {
+        setLoading(true);
+        setError(null);
+        
+        try {
+          await Promise.all([
+            fetchKpis(),
+            fetchDrivers(),
+            fetchCities()
+          ]);
+        } catch (err) {
+          setError('Erro ao carregar dados dos motoristas');
+          console.error('Erro geral:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadData();
+    }, [filters]);
+
+    // Função SIMPLIFICADA para usar dados da API DIRETAMENTE
+    const calculateAggregatedMetrics = () => {
+      // Se não tem dados, retorna null
+      if (!kpisData || Object.keys(kpisData).length === 0) {
+        console.log('❌ Sem dados de KPIs disponíveis');
+        return null;
+      }
+      
+      console.log('✅ Usando dados DIRETOS da API:', kpisData);
+      
+      // Retorna os dados EXATAMENTE como vêm da API (já filtrados)
+      return {
+        rawData: kpisData,
+        drivers: driversData || []
+      };
+    };
+
+    const getTopDrivers = (sortBy = 'rating', limit = 5, daysFilter = 30) => {
+      if (!driversData || driversData.length === 0) return [];
+      
+      // Os dados já vêm filtrados da API, só precisamos ordenar
+      let sortedDrivers = [...driversData];
+      
+      switch (sortBy) {
+        case 'total_online_hours':
+          sortedDrivers.sort((a, b) => (b.data?.metrics?.online_hours || 0) - (a.data?.metrics?.online_hours || 0));
+          break;
+        case 'rating':
+          sortedDrivers.sort((a, b) => (b.estimated_rating || 0) - (a.estimated_rating || 0));
+          break;
+        case 'total_rides':
+          sortedDrivers.sort((a, b) => (b.data?.metrics?.total_rides || 0) - (a.data?.metrics?.total_rides || 0));
+          break;
+        default:
+          sortedDrivers.sort((a, b) => (b.estimated_rating || 0) - (a.estimated_rating || 0));
+      }
+      
+      return sortedDrivers.slice(0, limit);
+    };
+
+    const getFilteredDrivers = (filterParams = {}) => {
+      // Como o backend já está filtrando corretamente, 
+      // retornamos todos os dados que já vêm filtrados da API
+      return driversData || [];
+    };
+
+    const getTemporalComparison = () => {
+      return {
+        current: kpisData,
+        previous: {}
+      };
+    };
+
+    const getSpecificAlerts = () => {
+      return [];
+    };
+
+    // Calcular análise de tipos de veículos dos motoristas filtrados
+    const getVehicleAnalysis = () => {
+      if (!driversData || driversData.length === 0) {
+        return {};
+      }
+
+      const vehicleStats = {};
+
+      driversData.forEach(driver => {
+        // PULAR motoristas sem personal_data válido
+        if (!driver.data?.personal_data) {
+          return; // Pula para o próximo motorista
+        }
+
+        // Extrair tipo de veículo do personal_data
+        let vehicleType = 'Não especificado';
+        
+        try {
+          const personalData = typeof driver.data.personal_data === 'string' 
+            ? JSON.parse(driver.data.personal_data) 
+            : driver.data.personal_data;
+          vehicleType = personalData.vehicle_type || 'Não especificado';
+        } catch (error) {
+          console.error('Erro ao processar personal_data:', error);
+          return; // Pula se houver erro no parse
+        }
+
+        // Inicializar dados do veículo se não existir
+        if (!vehicleStats[vehicleType]) {
+          vehicleStats[vehicleType] = {
+            drivers: 0,
+            revenue: 0,
+            rides: 0
+          };
+        }
+
+        // Incrementar estatísticas
+        vehicleStats[vehicleType].drivers += 1;
+        vehicleStats[vehicleType].revenue += driver.revenue || 0;
+        vehicleStats[vehicleType].rides += driver.total_rides || 0;
+      });
+
+      return vehicleStats;
+    };
+
+    // Calcular métricas de eficiência operacional
+    const getOperationalMetrics = () => {
+      if (!driversData || driversData.length === 0 || !kpisData) {
+        return {
+          completionRate: 0,
+          responseTime: 0,
+          cancellationRate: 0,
+          lostRides: 0,
+          kmPerRide: 0
+        };
+      }
+
+      const totalRides = kpisData.total_rides || 0;
+      const cancelledRides = kpisData.cancelled_rides || 0;
+      const totalDistance = kpisData.total_distance || 0;
+
+      return {
+        completionRate: totalRides > 0 ? ((totalRides - cancelledRides) / totalRides * 100) : 0,
+        responseTime: 45, // Simulado - poderia vir de dados reais
+        cancellationRate: totalRides > 0 ? (cancelledRides / totalRides * 100) : 0,
+        lostRides: cancelledRides,
+        kmPerRide: totalRides > 0 ? (totalDistance / totalRides) : 0
+      };
+    };
 
     // Calcular métricas baseadas no período selecionado
   const daysMap = {
     'hoje': 1,
-    '7d': 7,
-    '30d': 30,
-    '3m': 90,
-    '6m': 180,
-    '12m': 365
+    '7_days': 7,
+    '30_days': 30,
+    '3_months': 90,
+    '6_months': 180,
+    '12_months': 365
   };
-  const daysFilter = daysMap[filters.periodo] || daysMap[period] || 180; // Usar filters.periodo primeiro
+  const daysFilter = daysMap[filters.period] || daysMap[period] || 180; // Usar filters.period primeiro
   
-  // Aplicar filtros aos dados antes de calcular métricas - com tratamento de erro
-  let filteredData = [];
+  // Aplicar filtros aos dados antes de calcular métricas - SIMPLIFICADO
+  // Os dados já vêm filtrados da API, não precisamos filtrar novamente
+  let filteredData = driversData || [];
   let aggregatedData = null;
   
   try {
-    filteredData = getFilteredDrivers({
-      city: filters.cidade,
-      vehicle: filters.veiculo,
-      revenueRange: filters.faixaReceita ? revenueRanges.find(r => r.value === filters.faixaReceita)?.value : null,
-      status: filters.status,
-      performanceGrade: filters.performance
-    });
-  } catch (error) {
-    console.error('Erro em getFilteredDrivers:', error);
-    filteredData = [];
-  }
-  
-  try {
-    aggregatedData = calculateAggregatedMetrics(driversData, daysFilter);
+    // Não precisa passar parâmetros, pois a função usa kpisData e driversData que já estão no escopo
+    aggregatedData = calculateAggregatedMetrics();
+    console.log('Métricas agregadas calculadas:', aggregatedData);
   } catch (error) {
     console.error('Erro em calculateAggregatedMetrics:', error);
     aggregatedData = null;
@@ -143,168 +342,67 @@ export default function DriversOverview({ onPeriodChange }) {
   // Debug: Log dos dados recebidos
   console.log('DriversOverview - dados agregados:', aggregatedData);
   console.log('DriversOverview - driversData original:', driversData);
+  console.log('DriversOverview - driversData length:', driversData?.length);
   console.log('DriversOverview - loading:', loading);
   console.log('🔍 DADOS EXATOS DA API:', aggregatedData?.rawData);
   console.log('🔍 DRIVERS ARRAY:', aggregatedData?.drivers);
+  console.log('🔍 DRIVERS ARRAY LENGTH:', aggregatedData?.drivers?.length);
 
-  // Utiliza os dados EXATOS da API - TODOS OS CAMPOS DISPONÍVEIS
-  const dashboardData = aggregatedData && aggregatedData.rawData ? {
-    // ===== DADOS DIRETOS DA API (GARANTIDOS) =====
-    total_drivers: aggregatedData.rawData.total_drivers || 0,
-    active_drivers: aggregatedData.rawData.active_drivers || 0,
-    inactive_drivers: aggregatedData.rawData.inactive_drivers || 0,
-    online_drivers: aggregatedData.rawData.online_drivers || 0,
-    average_rating: Number(aggregatedData.rawData.average_rating || 0),
-    total_rides_completed: Number(aggregatedData.rawData.total_rides_completed || 0),
-    avg_rides_per_driver: Number(aggregatedData.rawData.avg_rides_per_driver || 0),
-    
-    // Top drivers LIMITADO a TOP 5 por horas online
-    top_drivers: (aggregatedData.drivers || [])
-      .sort((a, b) => (b.data?.metrics?.online_hours || 0) - (a.data?.metrics?.online_hours || 0))
-      .slice(0, 5),
-    
-    // Performance metrics DIRETO da API
-    performance_metrics: aggregatedData.rawData.performance_metrics || {
-      excellent_drivers: 0,
-      good_drivers: 0,
-      average_drivers: 0,
-      below_average_drivers: 0
-    },
-    
-    // KPI metrics DIRETO da API  
-    kpi_metrics: aggregatedData.rawData.kpi_metrics || {
-      activation_rate: 0,
-      excellence_rate: 0,
-      performance_trend: "stable",
-      efficiency_score: 0
-    },
-    
-    // Status DIRETO da API
-    drivers_by_status: aggregatedData.rawData.drivers_by_status || {
-      ativo: 0,
-      inativo: 0
-    },
-    
-    // ===== CAMPOS CALCULADOS BASEADOS NOS DADOS DA API =====
-    
-    // Taxa de aceitação estimada baseada na atividade dos motoristas
-    avg_acceptance_rate: aggregatedData.rawData.total_drivers > 0 && Number(aggregatedData.rawData.total_rides_completed || 0) > 0 ? 
-      Math.min(95, 70 + (Number(aggregatedData.rawData.total_rides_completed || 0) / aggregatedData.rawData.total_drivers * 2)) : 0,
-    
-    // Taxa de conclusão estimada (alta se há muitas corridas)
-    avg_completion_rate: Number(aggregatedData.rawData.total_rides_completed || 0) > 0 ? 
-      Math.min(100, 85 + (Number(aggregatedData.rawData.total_rides_completed || 0) / 10)) : 100, 
-    
-    // Eficiência = efficiency_score da API
-    efficiency_score: Number(aggregatedData.rawData.kpi_metrics?.efficiency_score || 0),
-    
-    // Excellence rate = excellence_rate da API
-    excellence_rate: Number(aggregatedData.rawData.kpi_metrics?.excellence_rate || 0),
-    
-    // ===== CAMPOS QUE AGORA TEMOS NA API =====
-    
-    // Dados de tempo (VÊEM DA API!)
-    total_online_hours: Number(aggregatedData.rawData.total_online_hours || 0),
-    avg_hours_per_driver: aggregatedData.rawData.total_drivers > 0 ? 
-      (Number(aggregatedData.rawData.total_online_hours || 0) / aggregatedData.rawData.total_drivers) : 0,
-    
-    // Dados financeiros (baseados no valor correto por corrida)
-    total_revenue: Number(aggregatedData.rawData.total_rides_completed || 0) * 2.50, // R$ 2,50 por corrida completada
-    total_commission: Number(aggregatedData.rawData.total_rides_completed || 0) * 2.50 * 0.15, // 15% de comissão
-    total_bonus: Number(aggregatedData.rawData.total_rides_completed || 0) > 100 ? Number(aggregatedData.rawData.total_rides_completed || 0) * 2.5 : 0,
-    total_penalty: 0, // Sem dados de penalidades na API
-    net_revenue: (Number(aggregatedData.rawData.total_rides_completed || 0) * 2.50) * 0.85, // Receita - comissão
-    avg_revenue_per_driver: aggregatedData.rawData.total_drivers > 0 ? 
-      (Number(aggregatedData.rawData.total_rides_completed || 0) * 2.50) / aggregatedData.rawData.total_drivers : 0,
-    avg_revenue_per_hour: Number(aggregatedData.rawData.total_online_hours || 0) > 0 ? 
-      (Number(aggregatedData.rawData.total_rides_completed || 0) * 2.50) / Number(aggregatedData.rawData.total_online_hours || 0) : 0,
-    commission_rate: 15.0, // Taxa fixa estimada
-    
-    // Dados operacionais (calculados dos motoristas individuais)
-    total_distance: Number(aggregatedData.rawData.total_rides_completed || 0) * 8.5, // 8.5 km por corrida estimado
-    total_missed_rides: 0, // Não vem na API
-    avg_response_time: 25, // Tempo médio estimado em segundos
-    
-    // SOMAR CORRIDAS CANCELADAS DE TODOS OS MOTORISTAS
-    total_cancelled_rides: (aggregatedData.rawData.drivers_analytics || []).reduce((total, driver) => {
-      const userCancelled = driver.data?.metrics?.user_cancelled || 0;
-      const driverCancelled = driver.data?.metrics?.driver_cancelled || 0;
-      const driverTotal = userCancelled + driverCancelled;
-      console.log(`🚫 ${driver.name || 'Motorista'}: ${driverTotal} canceladas (user: ${userCancelled}, driver: ${driverCancelled})`);
-      return total + driverTotal;
-    }, 0),
-    
-    // Análises vazias (não vêm da API atual)
-    city_analysis: {},
-    vehicle_analysis: {},
-    alerts: [],
-    
-    periodo_dias: daysFilter
-  } : {
-    total_drivers: 0,
-    active_drivers: 0,
-    inactive_drivers: 0,
-    online_drivers: 0,
-    average_rating: 0,
-    total_rides_completed: 0,
-    total_cancelled_rides: 0,
-    avg_rides_per_driver: 0,
-    top_drivers: [],
-    total_revenue: 0,
-    total_commission: 0,
-    net_revenue: 0,
-    avg_revenue_per_driver: 0,
-    alerts: [],
-    city_analysis: {},
-    vehicle_analysis: {},
-    drivers_by_status: {},
-    performance_metrics: {
-      excellent_drivers: 0,
-      good_drivers: 0,
-      average_drivers: 0,
-      below_average_drivers: 0
-    },
-    periodo_dias: 0
-  };
+  // DADOS DIRETOS DA API - SEM TRANSFORMAÇÕES DESNECESSÁRIAS
+  const dashboardData = aggregatedData && aggregatedData.rawData ? 
+    aggregatedData.rawData : {
+      total_drivers: 0,
+      active_drivers: 0,
+      inactive_drivers: 0,
+      online_drivers: 0,
+      average_rating: 0,
+      total_rides_completed: 0,
+      total_cancelled_rides: 0,
+      avg_rides_per_driver: 0,
+      total_revenue: 0,
+      avg_hours_online: 0,
+      acceptance_rate: 0,
+      revenue_per_hour: 0,
+      total_distance: 0
+    };
 
-  console.log('📊 DADOS DASHBOARD CONSTRUÍDOS:', dashboardData);
-  console.log('🚫 TOTAL CORRIDAS CANCELADAS:', dashboardData.total_cancelled_rides);
-  console.log('💰 CÁLCULO RECEITA:', `${dashboardData.total_rides_completed} corridas × R$ 2,50 = R$ ${dashboardData.total_revenue.toFixed(2)}`);
-  console.log('🚗 PRIMEIRO MOTORISTA EXEMPLO:', dashboardData.top_drivers?.[0]);
-  console.log('🔢 TOTAL DE TOP DRIVERS:', dashboardData.top_drivers?.length);
+  console.log('📊 DADOS DASHBOARD SIMPLIFICADOS:', dashboardData);
+  
+  // Top drivers simples - limitado a 5
+  const topDrivers = (aggregatedData?.drivers || []).slice(0, 5);
 
-  // Calcula KPIs avançados com verificações de segurança para evitar divisão por zero.
+  // KPIs SIMPLES usando dados diretos da API
   const kpis = {
     activationRate: dashboardData?.total_drivers > 0 ? (dashboardData.active_drivers / dashboardData.total_drivers) * 100 : 0,
     onlineRate: dashboardData?.active_drivers > 0 ? ((dashboardData.online_drivers || 0) / dashboardData.active_drivers) * 100 : 0,
-    excellenceRate: dashboardData?.total_drivers > 0 ? ((dashboardData?.performance_metrics?.excellent_drivers || 0) / dashboardData.total_drivers) * 100 : 0,
+    excellenceRate: dashboardData?.kpi_metrics?.excellence_rate || 0,
     avgRatingTrend: (dashboardData?.average_rating || 0) >= 4.5 ? 'positive' : (dashboardData?.average_rating || 0) >= 4.0 ? 'neutral' : 'negative',
-    performanceDistribution: {
-      excellent: dashboardData?.performance_metrics?.excellent_drivers || 0,
-      good: dashboardData?.performance_metrics?.good_drivers || 0,
-      average: dashboardData?.performance_metrics?.average_drivers || 0,
-      below: dashboardData?.performance_metrics?.below_average_drivers || 0
+    performanceDistribution: dashboardData?.performance_metrics || {
+      excellent: 0,
+      good: 0,
+      average: 0,
+      below: 0
     }
   };
   
-  // Prepara os dados para o gráfico de pizza
+  // Status chart SIMPLES
   const statusChartData = [
-      { name: 'Ativos', value: dashboardData.active_drivers || 0, color: STATUS_COLORS.active },
-      { name: 'Inativos', value: dashboardData.inactive_drivers || 0, color: STATUS_COLORS.inactive },
+    { name: 'Ativos', value: dashboardData?.active_drivers || 0, color: STATUS_COLORS.active },
+    { name: 'Inativos', value: dashboardData?.inactive_drivers || 0, color: STATUS_COLORS.inactive },
   ];
 
 
   // Dispara o callback para buscar novos dados quando o período é alterado.
   const handlePeriodChange = (newPeriod) => {
     setPeriod(newPeriod);
-    setFilters(prev => ({ ...prev, periodo: newPeriod }));
+    setFilters(prev => ({ ...prev, period: newPeriod }));
     if (onPeriodChange) onPeriodChange(newPeriod);
   };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
     // Se for mudança de período, sincronizar com o estado period
-    if (key === 'periodo') {
+    if (key === 'period') {
       setPeriod(value);
       if (onPeriodChange) onPeriodChange(value);
     }
@@ -381,8 +479,8 @@ export default function DriversOverview({ onPeriodChange }) {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700 tracking-wide">Período</label>
                   <select
-                    value={filters.periodo}
-                    onChange={(e) => handleFilterChange('periodo', e.target.value)}
+                    value={filters.period}
+                    onChange={(e) => handleFilterChange('period', e.target.value)}
                     className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
                   >
                     {periodOptions.map(option => (
@@ -426,22 +524,24 @@ export default function DriversOverview({ onPeriodChange }) {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700 tracking-wide">Cidade</label>
                   <select
-                    value={filters.cidade}
-                    onChange={(e) => handleFilterChange('cidade', e.target.value)}
+                    value={filters.city}
+                    onChange={(e) => handleFilterChange('city', e.target.value)}
                     className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
                   >
-                    <option value="">Todas as Cidades</option>
-                    {Object.keys(dashboardData.city_analysis || {}).map(city => (
+                    <option value="all">Todas as Cidades</option>
+                    {citiesData && citiesData.length > 0 ? citiesData.map(city => (
                       <option key={city} value={city}>{city}</option>
-                    ))}
+                    )) : (
+                      <option disabled>Carregando cidades...</option>
+                    )}
                   </select>
                 </div>
                 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700 tracking-wide">Faixa de Receita</label>
                   <select
-                    value={filters.faixaReceita}
-                    onChange={(e) => handleFilterChange('faixaReceita', e.target.value)}
+                    value={filters.revenue_range}
+                    onChange={(e) => handleFilterChange('revenue_range', e.target.value)}
                     className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
                   >
                     {revenueRanges.map(option => (
@@ -455,8 +555,8 @@ export default function DriversOverview({ onPeriodChange }) {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700 tracking-wide">Ordenação</label>
                   <select
-                    value={filters.ordenacao}
-                    onChange={(e) => handleFilterChange('ordenacao', e.target.value)}
+                    value={filters.order_by}
+                    onChange={(e) => handleFilterChange('order_by', e.target.value)}
                     className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
                   >
                     <option value="rating">Por Avaliação</option>
@@ -500,7 +600,7 @@ export default function DriversOverview({ onPeriodChange }) {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-red-200 text-sm font-medium tracking-wide uppercase">Corridas Canceladas</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-red-300 to-pink-300 bg-clip-text text-transparent mt-2">{dashboardData.total_cancelled_rides || 0}</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-red-300 to-pink-300 bg-clip-text text-transparent mt-2">{dashboardData.cancelled_rides || 0}</p>
                             <p className="text-red-300 text-sm mt-2">Total por todos os motoristas</p>
                         </div>
                         <div className="bg-red-500/20 p-4 rounded-xl"><AlertTriangle className="w-8 h-8 text-red-400" /></div>
@@ -512,7 +612,7 @@ export default function DriversOverview({ onPeriodChange }) {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-purple-200 text-sm font-medium tracking-wide uppercase">Média por Motorista</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.avg_hours_per_driver || 0).toFixed(1)}h</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.avg_hours_online || 0).toFixed(1)}h</p>
                             <p className="text-purple-300 text-sm mt-2">Horas online médias</p>
                         </div>
                         <div className="bg-purple-500/20 p-4 rounded-xl"><Activity className="w-8 h-8 text-purple-400" /></div>
@@ -524,7 +624,7 @@ export default function DriversOverview({ onPeriodChange }) {
                     <div className="flex items-center justify-between">
                          <div>
                             <p className="text-orange-200 text-sm font-medium tracking-wide uppercase">Rating Médio</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-orange-300 to-yellow-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.average_rating || 0).toFixed(1)}</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-orange-300 to-yellow-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.avg_rating || 0).toFixed(1)}</p>
                             <p className="text-orange-300 text-sm mt-2">Avaliação média dos motoristas</p>
                         </div>
                         <div className="bg-orange-500/20 p-4 rounded-xl"><Target className="w-8 h-8 text-orange-400" /></div>
@@ -551,7 +651,7 @@ export default function DriversOverview({ onPeriodChange }) {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-blue-200 text-sm font-medium tracking-wide uppercase">Taxa de Aceitação</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.avg_acceptance_rate || 0).toFixed(1)}%</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.acceptance_rate || 0).toFixed(1)}%</p>
                             <p className="text-blue-300 text-sm mt-2">Média geral</p>
                         </div>
                         <div className="bg-blue-500/20 p-4 rounded-xl"><CheckCircle className="w-8 h-8 text-blue-400" /></div>
@@ -563,7 +663,7 @@ export default function DriversOverview({ onPeriodChange }) {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-indigo-200 text-sm font-medium tracking-wide uppercase">Receita por Hora</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent mt-2">R$ {Number(dashboardData.avg_revenue_per_hour || 0).toFixed(2)}</p>
+                            <p className="text-4xl font-bold bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent mt-2">R$ {Number(dashboardData.revenue_per_hour || 0).toFixed(2)}</p>
                             <p className="text-indigo-300 text-sm mt-2">Produtividade média</p>
                         </div>
                         <div className="bg-indigo-500/20 p-4 rounded-xl"><TrendingUp className="w-8 h-8 text-indigo-400" /></div>
@@ -721,7 +821,7 @@ export default function DriversOverview({ onPeriodChange }) {
                         </CardHeader>
                         <CardContent className="pt-6">
                             <div className="space-y-4">
-                                {dashboardData.top_drivers?.length > 0 ? dashboardData.top_drivers.map((driver, index) => (
+                                {topDrivers?.length > 0 ? topDrivers.map((driver, index) => (
                                     <div 
                                       key={`top-driver-${driver.unique_key || driver.driver_id || driver.name}-${index}`} 
                                       className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-yellow-50 dark:from-gray-700 dark:to-yellow-900/20 rounded-xl shadow-md border border-yellow-100 dark:border-yellow-800 hover:shadow-lg transition-all duration-300 cursor-pointer"
@@ -772,7 +872,7 @@ export default function DriversOverview({ onPeriodChange }) {
                         </CardHeader>
                         <CardContent className="space-y-4 pt-6">
                             {[
-                                { label: 'Excelente (≥4.5)', value: kpis.performanceDistribution.excellent, color: 'from-green-500 to-green-600', bgColor: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', textColor: 'text-green-600 dark:text-green-400' },
+                                { label: 'Excelente (ÔëÑ4.5)', value: kpis.performanceDistribution.excellent, color: 'from-green-500 to-green-600', bgColor: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', textColor: 'text-green-600 dark:text-green-400' },
                                 { label: 'Bom (4.0-4.4)', value: kpis.performanceDistribution.good, color: 'from-blue-500 to-blue-600', bgColor: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', textColor: 'text-blue-600 dark:text-blue-400' },
                                 { label: 'Médio (3.5-3.9)', value: kpis.performanceDistribution.average, color: 'from-yellow-500 to-yellow-600', bgColor: 'from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20', textColor: 'text-yellow-600 dark:text-yellow-400' },
                                 { label: 'Abaixo (< 3.5)', value: kpis.performanceDistribution.below, color: 'from-red-500 to-red-600', bgColor: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20', textColor: 'text-red-600 dark:text-red-400' }
@@ -821,10 +921,9 @@ export default function DriversOverview({ onPeriodChange }) {
                       </CardHeader>
                       <CardContent className="pt-6">
                         <div className="space-y-4">
-                          {Object.entries(dashboardData.city_analysis || {})
-                            .sort(([,a], [,b]) => b.revenue - a.revenue)
-                            .slice(0, 5)
-                            .map(([city, data], index) => (
+                          {filters.city === 'all' ? (
+                            // Quando "todas as cidades" está selecionado, mostrar dados das cidades
+                            citiesData && citiesData.length > 0 ? citiesData.slice(0, 5).map((city, index) => (
                               <div key={city} className="flex items-center justify-between p-3 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg">
                                 <div className="flex items-center gap-3">
                                   <div className="w-8 h-8 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
@@ -832,15 +931,38 @@ export default function DriversOverview({ onPeriodChange }) {
                                   </div>
                                   <div>
                                     <p className="font-semibold text-gray-900">{city}</p>
-                                    <p className="text-sm text-gray-600">{data.drivers} motoristas</p>
+                                    <p className="text-sm text-gray-600">Cidade disponível</p>
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-lg font-bold text-cyan-600">R$ {data.revenue.toFixed(2)}</p>
-                                  <p className="text-xs text-gray-500">{data.rides} corridas</p>
+                                  <p className="text-lg font-bold text-cyan-600">Ativa</p>
+                                  <p className="text-xs text-gray-500">Operando</p>
                                 </div>
                               </div>
-                            ))}
+                            )) : (
+                              <div className="text-center py-4 text-gray-500">
+                                <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                <p>Carregando cidades...</p>
+                              </div>
+                            )
+                          ) : (
+                            // Quando uma cidade específica está selecionada, mostrar informações dessa cidade
+                            <div className="flex items-center justify-between p-3 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                                  1
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-gray-900">{filters.city}</p>
+                                  <p className="text-sm text-gray-600">{kpisData?.active_drivers || 0} motoristas ativos</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg font-bold text-cyan-600">R$ {Number(kpisData?.total_revenue || 0).toFixed(2)}</p>
+                                <p className="text-xs text-gray-500">{kpisData?.total_rides || 0} corridas</p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -857,7 +979,7 @@ export default function DriversOverview({ onPeriodChange }) {
                       </CardHeader>
                       <CardContent className="pt-6">
                         <div className="space-y-4">
-                          {Object.entries(dashboardData.vehicle_analysis || {})
+                          {Object.entries(getVehicleAnalysis())
                             .sort(([,a], [,b]) => b.drivers - a.drivers)
                             .slice(0, 5)
                             .map(([vehicle, data], index) => (
@@ -877,6 +999,12 @@ export default function DriversOverview({ onPeriodChange }) {
                                 </div>
                               </div>
                             ))}
+                          {Object.keys(getVehicleAnalysis()).length === 0 && (
+                            <div className="text-center py-4 text-gray-500">
+                              <Car className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                              <p>Nenhum dado de veículo disponível</p>
+                            </div>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -895,23 +1023,23 @@ export default function DriversOverview({ onPeriodChange }) {
                         <div className="space-y-4">
                           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">Taxa de Conclusão</span>
-                            <span className="text-xl font-bold text-purple-600">{Number(dashboardData.avg_completion_rate || 0).toFixed(1)}%</span>
+                            <span className="text-xl font-bold text-purple-600">{Number(kpisData?.completion_rate || 0).toFixed(1)}%</span>
                           </div>
                           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">Tempo de Resposta</span>
-                            <span className="text-xl font-bold text-pink-600">{Number(dashboardData.avg_response_time || 0).toFixed(1)}s</span>
+                            <span className="text-xl font-bold text-pink-600">{Number(kpisData?.avg_response_time || 0).toFixed(1)}s</span>
                           </div>
                           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-rose-50 to-red-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">Taxa de Cancelamento</span>
-                            <span className="text-xl font-bold text-rose-600">{Number(dashboardData.avg_cancellation_rate || 0).toFixed(1)}%</span>
+                            <span className="text-xl font-bold text-rose-600">{Number(kpisData?.cancellation_rate || 0).toFixed(1)}%</span>
                           </div>
                           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">Corridas Perdidas</span>
-                            <span className="text-xl font-bold text-emerald-600">{dashboardData.total_missed_rides || 0}</span>
+                            <span className="text-xl font-bold text-emerald-600">{kpisData?.lost_rides || 0}</span>
                           </div>
                           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">Km por Corrida</span>
-                            <span className="text-xl font-bold text-blue-600">{Number(dashboardData.avg_distance_per_ride || 0).toFixed(1)}</span>
+                            <span className="text-xl font-bold text-blue-600">{Number(kpisData?.km_per_ride || 0).toFixed(1)}</span>
                           </div>
                         </div>
                       </CardContent>
@@ -947,7 +1075,7 @@ export default function DriversOverview({ onPeriodChange }) {
                         <div className="space-y-4">
                           {aggregatedData?.drivers?.length > 0 ? aggregatedData.drivers
                             .sort((a, b) => {
-                              switch (filters.ordenacao) {
+                              switch (filters.order_by) {
                                 case 'rating':
                                   return (b.estimated_rating || 0) - (a.estimated_rating || 0);
                                 case 'rides':
@@ -1439,12 +1567,11 @@ export default function DriversOverview({ onPeriodChange }) {
   );
   
   } catch (componentError) {
-    console.error('❌ Erro crítico no DriversOverview:', componentError);
+    console.error('Erro crítico no DriversOverview:', componentError);
     return (
       <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
         <h2 className="text-lg font-semibold text-red-800 mb-2">Erro no Componente DriversOverview</h2>
         <p className="text-red-600">Ocorreu um erro ao renderizar o componente. Detalhes no console.</p>
-        <p className="text-sm text-red-500 mt-2">Erro: {componentError.message}</p>
       </div>
     );
   }

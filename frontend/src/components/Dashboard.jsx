@@ -27,19 +27,16 @@ function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [metricsData, setMetricsData] = useState(null)
-  const [driversData, setDriversData] = useState(null)
   const [financeiroData, setFinanceiroData] = useState(null)
   const [performanceData, setPerformanceData] = useState(null)
   const [alertasData, setAlertasData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [loadingDrivers, setLoadingDrivers] = useState(true)
   const [loadingFinanceiro, setLoadingFinanceiro] = useState(true)
   const [loadingPerformance, setLoadingPerformance] = useState(true)
   const [loadingAlertas, setLoadingAlertas] = useState(true)
 
   useEffect(() => {
     fetchMetricsData()
-    fetchDriversData()
     fetchFinanceiroData()
     fetchPerformanceData()
     fetchAlertasData()
@@ -55,22 +52,6 @@ function Dashboard() {
       console.error('Erro ao buscar métricas:', error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const fetchDriversData = async (period = '30d') => {
-    try {
-      setLoadingDrivers(true)
-      const response = await fetch(`${API_URL}/api/drivers/analytics?period=${period}`)
-      const data = await response.json()
-      console.log('Dados dos motoristas recebidos:', data);
-      setDriversData(data)
-    } catch (error) {
-      console.error('Erro ao buscar dados dos motoristas:', error)
-      console.error('API_URL:', API_URL);
-      setDriversData(null)
-    } finally {
-      setLoadingDrivers(false)
     }
   }
 
@@ -126,10 +107,6 @@ function Dashboard() {
     fetchFinanceiroData(period)
   }
 
-  const handleDriversPeriodChange = (period) => {
-    fetchDriversData(period)
-  }
-
   const contentVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -181,7 +158,7 @@ function Dashboard() {
       case 'drivers':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <DriversOverview data={driversData} loading={loadingDrivers} onPeriodChange={handleDriversPeriodChange} />
+            <DriversOverview />
           </motion.div>
         )
       case 'comparativo':

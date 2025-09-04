@@ -1,9 +1,10 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+# from app.middleware.encoding_middleware import add_encoding_middleware  # DESABILITADO
 
 # Importar módulos da API principais
-from app.api import metrics, drivers, dashboard, financeiro, performance, alert, auth
+from app.api import metrics, drivers, dashboard, financeiro, performance, alert, auth  # Voltar para a API real
 from app.api import import_ridesdata
 from app.api import analise_operacional
 from app.api import campanha
@@ -45,11 +46,15 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+# Adicionar middleware para corrigir problemas de codificação
+# Middleware de codificação DESABILITADO para evitar Content-Length errors
+# add_encoding_middleware(app)
+
 # Incluir rotas principais
 
 app.include_router(auth.router, prefix="/api", tags=["auth"])
 app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
-app.include_router(drivers.router, prefix="/api/drivers", tags=["drivers"])
+app.include_router(drivers.router, prefix="/api/drivers", tags=["drivers"])  # Voltar para API real
 app.include_router(driver_personal_details.router, prefix="/api/drivers", tags=["driver-personal-details"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
 app.include_router(financeiro.router, prefix="/api/financeiro", tags=["financeiro"])

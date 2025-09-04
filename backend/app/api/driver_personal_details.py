@@ -102,6 +102,51 @@ async def find_personal_data_by_analytics_id(
             except:
                 personal_data = {}
         
+        # BUSCAR DADOS ADICIONAIS DA TABELA drivers_data (email, etc.)
+        additional_driver_data = {}
+        try:
+            import psycopg2
+            DATABASE_URL = "postgresql://n8n_user:n8n_pw@148.230.73.27:5432/n8n_db"
+            conn = psycopg2.connect(DATABASE_URL)
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                SELECT email, mobile, additional_data 
+                FROM drivers_data 
+                WHERE driver_id = %s 
+                AND data_type = 'active'
+                ORDER BY scraped_at DESC 
+                LIMIT 1
+            """, (analytics_driver_id,))
+            
+            driver_data_result = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            
+            if driver_data_result:
+                email, mobile, additional_data_str = driver_data_result
+                additional_driver_data['email'] = email
+                additional_driver_data['mobile'] = mobile
+                
+                # Parse additional_data JSON
+                if additional_data_str:
+                    try:
+                        additional_data = json.loads(additional_data_str)
+                        additional_driver_data['additional_data'] = additional_data
+                    except:
+                        pass
+                        
+                print(f"✅ Dados adicionais encontrados: email={email}, mobile={mobile}")
+                
+                # Enriquecer personal_data com dados da tabela drivers_data
+                if email and email not in ['', 'N/A', None]:
+                    personal_data['email'] = email
+                if mobile and mobile not in ['', 'N/A', None]:
+                    personal_data['mobile'] = mobile
+                    
+        except Exception as e:
+            print(f"⚠️ Erro ao buscar dados adicionais: {e}")
+        
         rides_history = found_driver.rides_history
         if isinstance(rides_history, str):
             try:
@@ -123,6 +168,7 @@ async def find_personal_data_by_analytics_id(
             "personal_data": personal_data,
             "rides_history": rides_history,
             "wallet_transactions": wallet_transactions,
+            "additional_driver_data": additional_driver_data,
             "extracted_at": found_driver.extracted_at,
             "mapping_strategy": "direct_id" if found_driver.driver_id == analytics_driver_id else "name_match"
         }

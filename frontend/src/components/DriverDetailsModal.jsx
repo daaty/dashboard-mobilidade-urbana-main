@@ -21,43 +21,41 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
       
       console.log('🔍 Buscando dados para driver ID:', id);
       
-      // PRIORIDADE 1: Tentar endpoint específico de personal-details primeiro
-      let personalData = null;
+      // Definir variáveis necessárias
       let personalAnalytics = null;
       
-      try {
-        console.log('🎯 Tentando endpoint específico primeiro:', `${API_URL}/api/drivers/personal-details/${id}`);
-        const specificPersonalResponse = await fetch(`${API_URL}/api/drivers/personal-details/${id}`);
-        
-        if (specificPersonalResponse.ok) {
-          personalData = await specificPersonalResponse.json();
-          console.log('✅ DADOS ESPECÍFICOS ENCONTRADOS:', personalData);
-          
-          // Se encontrou dados específicos, pular busca na lista geral
-          if (personalData && (personalData.personal_data || personalData.rides_history)) {
-            console.log('🎯 Usando dados específicos completos!');
-          }
-        } else {
-          console.log('⚠️ Endpoint específico não funcionou, status:', specificPersonalResponse.status);
+      // USAR O ENDPOINT CORRETO: find-personal-data
+      console.log('🎯 Chamando endpoint correto:', `${API_URL}/api/drivers/find-personal-data/${id}`);
+      const response = await fetch(`${API_URL}/api/drivers/find-personal-data/${id}`);
+      
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+      
+      const personalData = await response.json();
+      console.log('✅ DADOS ENCONTRADOS:', personalData);
+      
+      if (!personalData) {
+        throw new Error('Nenhum dado retornado pelo servidor');
+      }
+
+      // Criar objeto driverFromAnalytics a partir dos dados do endpoint correto
+      const driverFromAnalytics = {
+        driver_id: personalData.analytics_driver_id || personalData.personal_driver_id,
+        name: personalData.personal_data?.driver_name || driverName,
+        phone: personalData.personal_data?.phone_no,
+        mobile: personalData.personal_data?.phone_no,
+        city: personalData.city || personalData.personal_data?.city,
+        vehicle: personalData.personal_data?.vehicle_no,
+        email: personalData.personal_data?.email,
+        status: personalData.personal_data?.status,
+        join_date: personalData.personal_data?.joining_date,
+        data: {
+          metrics: {},
+          original_data: {},
+          profile: personalData.personal_data
         }
-      } catch (e) {
-        console.log('⚠️ Erro no endpoint específico:', e.message);
-      }
-      
-      // FALLBACK: Buscar da lista analytics e fazer match inteligente (apenas se não encontrou dados específicos)
-      // 1. Buscar dados analytics (dados coletivos da lista)
-      const analyticsResponse = await fetch(`${API_URL}/api/drivers/analytics`);
-      const analyticsData = await analyticsResponse.json();
-      
-      console.log('📊 DADOS COMPLETOS DA API ANALYTICS:', analyticsData);
-      
-      // Encontrar o motorista específico na lista analytics
-      const driverFromAnalytics = analyticsData.drivers?.find(d => d.driver_id === id);
-      console.log('📊 Driver encontrado em analytics:', driverFromAnalytics);
-      
-      if (!driverFromAnalytics) {
-        throw new Error('Motorista não encontrado na base de dados');
-      }
+      };
       
       console.log('📊 ESTRUTURA DETALHADA DO DRIVER:', {
         driver_id: driverFromAnalytics.driver_id,
@@ -76,77 +74,12 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
         data_metrics: driverFromAnalytics.data?.metrics
       });
       
-      // 2. Buscar dados pessoais usando match inteligente (apenas se não encontrou dados específicos)
+      // 2. Já temos todos os dados necessários do endpoint find-personal-data
+      // Não precisamos buscar dados adicionais
       
-      // Tentar buscar dados pessoais por vários métodos (apenas se personalData ainda for null)
-      if (!personalData || !personalData.personal_data) {
-        try {
-          // Método 1: Buscar todos os dados pessoais e fazer match por nome
-          const allPersonalResponse = await fetch(`${API_URL}/api/drivers/personal-details?limit=100`);
-          if (allPersonalResponse.ok) {
-            const allPersonal = await allPersonalResponse.json();
-            
-            // Tentar match por nome (removendo espaços extras e normalizando)
-            const driverName = driverFromAnalytics.name?.trim().toLowerCase().replace(/\s+/g, ' ');
-            console.log('🔍 Procurando por nome:', driverName);
-            
-            const foundPersonalData = allPersonal.drivers?.find(d => {
-              const personalName = d.personal_data?.driver_name?.trim().toLowerCase().replace(/\s+/g, ' ');
-              if (!personalName || !driverName) return false;
-              
-              // Match exato
-              if (personalName === driverName) return true;
-              
-              // Match parcial (primeiro e último nome)
-              const driverWords = driverName.split(' ');
-              const personalWords = personalName.split(' ');
-              
-              if (driverWords.length >= 2 && personalWords.length >= 2) {
-                const firstMatch = driverWords[0] === personalWords[0];
-                const lastMatch = driverWords[driverWords.length - 1] === personalWords[personalWords.length - 1];
-                return firstMatch && lastMatch;
-              }
-              
-              return false;
-            });
-            
-            // Só sobrescrever se não tínhamos dados ou se encontrou dados melhores
-            if (foundPersonalData && (!personalData || foundPersonalData.personal_data)) {
-              personalData = foundPersonalData;
-              console.log('✅ Match encontrado na lista geral:', personalData?.driver_id, personalData?.personal_data?.driver_name);
-            }
-          }
-        } catch (e) {
-          console.log('⚠️ Erro na busca por dados pessoais:', e.message);
-        }
-      }
+      // 3. Processar dados diretamente (dados já completos)
       
-      // 3. Buscar analytics individuais se temos personal_data
-      if (personalData) {
-        try {
-          console.log('📈 Tentando buscar analytics individuais para driver_id:', personalData.driver_id);
-          const personalAnalyticsResponse = await fetch(`${API_URL}/api/drivers/analytics/${personalData.driver_id}`);
-          console.log('📈 Status da resposta analytics individuais:', personalAnalyticsResponse.status);
-          
-          if (personalAnalyticsResponse.ok) {
-            personalAnalytics = await personalAnalyticsResponse.json();
-            console.log('📈 ANALYTICS PESSOAIS ENCONTRADOS:', personalAnalytics);
-            console.log('📈 Estrutura analytics pessoais:', {
-              data: personalAnalytics.data,
-              profile: personalAnalytics.profile,
-              metrics: personalAnalytics.metrics
-            });
-          } else {
-            console.log('⚠️ Analytics individuais não disponíveis');
-          }
-        } catch (e) {
-          console.log('⚠️ Erro ao buscar analytics específicos:', e.message);
-        }
-      } else {
-        console.log('⚠️ Sem personal_data, pulando busca de analytics individuais');
-      }
-      
-      // 4. Processar dados pessoais se encontrados
+      // 4. Processar dados pessoais diretamente do endpoint
       let processedPersonalData = {};
       let processedRidesHistory = [];
       let processedWalletTransactions = [];
@@ -191,33 +124,85 @@ const DriverDetailsModal = ({ isOpen, onClose, driverId, driverName }) => {
         }
       }
       
-      // 5. Combinar dados de forma inteligente e preencher todos os campos esperados
-      const metrics = driverFromAnalytics.data?.metrics || {};
-      const originalMetrics = driverFromAnalytics.data?.original_data || {};
+      // 5. Calcular métricas REAIS a partir dos dados de corridas
+      console.log('📊 CALCULANDO MÉTRICAS REAIS das corridas:', processedRidesHistory);
       
-      console.log('📊 DADOS PARA MÉTRICAS:', {
-        metrics,
-        originalMetrics,
-        total_rides_metrics: metrics.total_rides,
-        rides_last_30_original: originalMetrics['Rides in Last 30 Days'],
-        driver_ratings_original: originalMetrics['Driver Ratings'],
-        status_original: originalMetrics.Status
+      let totalEarnings = 0;
+      let totalRides = 0;
+      let totalRating = 0;
+      let ratingCount = 0;
+      let totalDistance = 0;
+      let totalDuration = 0;
+      let firstRideDate = null;
+      let lastRideDate = null;
+      
+      if (processedRidesHistory && Array.isArray(processedRidesHistory)) {
+        totalRides = processedRidesHistory.length;
+        
+        processedRidesHistory.forEach((ride, index) => {
+          // Calcular ganhos totais
+          const fareValue = parseFloat(ride.fare) || 0;
+          totalEarnings += fareValue;
+          
+          // Calcular rating médio (apenas corridas com rating)
+          if (ride.driver_rating && ride.driver_rating !== '--' && ride.driver_rating !== 'N/A') {
+            const rating = parseFloat(ride.driver_rating.split('/')[0]) || 0;
+            if (rating > 0) {
+              totalRating += rating;
+              ratingCount++;
+            }
+          }
+          
+          // Calcular distância total
+          const distance = parseFloat(ride.distance_travelled) || parseFloat(ride.google_distance) || 0;
+          totalDistance += distance;
+          
+          // Calcular duração total (em minutos)
+          const duration = parseFloat(ride.duration) || 0;
+          totalDuration += duration;
+          
+          // Determinar primeira e última corrida
+          if (ride.drop_time) {
+            const rideDate = new Date(ride.drop_time.replace(' : ', ' ').replace(' pm', ' PM').replace(' am', ' AM'));
+            if (!isNaN(rideDate.getTime())) {
+              if (!firstRideDate || rideDate < firstRideDate) {
+                firstRideDate = rideDate;
+              }
+              if (!lastRideDate || rideDate > lastRideDate) {
+                lastRideDate = rideDate;
+              }
+            }
+          }
+        });
+      }
+      
+      const averageRating = ratingCount > 0 ? parseFloat((totalRating / ratingCount).toFixed(1)) : 3.5;
+      
+      console.log('📊 MÉTRICAS CALCULADAS:', {
+        totalRides,
+        totalEarnings,
+        averageRating,
+        ratingCount,
+        totalDistance,
+        totalDuration,
+        firstRideDate,
+        lastRideDate
       });
       
       const analyticsMergedData = {
-        total_earnings: metrics.total_earnings ?? 0,
-        total_rides: originalMetrics['Rides in Last 30 Days'] || (metrics.total_rides ?? 0),
-        average_rating: originalMetrics['Driver Ratings'] || (metrics.rating ?? 3.5),
-        completion_rate: metrics.success_rate ?? 0,
-        completed_rides: originalMetrics['Rides in Last 30 Days'] || (metrics.success_rides ?? 0),
-        cancelled_rides: (metrics.user_cancelled ?? 0) + (metrics.driver_cancelled ?? 0),
-        average_ride_value: metrics.total_earnings && metrics.total_rides ? (metrics.total_earnings / metrics.total_rides) : 0,
-        first_ride_date: metrics.first_ride_date ?? null,
-        last_ride_date: metrics.last_ride_date ?? null,
-        active_days: metrics.active_days ?? 0,
-        total_distance: metrics.total_distance ?? 0,
-        total_duration: metrics.online_hours ? Math.round(metrics.online_hours * 60) : 0, // minutos
-        current_subscription: metrics.current_subscription ?? null
+        total_earnings: totalEarnings,
+        total_rides: totalRides,
+        average_rating: averageRating,
+        completion_rate: 100, // Assumir 100% já que são corridas completadas
+        completed_rides: totalRides,
+        cancelled_rides: 0,
+        average_ride_value: totalRides > 0 ? (totalEarnings / totalRides) : 0,
+        first_ride_date: firstRideDate ? firstRideDate.toLocaleDateString('pt-BR') : null,
+        last_ride_date: lastRideDate ? lastRideDate.toLocaleDateString('pt-BR') : null,
+        active_days: totalRides, // Aproximação
+        total_distance: totalDistance,
+        total_duration: totalDuration,
+        current_subscription: null
       };
 
       // Se personalAnalytics existir, sobrescreve campos acima

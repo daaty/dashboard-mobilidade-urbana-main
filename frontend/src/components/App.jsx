@@ -29,19 +29,20 @@ function App() {
   const [activeTab, setActiveTab] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [metricsData, setMetricsData] = useState(null)
-  const [driversData, setDriversData] = useState(null)
+  // ===== DRIVERS DATA - LIMPEZA COMPLETA =====
+  // Removido: driversData, loadingDrivers, fetchDriversData
+  // Novo sistema será implementado no DriversOverview diretamente
   const [financeiroData, setFinanceiroData] = useState(null)
   const [performanceData, setPerformanceData] = useState(null)
   const [alertasData, setAlertasData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [loadingDrivers, setLoadingDrivers] = useState(true)
   const [loadingFinanceiro, setLoadingFinanceiro] = useState(true)
   const [loadingPerformance, setLoadingPerformance] = useState(true)
   const [loadingAlertas, setLoadingAlertas] = useState(true)
 
   useEffect(() => {
     fetchMetricsData()
-    fetchDriversData()
+    // ===== REMOVIDO: fetchDriversData() =====
     fetchFinanceiroData()
     fetchPerformanceData()
     fetchAlertasData()
@@ -72,37 +73,9 @@ function App() {
     }
   }
 
-  const fetchDriversData = async (period = '30d') => {
-    try {
-      setLoadingDrivers(true)
-      // Converte período para número de dias
-      let periodoDias = 30;
-      if (period === 'hoje') periodoDias = 1;
-      else if (period === '7d') periodoDias = 7;
-      else if (period === '30d') periodoDias = 30;
-      else if (period === '3m') periodoDias = 90;
-      else if (period === '6m') periodoDias = 180;
-      else if (period === '12m') periodoDias = 365;
-      
-      console.log(`Buscando dados dos motoristas para período: ${period} (${periodoDias} dias)`);
-      
-      const response = await fetch(`${API_URL}/api/drivers/overview?periodo=${periodoDias}`)
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json()
-      console.log('Dados dos motoristas recebidos:', data);
-      setDriversData(data)
-    } catch (error) {
-      console.error('Erro ao buscar dados dos motoristas:', error)
-      console.error('API_URL:', API_URL);
-      setDriversData(null)
-    } finally {
-      setLoadingDrivers(false)
-    }
-  }
+  // ===== FUNÇÃO fetchDriversData REMOVIDA =====
+  // Nova implementação será feita diretamente no DriversOverview
+  // usando os novos endpoints com filtros funcionais
 
   const fetchFinanceiroData = async (period = '365d') => {
     try {
@@ -164,10 +137,8 @@ function App() {
     fetchMetricsData(period)
   }
 
-  // Handler para troca de período dos motoristas
-  const handleDriversPeriodChange = (period) => {
-    fetchDriversData(period)
-  }
+  // ===== FUNÇÃO handleDriversPeriodChange REMOVIDA =====
+  // Filtros serão gerenciados diretamente no DriversOverview
 
   // Handler para troca de período financeiro
   const handleFinanceiroPeriodChange = (period) => {
@@ -208,7 +179,7 @@ function App() {
       case 'drivers':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <DriversOverview data={driversData} loading={loadingDrivers} onPeriodChange={handleDriversPeriodChange} />
+            <DriversOverview />
           </motion.div>
         )
       case 'comparativo':
