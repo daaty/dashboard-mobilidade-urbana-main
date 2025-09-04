@@ -51,7 +51,7 @@ def calculate_date_range(period: str) -> tuple:
     """Calcula o range de datas baseado no período"""
     today = datetime.now()
     
-    if period == "hoje":
+    if period == "today" or period == "hoje":
         start_date = today.replace(hour=0, minute=0, second=0, microsecond=0)
         end_date = today
     elif period == "7_days":
@@ -323,6 +323,10 @@ def get_drivers_kpis(
         ratings = []
         hours_online = []
         
+        drivers_with_rides = 0
+        
+        print(f"DEBUG: Processando {len(drivers_data)} drivers para extrair corridas do período {period}")
+        
         for driver in drivers_data:
             # Parse additional_data que contém as informações reais
             try:
@@ -357,6 +361,9 @@ def get_drivers_kpis(
                 if hasattr(driver, 'rides_history') and driver.rides_history:
                     try:
                         rides_history = json.loads(driver.rides_history) if isinstance(driver.rides_history, str) else driver.rides_history
+                        if rides_history:
+                            drivers_with_rides += 1
+                            print(f"DEBUG: Driver {driver.driver_id} tem {len(rides_history)} corridas no rides_history")
                     except:
                         rides_history = []
                 
@@ -366,9 +373,11 @@ def get_drivers_kpis(
                 period_revenue = rides_stats['total_revenue']
                 period_distance = rides_stats['total_distance']
                 
-                # Se não há dados de performance, usar rides_history
-                if not (hasattr(driver, 'page_source') and driver.page_source == 'Driver Performance'):
-                    total_rides += period_rides
+                if period_rides > 0:
+                    print(f"DEBUG: Driver {driver.driver_id} contribuiu com {period_rides} corridas no período")
+                
+                # CORRIGIDO: Somar TODAS as corridas, independente da fonte de dados
+                total_rides += period_rides
                 
                 total_revenue += period_revenue
                 total_distance += period_distance
@@ -514,7 +523,9 @@ def get_drivers_kpis(
         receita_estimada = total_rides * 2.50
         
         # Calcular número de dias do período
-        if period == "7_days":
+        if period == "today" or period == "hoje":
+            periodo_dias = 1
+        elif period == "7_days":
             periodo_dias = 7
         elif period == "30_days":
             periodo_dias = 30
