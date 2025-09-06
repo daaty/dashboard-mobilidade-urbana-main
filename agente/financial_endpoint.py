@@ -1,6 +1,6 @@
 """
 Endpoint específico para receber dados financeiros do N8N
-Mais direto e simples que o endpoint AGNO conversacional
+Com agente AGNO inteligente para responder perguntas financeiras dinamicamente
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, field_validator
@@ -11,7 +11,63 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Union
 from dashboard_agent.tools.financial_tools import FinancialTools
 
-logger = logging.getLogger(__name__)
+# Importar AGNO para criar agente financeiro inteligente
+try:
+    from agno.agent import Agent
+    from agno.models.openai import OpenAIChat
+    import os
+    
+    # Criar agente financeiro especializado
+    financial_agent = Agent(
+        name="Alice-Financeira",
+        model=OpenAIChat(
+            id="gpt-4o-mini",
+            api_key=os.getenv("OPENAI_API_KEY")
+        ),
+        tools=[FinancialTools()],
+        instructions="""
+        Você é Alice-Financeira, uma assistente inteligente especializada em gestão financeira empresarial.
+
+        **SUAS CAPACIDADES:**
+        • 📊 Consultar e analisar gastos registrados no sistema
+        • 💰 Calcular totais, médias e estatísticas financeiras
+        • 📈 Fornecer insights sobre padrões de gastos
+        • 🔍 Buscar informações específicas por período, categoria ou fornecedor
+        • 📋 Responder perguntas sobre resumos financeiros
+
+        **COMO RESPONDER:**
+        • Use sempre as ferramentas disponíveis para buscar dados reais
+        • Forneça respostas precisas e bem formatadas
+        • Inclua valores monetários formatados (R$ X,XX)
+        • Use emojis para tornar as respostas mais amigáveis
+        • Seja concisa mas informativa
+
+        **EXEMPLOS DE PERGUNTAS QUE VOCÊ DEVE RESPONDER:**
+        • "Qual o total de gastos registrados?"
+        • "Quanto gastei em alimentação?"
+        • "Gastos dos últimos 7 dias"
+        • "Resumo financeiro"
+        • "Maior gasto registrado"
+
+        **IMPORTANTE:**
+        • SEMPRE use as ferramentas para buscar dados atualizados
+        • NÃO invente valores ou dados
+        • Se não encontrar dados, informe claramente
+        • Seja precisa com datas e valores
+        """,
+        show_tool_calls=True,
+        markdown=True
+    )
+    
+    AGNO_AVAILABLE = True
+    logger = logging.getLogger(__name__)
+    logger.info("✅ Agente financeiro AGNO criado com sucesso!")
+    
+except ImportError as e:
+    logger = logging.getLogger(__name__)
+    logger.error(f"❌ Erro ao importar AGNO: {e}")
+    financial_agent = None
+    AGNO_AVAILABLE = False
 
 router = APIRouter()
 
@@ -302,8 +358,48 @@ async def handle_conversational_interaction(user_name: str, user_message: str):
         )
 
 async def execute_financial_query(user_name: str, user_message: str, intent_info: Dict[str, Any]):
-    """💰 Executa consultas financeiras inteligentes"""
-    logger.info(f"💰 Executando consulta financeira: {intent_info.get('query_type', 'geral')}")
+    """💰 Executa consultas financeiras usando agente AGNO inteligente"""
+    logger.info(f"💰 Executando consulta financeira inteligente: '{user_message}'")
+    
+    if not AGNO_AVAILABLE or not financial_agent:
+        logger.warning("⚠️ Agente AGNO não disponível, usando fallback")
+        return await execute_financial_query_fallback(user_name, user_message, intent_info)
+    
+    try:
+        # Usar o agente AGNO para responder dinamicamente
+        agente_response = financial_agent.run(
+            f"Usuário {user_name} perguntou: '{user_message}'. "
+            f"Use as ferramentas financeiras disponíveis para buscar os dados e responder de forma precisa e amigável."
+        )
+        
+        # Extrair o conteúdo da resposta
+        if hasattr(agente_response, 'content'):
+            response_content = agente_response.content
+        else:
+            response_content = str(agente_response)
+        
+        logger.info(f"✅ Agente AGNO respondeu com sucesso")
+        
+        return FinancialResponse(
+            success=True,
+            message=response_content,
+            data={
+                "user": user_name,
+                "query": user_message,
+                "intent": "financial_query",
+                "agent_used": "AGNO",
+                "query_type": intent_info.get('query_type', 'intelligent_query')
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"❌ Erro no agente AGNO: {e}")
+        # Fallback para implementação manual em caso de erro
+        return await execute_financial_query_fallback(user_name, user_message, intent_info)
+
+async def execute_financial_query_fallback(user_name: str, user_message: str, intent_info: Dict[str, Any]):
+    """💰 Executa consultas financeiras (versão fallback sem AGNO)"""
+    logger.info(f"💰 Executando consulta financeira fallback: {intent_info.get('query_type', 'geral')}")
     
     financial_tools = FinancialTools()
     query_type = intent_info.get('query_type', 'general_summary')
@@ -359,7 +455,8 @@ async def execute_financial_query(user_name: str, user_message: str, intent_info
         data={
             "user": user_name,
             "query_type": query_type,
-            "intent": "financial_query"
+            "intent": "financial_query",
+            "agent_used": "fallback"
         }
     )
 
@@ -436,13 +533,47 @@ async def acknowledge_thanks_goodbye(user_name: str, user_message: str):
     )
 
 async def intelligent_conversation(user_name: str, user_message: str):
-    """🧠 Conversa inteligente geral"""
+    """🧠 Conversa inteligente geral usando agente AGNO quando possível"""
     logger.info(f"🧠 Conversa inteligente com {user_name}")
     
-    # Tentar entender o contexto da mensagem
+    # Tentar usar o agente AGNO se disponível e a mensagem parece financeira
     msg_lower = user_message.lower()
+    is_financial_related = any(word in msg_lower for word in [
+        'gasto', 'gastos', 'despesa', 'despesas', 'dinheiro', 'valor', 'total', 
+        'soma', 'quanto', 'financeiro', 'resumo', 'relatório', 'relatorio'
+    ])
     
-    if any(word in msg_lower for word in ['dinheiro', 'dinheiro', 'economia', 'economizar', 'gastar', 'gasto']):
+    if AGNO_AVAILABLE and financial_agent and is_financial_related:
+        try:
+            logger.info(f"🤖 Usando agente AGNO para conversa financeira")
+            agente_response = financial_agent.run(
+                f"Usuário {user_name} disse: '{user_message}'. "
+                f"Responda de forma conversacional e útil, usando ferramentas se necessário para buscar dados."
+            )
+            
+            # Extrair o conteúdo da resposta
+            if hasattr(agente_response, 'content'):
+                response_content = agente_response.content
+            else:
+                response_content = str(agente_response)
+            
+            return FinancialResponse(
+                success=True,
+                message=response_content,
+                data={
+                    "intent": "intelligent_conversation",
+                    "user": user_name,
+                    "agent_used": "AGNO",
+                    "original_message": user_message
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"❌ Erro no agente AGNO para conversa: {e}")
+            # Continuar para fallback
+    
+    # Fallback para respostas manuais
+    if any(word in msg_lower for word in ['dinheiro', 'economia', 'economizar', 'gastar', 'gasto']):
         response_msg = f"💰 Falando sobre finanças, {user_name}! \n\nPosso te ajudar com:\n• 📊 **Ver seus gastos** - 'meus gastos desta semana'\n• 📸 **Registrar novos** - envie foto do comprovante\n• 💡 **Dicas de economia** - análise dos seus padrões\n\nO que você gostaria de saber?"
     
     elif any(word in msg_lower for word in ['problema', 'erro', 'bug', 'não funciona', 'nao funciona']):
@@ -457,6 +588,7 @@ async def intelligent_conversation(user_name: str, user_message: str):
         data={
             "intent": "general_conversation",
             "user": user_name,
+            "agent_used": "fallback",
             "original_message": user_message
         }
     )

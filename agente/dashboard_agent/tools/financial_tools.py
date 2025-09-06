@@ -44,14 +44,23 @@ class FinancialTools(Toolkit):
     """Ferramentas financeiras para gestão de gastos da empresa"""
     
     def __init__(self):
-        self.db_url = os.getenv("DATABASE_URL", "postgresql://n8n_user:n8n_pw@148.230.73.27:5432/n8n_db")
+        # Configurar URL do banco para psycopg2 (remover asyncpg)
+        db_url = os.getenv("DATABASE_URL", "postgresql://n8n_user:n8n_pw@148.230.73.27:5432/n8n_db")
+        if "postgresql+asyncpg://" in db_url:
+            self.db_url = db_url.replace("postgresql+asyncpg://", "postgresql://")
+        else:
+            self.db_url = db_url
         
-        # ✅ DEFINIR FERRAMENTAS COMO MÉTODOS
+        # ✅ DEFINIR FERRAMENTAS COMO MÉTODOS - INCLUINDO NOVAS PARA CONSULTAS INTELIGENTES
         tools = [
             self.inserir_gasto_empresa,
             self.atualizar_gasto_empresa,
             self.consultar_gastos_empresa,
-            self.validar_documentacao_fiscal
+            self.validar_documentacao_fiscal,
+            self.obter_resumo_financeiro,
+            self.consultar_gastos_por_periodo,
+            self.consultar_gastos_por_categoria,
+            self.calcular_total_gastos_geral
         ]
         
         # ✅ INICIALIZAR COMO TOOLKIT
@@ -453,6 +462,222 @@ class FinancialTools(Toolkit):
         except Exception as e:
             logger.error(f"Erro ao buscar gastos pendentes: {e}")
             return None
+
+    def obter_resumo_financeiro(self) -> Dict[str, Any]:
+        """
+        Obtém um resumo completo dos gastos registrados no sistema.
+        
+        Returns:
+            Dict com resumo financeiro incluindo totais, quantidade e estatísticas
+        """
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                # Total geral de gastos
+                cursor.execute("""
+                    SELECT 
+                        COUNT(*) as total_registros,
+                        COALESCE(SUM(valor_total), 0) as total_gastos,
+                        COALESCE(AVG(valor_total), 0) as ticket_medio,
+                        MIN(data_despesa) as primeira_despesa,
+                        MAX(data_despesa) as ultima_despesa
+                    FROM gastos_empresa 
+                    WHERE valor_total IS NOT NULL
+                """)
+                resumo_geral = cursor.fetchone()
+                
+                # Gastos por categoria
+                cursor.execute("""
+                    SELECT 
+                        natureza_do_gasto,
+                        COUNT(*) as quantidade,
+                        COALESCE(SUM(valor_total), 0) as total_categoria
+                    FROM gastos_empresa 
+                    WHERE valor_total IS NOT NULL 
+                    AND natureza_do_gasto IS NOT NULL
+                    GROUP BY natureza_do_gasto
+                    ORDER BY total_categoria DESC
+                """)
+                gastos_por_categoria = cursor.fetchall()
+                
+                cursor.close()
+                
+                return {
+                    "sucesso": True,
+                    "total_gastos": float(resumo_geral['total_gastos']),
+                    "quantidade_gastos": int(resumo_geral['total_registros']),
+                    "ticket_medio": float(resumo_geral['ticket_medio']),
+                    "primeira_despesa": str(resumo_geral['primeira_despesa']) if resumo_geral['primeira_despesa'] else None,
+                    "ultima_despesa": str(resumo_geral['ultima_despesa']) if resumo_geral['ultima_despesa'] else None,
+                    "gastos_por_categoria": [dict(row) for row in gastos_por_categoria]
+                }
+                
+        except Exception as e:
+            logger.error(f"Erro ao obter resumo financeiro: {e}")
+            return {
+                "sucesso": False,
+                "erro": str(e)
+            }
+
+    def consultar_gastos_por_periodo(self, data_inicio: str, data_fim: str) -> Dict[str, Any]:
+        """
+        Consulta gastos em um período específico.
+        
+        Args:
+            data_inicio: Data inicial no formato YYYY-MM-DD
+            data_fim: Data final no formato YYYY-MM-DD
+            
+        Returns:
+            Dict com gastos do período e estatísticas
+        """
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                # Consultar gastos do período
+                cursor.execute("""
+                    SELECT 
+                        COUNT(*) as quantidade_gastos,
+                        COALESCE(SUM(valor_total), 0) as total_gastos,
+                        COALESCE(AVG(valor_total), 0) as ticket_medio
+                    FROM gastos_empresa 
+                    WHERE data_despesa >= %s 
+                    AND data_despesa <= %s 
+                    AND valor_total IS NOT NULL
+                """, (data_inicio, data_fim))
+                
+                estatisticas = cursor.fetchone()
+                
+                # Detalhes dos gastos
+                cursor.execute("""
+                    SELECT id, data_despesa, valor_total, descricao_item, 
+                           fornecedor, natureza_do_gasto, tipo_documento
+                    FROM gastos_empresa 
+                    WHERE data_despesa >= %s 
+                    AND data_despesa <= %s 
+                    ORDER BY data_despesa DESC, valor_total DESC
+                """, (data_inicio, data_fim))
+                
+                gastos_detalhados = cursor.fetchall()
+                cursor.close()
+                
+                return {
+                    "sucesso": True,
+                    "periodo": f"{data_inicio} a {data_fim}",
+                    "total_gastos": float(estatisticas['total_gastos']),
+                    "quantidade_gastos": int(estatisticas['quantidade_gastos']),
+                    "ticket_medio": float(estatisticas['ticket_medio']),
+                    "gastos_detalhados": [dict(row) for row in gastos_detalhados]
+                }
+                
+        except Exception as e:
+            logger.error(f"Erro ao consultar gastos por período: {e}")
+            return {
+                "sucesso": False,
+                "erro": str(e)
+            }
+
+    def consultar_gastos_por_categoria(self, categoria: str) -> Dict[str, Any]:
+        """
+        Consulta gastos de uma categoria específica.
+        
+        Args:
+            categoria: Nome da categoria (Alimentação, Transporte, etc.)
+            
+        Returns:
+            Dict com gastos da categoria e estatísticas
+        """
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                # Estatísticas da categoria
+                cursor.execute("""
+                    SELECT 
+                        COUNT(*) as quantidade_gastos,
+                        COALESCE(SUM(valor_total), 0) as total_gastos,
+                        COALESCE(AVG(valor_total), 0) as ticket_medio,
+                        MIN(data_despesa) as primeira_despesa,
+                        MAX(data_despesa) as ultima_despesa
+                    FROM gastos_empresa 
+                    WHERE natureza_do_gasto = %s 
+                    AND valor_total IS NOT NULL
+                """, (categoria,))
+                
+                estatisticas = cursor.fetchone()
+                
+                # Detalhes dos gastos da categoria
+                cursor.execute("""
+                    SELECT id, data_despesa, valor_total, descricao_item, 
+                           fornecedor, tipo_documento
+                    FROM gastos_empresa 
+                    WHERE natureza_do_gasto = %s 
+                    ORDER BY data_despesa DESC, valor_total DESC
+                    LIMIT 20
+                """, (categoria,))
+                
+                gastos_detalhados = cursor.fetchall()
+                cursor.close()
+                
+                return {
+                    "sucesso": True,
+                    "categoria": categoria,
+                    "total_gastos": float(estatisticas['total_gastos']),
+                    "quantidade_gastos": int(estatisticas['quantidade_gastos']),
+                    "ticket_medio": float(estatisticas['ticket_medio']),
+                    "primeira_despesa": str(estatisticas['primeira_despesa']) if estatisticas['primeira_despesa'] else None,
+                    "ultima_despesa": str(estatisticas['ultima_despesa']) if estatisticas['ultima_despesa'] else None,
+                    "gastos_detalhados": [dict(row) for row in gastos_detalhados]
+                }
+                
+        except Exception as e:
+            logger.error(f"Erro ao consultar gastos por categoria: {e}")
+            return {
+                "sucesso": False,
+                "erro": str(e)
+            }
+
+    def calcular_total_gastos_geral(self) -> Dict[str, Any]:
+        """
+        Calcula o total geral de todos os gastos registrados.
+        
+        Returns:
+            Dict com total geral e estatísticas básicas
+        """
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                
+                cursor.execute("""
+                    SELECT 
+                        COUNT(*) as total_registros,
+                        COALESCE(SUM(valor_total), 0) as total_gastos,
+                        COALESCE(AVG(valor_total), 0) as ticket_medio,
+                        MIN(valor_total) as menor_gasto,
+                        MAX(valor_total) as maior_gasto
+                    FROM gastos_empresa 
+                    WHERE valor_total IS NOT NULL
+                """)
+                
+                resultado = cursor.fetchone()
+                cursor.close()
+                
+                return {
+                    "sucesso": True,
+                    "total_gastos": float(resultado['total_gastos']),
+                    "total_registros": int(resultado['total_registros']),
+                    "ticket_medio": float(resultado['ticket_medio']),
+                    "menor_gasto": float(resultado['menor_gasto']) if resultado['menor_gasto'] else 0,
+                    "maior_gasto": float(resultado['maior_gasto']) if resultado['maior_gasto'] else 0
+                }
+                
+        except Exception as e:
+            logger.error(f"Erro ao calcular total geral: {e}")
+            return {
+                "sucesso": False,
+                "erro": str(e)
+            }
 
 # Exportar para uso no agente
 __all__ = ["FinancialTools"]
