@@ -71,10 +71,19 @@ async def register_financial_data(data: N8NFinancialData):
             logger.info(f"💬 Continuando fluxo de registro - Usuário: {data.userName}, Gasto ID: {data.previous_gasto_id}")
             return await handle_user_interaction_with_context(data.userName, data.userMessage, data.previous_gasto_id)
             
-        # CENÁRIO 3: INTERAÇÃO SEM CONTEXTO - APENAS CONVERSACIONAL
+        # CENÁRIO 3: INTERAÇÃO SEM CONTEXTO - VERIFICAR SE É PARTE DE UM FLUXO ATIVO
         elif data.userName and data.userMessage and not data.previous_gasto_id:
-            logger.info(f"� Modo conversacional - Usuário: {data.userName}, Mensagem: {data.userMessage}")
-            return await handle_conversational_interaction(data.userName, data.userMessage)
+            logger.info(f"🔍 Verificando contexto - Usuário: {data.userName}, Mensagem: {data.userMessage}")
+            
+            # Tentar recuperar contexto de registro ativo
+            recovered_context = await try_recover_registration_context(data.userName, data.userMessage)
+            
+            if recovered_context:
+                logger.info(f"🔄 Contexto recuperado - Gasto ID: {recovered_context['gasto_id']}")
+                return await handle_user_interaction_with_context(data.userName, data.userMessage, recovered_context['gasto_id'])
+            else:
+                logger.info(f"💭 Modo conversacional - Usuário: {data.userName}, Mensagem: {data.userMessage}")
+                return await handle_conversational_interaction(data.userName, data.userMessage)
             
         else:
             raise HTTPException(status_code=400, detail="Formato de dados inválido: dados insuficientes")
@@ -86,6 +95,52 @@ async def register_financial_data(data: N8NFinancialData):
             message=f"Erro interno: {str(e)}",
             error=str(e)
         )
+
+async def try_recover_registration_context(user_name: str, user_message: str):
+    """Tentar recuperar contexto de registro ativo para o usuário"""
+    try:
+        # Normalizar mensagem para análise
+        msg_lower = user_message.lower().strip()
+        
+        # Verificar se a mensagem parece ser parte de um fluxo de registro
+        registration_keywords = [
+            # Respostas sobre NF
+            'não', 'nao', 'não tenho', 'nao tenho', 'sem nf', 'sem nota',
+            'sim', 'tenho nota fiscal', 'tenho nf', 'possui nf', 'tem nota',
+            
+            # Categorias
+            'alimentação', 'alimentacao', 'transporte', 'material de escritório', 
+            'material escritorio', 'material', 'escritorio', 'serviços', 'servicos', 
+            'marketing', 'viagem', 'outros', 'alimento', 'comida', 'lanche', 
+            'refeição', 'refeicao', 'combustível', 'combustivel',
+            
+            # Confirmações de fornecedor
+            'correto', 'certo', 'confirmo', 'sim, correto', 'perfeito', 'exato',
+            'ta correto', 'está correto'
+        ]
+        
+        # Se não parece ser uma resposta de registro, não tentar recuperar
+        if not any(keyword in msg_lower for keyword in registration_keywords):
+            return None
+            
+        logger.info(f"🔄 Mensagem parece ser parte de fluxo de registro, tentando recuperar contexto")
+        
+        # Inicializar FinancialTools para buscar gastos pendentes
+        financial_tools = FinancialTools()
+        
+        # Buscar último gasto inserido recentemente que ainda não tem todos os campos preenchidos
+        result = financial_tools.buscar_gastos_pendentes_usuario(user_name)
+        
+        if result and 'gasto_id' in result:
+            logger.info(f"✅ Contexto recuperado: Gasto ID {result['gasto_id']} para usuário {user_name}")
+            return result
+        else:
+            logger.info(f"❌ Nenhum contexto de registro ativo encontrado para {user_name}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"❌ Erro ao recuperar contexto: {e}")
+        return None
 
 async def handle_conversational_interaction(user_name: str, user_message: str):
     """Lidar com interação conversacional SEM contexto de registro - apenas chat"""

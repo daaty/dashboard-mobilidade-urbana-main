@@ -416,5 +416,43 @@ class FinancialTools(Toolkit):
                 "erro": str(e)
             }
 
+    def buscar_gastos_pendentes_usuario(self, user_name: str) -> Optional[Dict[str, Any]]:
+        """
+        Buscar gastos recentes do usuário que ainda estão pendentes de informações complementares
+        (útil para recuperar contexto de fluxos de registro ativos)
+        """
+        try:
+            with psycopg2.connect(self.db_url) as conn:
+                with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                    # Buscar gastos inseridos nas últimas 2 horas que ainda não têm todos os campos preenchidos
+                    cursor.execute("""
+                        SELECT id, data_despesa, valor_total, descricao_item, fornecedor, 
+                               natureza_do_gasto, possui_nota_fiscal, data_processamento
+                        FROM gastos_empresa 
+                        WHERE (observacoes LIKE %s OR observacoes IS NULL)
+                        AND data_processamento >= NOW() - INTERVAL '2 hours'
+                        AND (natureza_do_gasto IS NULL OR possui_nota_fiscal IS NULL)
+                        ORDER BY data_processamento DESC 
+                        LIMIT 1
+                    """, (f'%{user_name}%',))
+                    
+                    gasto = cursor.fetchone()
+                    
+                    if gasto:
+                        return {
+                            "gasto_id": gasto['id'],
+                            "data_despesa": str(gasto['data_despesa']),
+                            "valor_total": float(gasto['valor_total']) if gasto['valor_total'] else 0,
+                            "fornecedor": gasto['fornecedor'],
+                            "natureza_do_gasto": gasto['natureza_do_gasto'],
+                            "possui_nota_fiscal": gasto['possui_nota_fiscal']
+                        }
+                    
+                    return None
+                    
+        except Exception as e:
+            logger.error(f"Erro ao buscar gastos pendentes: {e}")
+            return None
+
 # Exportar para uso no agente
 __all__ = ["FinancialTools"]
