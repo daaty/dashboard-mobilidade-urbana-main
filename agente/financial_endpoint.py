@@ -7,6 +7,7 @@ from pydantic import BaseModel, field_validator
 import logging
 import json
 import re
+from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Union
 from dashboard_agent.tools.financial_tools import FinancialTools
 
@@ -142,45 +143,316 @@ async def try_recover_registration_context(user_name: str, user_message: str):
         logger.error(f"❌ Erro ao recuperar contexto: {e}")
         return None
 
-async def handle_conversational_interaction(user_name: str, user_message: str):
-    """Lidar com interação conversacional SEM contexto de registro - apenas chat"""
-    logger.info(f"💭 Interação conversacional: {user_name} disse '{user_message}'")
+class IntentAnalyzer:
+    """Analisador inteligente de intenções do usuário"""
     
-    # Normalizar mensagem para análise
-    msg_lower = user_message.lower().strip()
+    @staticmethod
+    def analyze_intent(user_message: str, has_active_registration: bool = False) -> Dict[str, Any]:
+        """
+        Analisa a intenção do usuário e retorna informações sobre como processar
+        """
+        msg_lower = user_message.lower().strip()
+        
+        # INTENÇÃO 1: RESPOSTAS DE FLUXO DE REGISTRO ATIVO
+        if has_active_registration:
+            registration_responses = [
+                'não', 'nao', 'sim', 'alimentação', 'alimentacao', 'transporte', 
+                'material', 'escritorio', 'serviços', 'servicos', 'marketing', 
+                'viagem', 'outros', 'correto', 'certo', 'perfeito', 'exato'
+            ]
+            if any(keyword in msg_lower for keyword in registration_responses):
+                return {
+                    "intent": "continue_registration",
+                    "confidence": 0.9,
+                    "action": "process_registration_response"
+                }
+        
+        # INTENÇÃO 2: CONSULTAS FINANCEIRAS
+        financial_queries = [
+            'gastos', 'despesas', 'quanto gastei', 'meus gastos', 'gastos de ontem',
+            'gastos de hoje', 'gastos da semana', 'gastos do mês', 'total gasto',
+            'resumo financeiro', 'relatório', 'relatorio', 'balanço', 'balanco',
+            'fornecedores', 'categorias', 'alimentação gasta', 'transporte gasto'
+        ]
+        if any(query in msg_lower for query in financial_queries):
+            return {
+                "intent": "financial_query",
+                "confidence": 0.8,
+                "action": "execute_financial_query",
+                "query_type": IntentAnalyzer._detect_query_type(msg_lower)
+            }
+        
+        # INTENÇÃO 3: ANÁLISES E INSIGHTS
+        analysis_requests = [
+            'análise', 'analise', 'insights', 'tendências', 'tendencias',
+            'padrões', 'padroes', 'estatísticas', 'estatisticas', 'comparar',
+            'evolução', 'evolucao', 'crescimento', 'economia'
+        ]
+        if any(analysis in msg_lower for analysis in analysis_requests):
+            return {
+                "intent": "financial_analysis",
+                "confidence": 0.8,
+                "action": "generate_financial_analysis"
+            }
+        
+        # INTENÇÃO 4: COMANDOS DE GESTÃO
+        management_commands = [
+            'validar documentação', 'validar', 'verificar', 'conferir',
+            'atualizar', 'corrigir', 'editar', 'modificar'
+        ]
+        if any(cmd in msg_lower for cmd in management_commands):
+            return {
+                "intent": "financial_management",
+                "confidence": 0.7,
+                "action": "execute_management_command"
+            }
+        
+        # INTENÇÃO 5: CUMPRIMENTOS E AJUDA
+        greetings_help = [
+            'ola', 'olá', 'oi', 'bom dia', 'boa tarde', 'boa noite',
+            'ajuda', 'help', 'ferramentas', 'funcionalidades', 'o que pode fazer'
+        ]
+        if any(greeting in msg_lower for greeting in greetings_help):
+            return {
+                "intent": "greeting_help",
+                "confidence": 0.9,
+                "action": "provide_help_or_greeting"
+            }
+        
+        # INTENÇÃO 6: AGRADECIMENTOS E DESPEDIDAS
+        thanks_goodbye = [
+            'obrigado', 'obrigada', 'valeu', 'vlw', 'tchau', 'bye', 'até'
+        ]
+        if any(thanks in msg_lower for thanks in thanks_goodbye):
+            return {
+                "intent": "thanks_goodbye",
+                "confidence": 0.9,
+                "action": "acknowledge_thanks_goodbye"
+            }
+        
+        # INTENÇÃO PADRÃO: CONVERSA GERAL
+        return {
+            "intent": "general_conversation",
+            "confidence": 0.5,
+            "action": "intelligent_conversation"
+        }
     
-    # CUMPRIMENTOS E INTERAÇÕES GERAIS
-    if any(cumprimento in msg_lower for cumprimento in ['ola', 'olá', 'oi', 'hello', 'hey', 'bom dia', 'boa tarde', 'boa noite']):
-        response_msg = f"Olá {user_name}! 👋 Como posso te ajudar hoje? Posso registrar gastos, comprovantes ou notas fiscais para você!"
-    
-    elif any(palavra in msg_lower for palavra in ['help', 'ajuda', 'como funciona', 'o que você faz', 'ferramenta', 'funcionalidade', 'o que pode fazer', 'que ferramentas', 'quais ferramentas', 'funcoes', 'funções']):
-        response_msg = f"Olá {user_name}! 🤖 Sou a Alice-Financeira, sua assistente para controle financeiro!\n\n**Minhas ferramentas:**\n• 📷 **Análise de Imagens**: Processo comprovantes e notas fiscais automaticamente\n• 💾 **Registro de Gastos**: Salvo dados extraídos no sistema financeiro\n• 🔗 **Vinculação de Documentos**: Conecto comprovantes com suas respectivas NFs\n• 📊 **Categorização**: Organizo gastos por tipo (Alimentação, Transporte, etc.)\n• 🏢 **Gestão de Fornecedores**: Identifico e valido empresas dos documentos\n\n**Como usar:**\nApenas envie a imagem do documento que eu cuido do resto! 📸"
-    
-    elif any(palavra in msg_lower for palavra in ['comprovante', 'nota fiscal', 'nf', 'gasto', 'despesa', 'pagamento']):
-        response_msg = f"Perfeito {user_name}! Para registrar um gasto, envie a **imagem** do comprovante ou nota fiscal que eu processarei automaticamente os dados para você!\n\n📸 **Importante:** Preciso da imagem do documento para iniciar o registro."
-    
-    elif any(palavra in msg_lower for palavra in ['tchau', 'bye', 'obrigado', 'obrigada', 'valeu']):
-        response_msg = f"Até logo {user_name}! Foi um prazer ajudar. Qualquer novo gasto é só me enviar! 😊"
-    
-    else:
-        # RESPOSTA INTELIGENTE PARA MENSAGENS NÃO IDENTIFICADAS
-        if len(user_message.strip()) <= 3:
-            response_msg = f"Não entendi bem {user_name}. Você poderia:\n• Enviar imagem de um comprovante para registrar\n• Me dizer se tem alguma dúvida específica\n• Ou ser mais específico sobre o que precisa? 😄"
-        elif any(palavra in msg_lower for palavra in ['qual', 'que', 'como', '?']):
-            response_msg = f"Olá {user_name}! Para perguntas específicas, use palavras-chave como:\n• **'ferramentas'** ou **'ajuda'** - para saber minhas funcionalidades\n• **'como funciona'** - para entender o processo\n• **'comprovante'** - para registrar gastos\n\nOu simplesmente envie a imagem do documento que precisa processar! 📸"
+    @staticmethod
+    def _detect_query_type(msg_lower: str) -> str:
+        """Detecta o tipo específico de consulta financeira"""
+        if any(word in msg_lower for word in ['ontem', 'yesterday']):
+            return "daily_yesterday"
+        elif any(word in msg_lower for word in ['hoje', 'today']):
+            return "daily_today"
+        elif any(word in msg_lower for word in ['semana', 'week']):
+            return "weekly"
+        elif any(word in msg_lower for word in ['mês', 'mes', 'month']):
+            return "monthly"
+        elif any(word in msg_lower for word in ['total', 'tudo', 'all']):
+            return "total"
+        elif any(word in msg_lower for word in ['alimentação', 'alimentacao', 'comida']):
+            return "category_food"
+        elif any(word in msg_lower for word in ['transporte', 'combustível', 'combustivel']):
+            return "category_transport"
+        elif any(word in msg_lower for word in ['fornecedor', 'empresa', 'estabelecimento']):
+            return "by_vendor"
         else:
-            response_msg = f"Olá {user_name}! Recebi sua mensagem: '{user_message}'\n\n💡 **Para registrar gastos:** Envie a imagem do comprovante/NF\n❓ **Para dúvidas:** Digite 'ajuda' ou 'ferramentas'\n\nComo posso ajudar?"
+            return "general_summary"
+
+async def handle_conversational_interaction(user_name: str, user_message: str):
+    """🤖 Alice-Financeira Inteligente - Motor de Resposta Avançado"""
+    logger.info(f"💭 Alice processando: {user_name} disse '{user_message}'")
+    
+    # STEP 1: Analisar intenção
+    intent_info = IntentAnalyzer.analyze_intent(user_message)
+    logger.info(f"🧠 Intenção detectada: {intent_info['intent']} (confiança: {intent_info['confidence']})")
+    
+    # STEP 2: Executar ação baseada na intenção
+    try:
+        if intent_info["action"] == "financial_query":
+            return await execute_financial_query(user_name, user_message, intent_info)
+        
+        elif intent_info["action"] == "generate_financial_analysis":
+            return await generate_financial_analysis(user_name, user_message)
+        
+        elif intent_info["action"] == "execute_management_command":
+            return await execute_management_command(user_name, user_message)
+        
+        elif intent_info["action"] == "provide_help_or_greeting":
+            return await provide_help_or_greeting(user_name, user_message)
+        
+        elif intent_info["action"] == "acknowledge_thanks_goodbye":
+            return await acknowledge_thanks_goodbye(user_name, user_message)
+        
+        else:  # general_conversation
+            return await intelligent_conversation(user_name, user_message)
+            
+    except Exception as e:
+        logger.error(f"❌ Erro no motor de resposta: {e}")
+        return FinancialResponse(
+            success=True,
+            message=f"Desculpe {user_name}, tive um problema técnico. Pode repetir ou tentar uma pergunta diferente?",
+            error=str(e)
+        )
+
+async def execute_financial_query(user_name: str, user_message: str, intent_info: Dict[str, Any]):
+    """💰 Executa consultas financeiras inteligentes"""
+    logger.info(f"💰 Executando consulta financeira: {intent_info.get('query_type', 'geral')}")
+    
+    financial_tools = FinancialTools()
+    query_type = intent_info.get('query_type', 'general_summary')
+    
+    try:
+        if query_type == "daily_yesterday":
+            # Buscar gastos de ontem
+            from datetime import datetime, timedelta
+            yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+            result = financial_tools.consultar_gastos_por_periodo(yesterday, yesterday)
+            
+        elif query_type == "daily_today":
+            # Buscar gastos de hoje
+            today = datetime.now().strftime('%Y-%m-%d')
+            result = financial_tools.consultar_gastos_por_periodo(today, today)
+            
+        elif query_type == "weekly":
+            # Buscar gastos da semana
+            from datetime import datetime, timedelta
+            start_week = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+            today = datetime.now().strftime('%Y-%m-%d')
+            result = financial_tools.consultar_gastos_por_periodo(start_week, today)
+            
+        elif query_type == "monthly":
+            # Buscar gastos do mês
+            from datetime import datetime
+            start_month = datetime.now().replace(day=1).strftime('%Y-%m-%d')
+            today = datetime.now().strftime('%Y-%m-%d')
+            result = financial_tools.consultar_gastos_por_periodo(start_month, today)
+            
+        elif query_type.startswith("category_"):
+            # Buscar por categoria
+            categoria = "Alimentação" if "food" in query_type else "Transporte"
+            result = financial_tools.consultar_gastos_por_categoria(categoria)
+            
+        else:
+            # Resumo geral
+            result = financial_tools.obter_resumo_financeiro()
+        
+        # Formatar resposta inteligente
+        if result and result.get('sucesso'):
+            response_msg = format_financial_query_response(user_name, result, query_type, user_message)
+        else:
+            response_msg = f"Não encontrei dados para essa consulta, {user_name}. Quer que eu verifique algo específico?"
+            
+    except Exception as e:
+        logger.error(f"❌ Erro na consulta financeira: {e}")
+        response_msg = f"Tive um problema ao buscar esses dados, {user_name}. Posso tentar de outra forma?"
     
     return FinancialResponse(
         success=True,
         message=response_msg,
-        gasto_id=None,
         data={
             "user": user_name,
-            "message": user_message,
-            "interaction_type": "conversational_only"
-        },
-        error=None
+            "query_type": query_type,
+            "intent": "financial_query"
+        }
+    )
+
+def format_financial_query_response(user_name: str, result: Dict, query_type: str, original_message: str) -> str:
+    """� Formata respostas de consultas financeiras de forma inteligente"""
+    
+    if query_type == "daily_yesterday":
+        if result.get('total_gastos', 0) > 0:
+            return f"📊 **Gastos de ontem, {user_name}:**\n\n💰 **Total:** R$ {result['total_gastos']:.2f}\n📝 **{result['quantidade_gastos']} transações**\n\n💡 Quer ver detalhes ou alguma categoria específica?"
+        else:
+            return f"✨ Ótimo {user_name}! Ontem você não teve gastos registrados. Economia em dia! 💚"
+    
+    elif query_type == "daily_today":
+        if result.get('total_gastos', 0) > 0:
+            return f"📊 **Gastos de hoje, {user_name}:**\n\n💰 **Total:** R$ {result['total_gastos']:.2f}\n📝 **{result['quantidade_gastos']} transações**\n\n🎯 Como está o orçamento do dia?"
+        else:
+            return f"📅 Hoje ainda não temos gastos registrados, {user_name}. Começando o dia bem! ✨"
+    
+    elif "category_" in query_type:
+        categoria = "Alimentação" if "food" in query_type else "Transporte"
+        return f"🍽️ **{categoria} - {user_name}:**\n\n💰 **Total:** R$ {result.get('total_gastos', 0):.2f}\n📊 **{result.get('quantidade_gastos', 0)} transações**\n\n📈 Quer comparar com outros períodos?"
+    
+    else:
+        return f"📊 **Resumo Financeiro - {user_name}:**\n\n💰 **Total Geral:** R$ {result.get('total_gastos', 0):.2f}\n📝 **{result.get('quantidade_gastos', 0)} registros**\n\n� Posso detalhar por categoria ou período específico!"
+
+async def generate_financial_analysis(user_name: str, user_message: str):
+    """📈 Gera análises e insights financeiros"""
+    logger.info(f"📈 Gerando análise financeira para {user_name}")
+    
+    return FinancialResponse(
+        success=True,
+        message=f"📈 **Análise Financeira em desenvolvimento, {user_name}!**\n\nEm breve terei insights automáticos sobre:\n• 📊 Padrões de gastos\n• 📈 Tendências mensais\n• 💡 Oportunidades de economia\n• � Projeções\n\nPor enquanto, posso mostrar seus gastos por período ou categoria. O que gostaria de ver?",
+        data={"intent": "financial_analysis", "status": "coming_soon"}
+    )
+
+async def execute_management_command(user_name: str, user_message: str):
+    """⚙️ Executa comandos de gestão financeira"""
+    logger.info(f"⚙️ Executando comando de gestão para {user_name}")
+    
+    return FinancialResponse(
+        success=True,
+        message=f"⚙️ **Gestão Financeira, {user_name}!**\n\nComandos disponíveis:\n• 🔍 **Validar documentação** - verifico se os dados estão completos\n• ✏️ **Corrigir fornecedor** - ajusto nomes de empresas\n• 📋 **Verificar registros** - confiro dados pendentes\n\nQual específicamente você gostaria de fazer?",
+        data={"intent": "management", "available_commands": ["validate", "correct", "verify"]}
+    )
+
+async def provide_help_or_greeting(user_name: str, user_message: str):
+    """👋 Cumprimentos e ajuda inteligente"""
+    msg_lower = user_message.lower()
+    
+    if any(greeting in msg_lower for greeting in ['ola', 'olá', 'oi', 'bom dia', 'boa tarde', 'boa noite']):
+        response_msg = f"Olá {user_name}! 👋 Sou a Alice-Financeira, sua assistente inteligente!\n\n🚀 **Posso ajudar com:**\n• 📸 **Registrar gastos** - envie imagens de comprovantes\n• 💰 **Consultar gastos** - 'meus gastos de ontem', 'quanto gastei em alimentação'\n• 📊 **Análises financeiras** - insights e relatórios\n• ⚙️ **Gestão** - validar, corrigir, organizar dados\n\n💡 **Experimente:** 'Quais foram meus gastos desta semana?'"
+    else:
+        response_msg = f"🤖 **Alice-Financeira - Central de Ajuda**\n\n**{user_name}, minhas capacidades:**\n\n📸 **Registro Automático:**\n• Análise de comprovantes e notas fiscais\n• Extração automática de dados\n• Categorização inteligente\n\n� **Consultas Inteligentes:**\n• 'Meus gastos de ontem/hoje/semana/mês'\n• 'Quanto gastei em alimentação?'\n• 'Resumo financeiro'\n\n📊 **Análises (em breve):**\n• Padrões e tendências\n• Insights automáticos\n• Projeções\n\n⚙️ **Gestão:**\n• Validação de documentos\n• Correção de dados\n• Organização de registros\n\n💡 **Dica:** Converse naturalmente comigo!"
+    
+    return FinancialResponse(
+        success=True,
+        message=response_msg,
+        data={"intent": "help", "user": user_name}
+    )
+
+async def acknowledge_thanks_goodbye(user_name: str, user_message: str):
+    """🙏 Agradecimentos e despedidas"""
+    msg_lower = user_message.lower()
+    
+    if any(thanks in msg_lower for thanks in ['obrigado', 'obrigada', 'valeu', 'vlw']):
+        response_msg = f"😊 Por nada, {user_name}! Foi um prazer ajudar!\n\n💡 Sempre que precisar de algo financeiro, é só chamar. Estou aqui 24/7 para:\n• 📸 Registrar novos gastos\n• 💰 Consultar informações\n• 📊 Gerar relatórios\n\nAté a próxima! ✨"
+    else:
+        response_msg = f"👋 Até logo, {user_name}! Foi ótimo conversar!\n\n🚀 Lembre-se: qualquer gasto novo é só me enviar a foto que eu cuido de tudo!\n\nTenha um ótimo dia! 😊✨"
+    
+    return FinancialResponse(
+        success=True,
+        message=response_msg,
+        data={"intent": "goodbye", "user": user_name}
+    )
+
+async def intelligent_conversation(user_name: str, user_message: str):
+    """🧠 Conversa inteligente geral"""
+    logger.info(f"🧠 Conversa inteligente com {user_name}")
+    
+    # Tentar entender o contexto da mensagem
+    msg_lower = user_message.lower()
+    
+    if any(word in msg_lower for word in ['dinheiro', 'dinheiro', 'economia', 'economizar', 'gastar', 'gasto']):
+        response_msg = f"💰 Falando sobre finanças, {user_name}! \n\nPosso te ajudar com:\n• 📊 **Ver seus gastos** - 'meus gastos desta semana'\n• 📸 **Registrar novos** - envie foto do comprovante\n• 💡 **Dicas de economia** - análise dos seus padrões\n\nO que você gostaria de saber?"
+    
+    elif any(word in msg_lower for word in ['problema', 'erro', 'bug', 'não funciona', 'nao funciona']):
+        response_msg = f"🔧 Vamos resolver, {user_name}!\n\nSe algo não está funcionando:\n• 📸 **Imagens:** Certifique-se que o comprovante está legível\n• 💬 **Comandos:** Tente 'meus gastos de hoje' ou 'ajuda'\n• 🔄 **Reset:** Posso recomeçar qualquer processo\n\nDetalhe o problema para eu ajudar melhor!"
+    
+    else:
+        response_msg = f"🤔 Interessante, {user_name}! Recebi: '{user_message}'\n\n💡 **Como posso ajudar especificamente?**\n• 💰 Quer consultar gastos?\n• 📸 Registrar nova despesa?\n• 📊 Ver relatórios?\n• ❓ Tirar alguma dúvida?\n\nSou especialista em finanças, então pergunte à vontade!"
+    
+    return FinancialResponse(
+        success=True,
+        message=response_msg,
+        data={
+            "intent": "general_conversation",
+            "user": user_name,
+            "original_message": user_message
+        }
     )
 
 async def handle_user_interaction_with_context(user_name: str, user_message: str, gasto_id: Union[int, str]):
