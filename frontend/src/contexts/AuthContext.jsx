@@ -23,8 +23,23 @@ export const AuthProvider = ({ children }) => {
   // Verificar token ao carregar
   useEffect(() => {
     if (token) {
-      // TODO: Validar token com o backend
-      setUser({ username: 'user', authenticated: true });
+      // TODO: Recuperar dados reais do usuário do backend
+      // Por enquanto, vamos tentar recuperar do localStorage
+      const savedUsername = localStorage.getItem('username');
+      
+      // Se não há username salvo, mas há token, forçar novo login
+      if (!savedUsername) {
+        localStorage.removeItem('auth_token');
+        setToken(null);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      
+      setUser({ 
+        username: savedUsername, 
+        authenticated: true 
+      });
     }
     setLoading(false);
   }, [token]);
@@ -48,6 +63,8 @@ export const AuthProvider = ({ children }) => {
       const authToken = data.access_token;
 
       localStorage.setItem('auth_token', authToken);
+      localStorage.setItem('username', username); // ✅ Salvar username para uso posterior
+      
       setToken(authToken);
       setUser({ username, authenticated: true });
 
@@ -85,6 +102,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('username'); // ✅ Remover username também
     setToken(null);
     setUser(null);
   };

@@ -1,26 +1,42 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, Send, X, Minimize2, Maximize2, Brain } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-// URL da API do agente
+// URL da API do agente - usando o endpoint do playground
 const AGENT_API_URL = import.meta.env.VITE_AGENT_API_URL || 
   (import.meta.env.PROD 
     ? 'https://dashboard-mobility-agent.herokuapp.com' 
     : 'http://localhost:8001');
 
+// ID do agente para o playground (pode ser qualquer UUID)
+const AGENT_ID = 'mobility-agent-frontend-chat';
+
 const FloatingChat = () => {
+  const { user } = useAuth(); // Capturar dados do usuário autenticado
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      type: 'agent',
-      message: 'Olá! Sou seu assistente inteligente. Como posso ajudá-lo hoje?',
-      timestamp: new Date()
-    }
-  ]);
+  
+  // Mensagem personalizada com nome do usuário
+  const getWelcomeMessage = () => {
+    const userName = user?.username || 'Usuário';
+    return `Olá${user?.username ? ` ${userName}` : ''}! Sou seu assistente inteligente de mobilidade urbana. Como posso ajudá-lo hoje?`;
+  };
+  
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesRef = useRef(null);
 
+  // Inicializar mensagem de boas-vindas após o usuário ser carregado
+  useEffect(() => {
+    const welcomeMessage = {
+      type: 'agent',
+      message: getWelcomeMessage(),
+      timestamp: new Date()
+    };
+    setMessages([welcomeMessage]);
+  }, [user?.username]); // Reagir especificamente ao username
+  
   // Função para enviar mensagem
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -37,21 +53,42 @@ const FloatingChat = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${AGENT_API_URL}/ask`, {
+      // Capturar dados do usuário para enviar ao agente
+      const userName = user?.username && user.username !== 'Usuário' ? user.username : null;
+      const userId = user?.id || user?.username || 'frontend_user';
+      
+      // Debug: verificar o que está sendo enviado
+      console.log('🔍 FloatingChat enviando:', {
+        user_object: user,
+        userName: userName,
+        userId: userId,
+        user_username: user?.username
+      });
+      
+      const payload = {
+        message: currentInput,
+        user_id: userId,
+        session_id: `chat_${userId}_${Date.now()}`
+      };
+      
+      // Só adicionar user_name se realmente tiver um nome válido
+      if (userName) {
+        payload.user_name = userName;
+      }
+      
+      // Usando o endpoint do playground que acabamos de corrigir
+      const response = await fetch(`${AGENT_API_URL}/v1/playground/agents/${AGENT_ID}/runs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: currentInput,
-          context: {}
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
 
-      if (data.success) {
+      if (response.ok && data.status === 'completed') {
         const agentMessage = {
           type: 'agent',
-          message: data.result,
+          message: data.content || data.result || data.message,
           timestamp: new Date()
         };
         setMessages(prev => [...prev, agentMessage]);

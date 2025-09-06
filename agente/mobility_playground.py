@@ -301,12 +301,14 @@ mobility_instructions = [
     "- NÃO confundir ferramentas de inserção e update",
     "- Use o ID da inserção original para todos os updates",
     "",
-    "📊 FORMATO DE RESPOSTA:",
+    "FORMATO DE RESPOSTA:",
     "- Seja objetivo e use dados específicos",
     "- Inclua números e percentuais quando disponível", 
-    "- Use emojis: 📊 📈 📉 ⚠️ ✅ 💰 📄",
+    "- Use símbolos simples para destacar: [OK] [ERRO] [INFO] [AVISO]",
     "- Para mobilidade: insights estratégicos e recomendações",
     "- Para financeiro: status claro de cada etapa",
+    "- PERSONALIZAÇÃO IMPORTANTE: Quando receber 'O usuário [Nome] disse: [mensagem]', SEMPRE responda diretamente ao usuário pelo nome. Exemplo: 'Olá João! Como posso ajudá-lo?'",
+    "- Se não houver nome específico, use saudação genérica",
     "",
     "CONTEXTO: A Urban é uma empresa de transporte urbano que opera em múltiplas cidades.",
     "Use a memória da sessão para personalizar análises e lembrar IDs de gastos inseridos."
@@ -404,10 +406,10 @@ try:
         num_history_runs=3,  # Usar num_history_runs ao invés de num_history_responses
         enable_user_memories=True,      # Ativar memórias de usuário
         enable_session_summaries=True,  # Ativar resumos de sessão
-        reasoning=True,  # ✅ ATIVAR REASONING (substitui a ferramenta THINK do n8n)
-        reasoning_model=OpenAIChat(id="gpt-4o-mini", api_key=api_key),  # Modelo para reasoning
-        reasoning_min_steps=1,
-        reasoning_max_steps=5,
+        reasoning=False,  # ❌ DESATIVAR REASONING - estava causando uso excessivo de ferramentas
+        # reasoning_model=OpenAIChat(id="gpt-4o-mini", api_key=api_key),  # Modelo para reasoning
+        # reasoning_min_steps=1,
+        # reasoning_max_steps=5,
         markdown=True,
         show_tool_calls=True,
         description="Agente especialista em análise de dados de mobilidade urbana da empresa Urban",
@@ -437,13 +439,17 @@ class MobilityRunPayload(BaseModel):
 
 # --- Playground Customizado ---
 class MobilityPlayground(Playground):
-    async def run_agent(self, message: str, session_id: str = None, user_id: str = None) -> str:
+    async def run_agent(self, message: str, session_id: str = None, user_id: str = None, user_name: str = None) -> str:
         """Executa o agente de mobilidade com uma mensagem"""
         try:
             # Usa o agente global de forma síncrona
             session_id = session_id or f"session_{int(time.time())}"
             user_id = user_id or "mobility_user"
-            logging.info(f"🤖 Executando MobilityAgent com sessão: {session_id}, usuário: {user_id}")
+            logging.info(f"[DEBUG] Iniciando run_agent - Mensagem: {message}")
+            logging.info(f"[DEBUG] Session: {session_id}, User: {user_id}, User Name: {user_name}")
+            
+            # CRÍTICO: Verificar se não estamos recriando app aqui
+            logging.info(f"[DEBUG] Prestes a chamar mobility_agent.run()")
             
             # O método run do agente é síncrono com memória AGNO
             result = mobility_agent.run(
@@ -452,19 +458,37 @@ class MobilityPlayground(Playground):
                 user_id=user_id  # Adicionar user_id para memórias
             )
             
-            logging.info(f"✅ Execução concluída com sucesso")
-            return str(result)
+            logging.info(f"[DEBUG] mobility_agent.run() CONCLUÍDO!")
+            logging.info(f"[DEBUG] Resultado: {str(result)[:100]}...")
+            logging.info(f"[SUCCESS] Execução concluída com sucesso")
+            
+            # Extrair apenas o conteúdo da resposta para o AGNO
+            if hasattr(result, 'content'):
+                return result.content
+            else:
+                return str(result)
             
         except Exception as e:
             logging.error(f"❌ Erro ao executar agente: {e}", exc_info=True)
             raise e
+
+    def get_app(self):
+        """Cria e configura a aplicação FastAPI"""
         app = super().get_app()
         
         # Middlewares
         app.add_middleware(GZipMiddleware)
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=["https://app.agno.com", "http://localhost:8001", "http://127.0.0.1:8001"],
+            allow_origins=[
+                "https://app.agno.com", 
+                "http://localhost:8001", 
+                "http://127.0.0.1:8001",
+                "http://localhost:3000",  # Frontend React
+                "http://127.0.0.1:3000",  # Frontend React alternativo
+                "http://localhost:5173",  # Vite dev server
+                "http://127.0.0.1:5173"   # Vite dev server alternativo
+            ],
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],
@@ -541,42 +565,100 @@ class MobilityPlayground(Playground):
         # Rota customizada - Compatível com AGNO
         @app.post("/v1/playground/agents/{agent_id}/runs", tags=["AGNO Compatibility"])
         @limiter.limit("60/minute")
-        async def run_mobility_agent(agent_id: str, request: Request, payload: Dict[str, Any] = Body(...)):
+        async def run_mobility_agent(agent_id: str, request: Request):
             start_time = time.time()
             
             try:
-                # Log detalhado do que está chegando
-                logging.info(f"🎯 AGNO Request - Agent ID: {agent_id}")
-                logging.info(f"📦 Payload recebido: {payload}")
-                logging.info(f"📋 Headers: {dict(request.headers)}")
+                # Processamento flexível do payload (JSON ou form-data)
+                payload = None
+                content_type = request.headers.get('content-type', '')
+                
+                if 'multipart/form-data' in content_type:
+                    # AGNO envia como form-data
+                    form_data = await request.form()
+                    payload = {
+                        "message": form_data.get("message", ""),
+                        "stream": form_data.get("stream", "false"),
+                        "monitor": form_data.get("monitor", "false"),
+                        "session_id": form_data.get("session_id", ""),
+                        "user_id": form_data.get("user_id", ""),
+                        "user_name": form_data.get("user_name", "")  # Capturar nome do usuário
+                    }
+                elif 'application/x-www-form-urlencoded' in content_type:
+                    # Para form-data simples
+                    form_data = await request.form()
+                    payload = {
+                        "message": form_data.get("message", ""),
+                        "stream": form_data.get("stream", "false"),
+                        "monitor": form_data.get("monitor", "false"),
+                        "session_id": form_data.get("session_id", ""),
+                        "user_id": form_data.get("user_id", ""),
+                        "user_name": form_data.get("user_name", "")  # Capturar nome do usuário
+                    }
+                elif 'application/json' in content_type:
+                    # Formato JSON tradicional
+                    payload = await request.json()
+                else:
+                    # Fallback: tentar form primeiro, depois JSON
+                    try:
+                        form_data = await request.form()
+                        if form_data:
+                            payload = {
+                                "message": form_data.get("message", ""),
+                                "stream": form_data.get("stream", "false"),
+                                "monitor": form_data.get("monitor", "false"),
+                                "session_id": form_data.get("session_id", ""),
+                                "user_id": form_data.get("user_id", ""),
+                                "user_name": form_data.get("user_name", "")  # Capturar nome do usuário
+                            }
+                        else:
+                            payload = await request.json()
+                    except:
+                        payload = {"message": ""}
+                
+                logging.info(f"AGNO Request - Agent ID: {agent_id}")
+                logging.info(f"Payload processado: {payload}")
+                logging.info(f"Content-Type: {content_type}")
                 
                 # Extrai a mensagem do payload (formato AGNO)
                 message = payload.get("message", "")
                 user_id = payload.get("user_id", "agno_user")  # Extrair user_id se disponível
+                user_name = payload.get("user_name", "")  # ✅ NOVO: Capturar nome do usuário
                 session_id = payload.get("session_id")  # Extrair session_id se disponível
                 
                 if not message:
-                    logging.error(f"❌ Mensagem vazia no payload: {payload}")
+                    logging.error(f"Mensagem vazia no payload: {payload}")
                     raise HTTPException(status_code=400, detail="Mensagem é obrigatória")
                 
-                logging.info(f"📝 Mensagem extraída: {message}")
-                logging.info(f"👤 User ID: {user_id}, Session ID: {session_id}")
+                logging.info(f"Mensagem extraída: {message}")
+                logging.info(f"User ID: {user_id}, User Name: {user_name}, Session ID: {session_id}")
+                
+                # NOVO: Personalizar mensagem com nome do usuário se disponível
+                if user_name and user_name.strip():
+                    # Adicionar contexto sobre quem está falando
+                    contextualized_message = f"O usuário {user_name} disse: {message}"
+                    logging.info(f"Contextualizando mensagem para: {contextualized_message}")
+                else:
+                    contextualized_message = message
+                    logging.info(f"Sem nome de usuário fornecido, usando mensagem original")
                 
                 # SEMPRE usa nosso MobilityAgent independente do agent_id
                 # O AGNO pode gerar IDs aleatórios, mas sempre executamos nosso agente
-                result = await self.run_agent(message, session_id=session_id, user_id=user_id)
+                result = await self.run_agent(contextualized_message, session_id=session_id, user_id=user_id, user_name=user_name)
                 
                 # Formato de resposta compatível com AGNO
                 response = {
                     "id": f"run_{int(time.time())}",
                     "agent_id": agent_id,  # Retorna o ID que o AGNO enviou
                     "status": "completed",
-                    "result": result,
+                    "content": result,  # AGNO pode esperar 'content' ao invés de 'result'
+                    "result": result,   # Manter ambos para compatibilidade
+                    "message": result,  # Algumas versões esperam 'message'
                     "timestamp": datetime.now().isoformat(),
                     "execution_time": round(time.time() - start_time, 2)
                 }
                 
-                logging.info(f"✅ Agente executado via AGNO em {response['execution_time']}s")
+                logging.info(f"Agente executado via AGNO em {response['execution_time']}s")
                 return response
                 
             except HTTPException:
@@ -589,8 +671,8 @@ class MobilityPlayground(Playground):
         @app.post("/v1/playground/agents/{agent_id}/runs/{run_id}", tags=["AGNO Debug"])
         async def run_mobility_agent_alt(agent_id: str, run_id: str, request: Request, payload: Dict[str, Any] = Body(...)):
             """Endpoint alternativo caso o AGNO use formato diferente"""
-            logging.info(f"🔍 AGNO Alt Format - Agent: {agent_id}, Run: {run_id}")
-            logging.info(f"📦 Alt Payload: {payload}")
+            logging.info(f"AGNO Alt Format - Agent: {agent_id}, Run: {run_id}")
+            logging.info(f"Alt Payload: {payload}")
             return {"message": "Alternative endpoint detected", "agent_id": agent_id, "run_id": run_id}
         
         # 🎮 Interface Web Local
@@ -605,7 +687,7 @@ class MobilityPlayground(Playground):
             """Endpoint de debug para testar o agente"""
             try:
                 message = payload.get("message", "Hello")
-                logging.info(f"🔍 Debug: testando agente com mensagem: {message}")
+                logging.info(f"Debug: testando agente com mensagem: {message}")
                 
                 # Testa execução direta
                 result = mobility_agent.run(message=message, session_id="debug")
@@ -667,9 +749,9 @@ app.include_router(financial_router)
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 7777))  # Porta padrão do AGNO
-    logging.info(f"🚀 Iniciando Mobility Playground na porta {port}")
-    logging.info(f"🔗 Dashboard URL: {MobilityConfig.DASHBOARD_URL}")
-    logging.info(f"🎯 Endpoints principais:")
+    logging.info(f"Iniciando Mobility Playground na porta {port}")
+    logging.info(f"Dashboard URL: {MobilityConfig.DASHBOARD_URL}")
+    logging.info(f"Endpoints principais:")
     logging.info(f"   - Health: http://localhost:{port}/health")
     logging.info(f"   - Docs: http://localhost:{port}/docs")
     logging.info(f"   - Playground: http://localhost:{port}")
@@ -681,7 +763,7 @@ if __name__ == "__main__":
     
     # Nota: O AGNO espera porta 7777 por padrão
     if port != 7777:
-        logging.warning(f"⚠️  ATENÇÃO: AGNO espera porta 7777 por padrão, você está usando {port}")
+        logging.warning(f"ATENÇÃO: AGNO espera porta 7777 por padrão, você está usando {port}")
         logging.warning(f"   Configure no AGNO playground: http://localhost:{port}/v1")
     
     # Usa o método serve do AGNO que é o padrão recomendado

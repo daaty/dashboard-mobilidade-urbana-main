@@ -38,21 +38,25 @@ class GastoEmpresa(BaseModel):
     inscricao_estadual: Optional[str] = Field(None, description="Inscrição estadual")
     data_processamento: Optional[str] = Field(None, description="Data de processamento")
 
-class FinancialTools:
+from agno.tools import Toolkit
+
+class FinancialTools(Toolkit):
     """Ferramentas financeiras para gestão de gastos da empresa"""
     
     def __init__(self):
         self.db_url = os.getenv("DATABASE_URL", "postgresql://n8n_user:n8n_pw@148.230.73.27:5432/n8n_db")
-        self.tools = [
+        
+        # ✅ DEFINIR FERRAMENTAS COMO MÉTODOS
+        tools = [
             self.inserir_gasto_empresa,
             self.atualizar_gasto_empresa,
             self.consultar_gastos_empresa,
             self.validar_documentacao_fiscal
         ]
-        logger.info(f"✅ [INIT] FinancialTools inicializado com {len(self.tools)} ferramentas")
-    
-    def __str__(self):
-        return f"FinancialTools: {len(self.tools)} ferramentas"
+        
+        # ✅ INICIALIZAR COMO TOOLKIT
+        super().__init__(name="financial_tools", tools=tools)
+        logger.info(f"✅ [INIT] FinancialTools inicializado com {len(tools)} ferramentas")
     
     def _get_connection(self):
         """Obtém conexão com PostgreSQL"""
