@@ -21,6 +21,13 @@ fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 pydantic>=2.0.0
 
+# Rate limiting e middleware
+slowapi>=0.1.8
+cachetools>=5.3.0
+
+# Retry e resilience
+tenacity>=8.2.0
+
 # Extras para API
 python-multipart>=0.0.6
 httpx>=0.25.0
