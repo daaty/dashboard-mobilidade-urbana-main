@@ -18,9 +18,15 @@ psycopg2-binary>=2.9.0
 
 # Web Framework (para API do agente)
 fastapi>=0.104.0
-uvicorn>=0.24.0
+uvicorn[standard]>=0.24.0
 pydantic>=2.0.0
 
-# Extras
+# Extras para API
 python-multipart>=0.0.6
 httpx>=0.25.0
+
+# Logging e monitoramento
+gunicorn>=21.0.0
+
+# Para processamento JSON e regex (já incluídos no Python)
+# json, re, logging, typing - built-in modules

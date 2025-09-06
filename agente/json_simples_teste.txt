@@ -1,0 +1,9 @@
+{
+  "kind": "{{ $json.kind }}",
+  "id": "{{ $json.id }}",
+  "name": "{{ $json.name }}",
+  "mimeType": "{{ $json.mimeType }}",
+  "webContentLink": "{{ $json.webContentLink }}",
+  "webViewLink": "{{ $json.webViewLink }}",
+  "content": "{{ $json.content }}"
+}

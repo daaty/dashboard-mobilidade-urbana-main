@@ -1,0 +1,13 @@
+curl -X POST \
+  'https://agno.rotadoscelulares.com/financial/register' \
+  -H 'Content-Type: application/json' \
+  -d '{
+	"message": "={{ $('\''Merge3'\'').item.json.messages[0].content }}",
+	"user_id": "={{ $('\''Merge3'\'').item.json.clientInfo.name }}",
+	"session_id": "={{ $('\''Webhook'\'').item.json.body.conversation.id }}",
+	"dados_emocao": "={{ JSON.stringify($('\''Merge3'\'').item.json.dadosDaEmocao) }}",
+	"conversation_id": "={{ $('\''Webhook'\'').item.json.body.conversation.messages[0].conversation_id }}",
+	"custom_attributes_city": "={{ $('\''Webhook'\'').item.json.body.conversation.meta.sender.custom_attributes.cidade }}",
+	"custom_attributes_category": "={{ $('\''Webhook'\'').item.json.body.conversation.meta.sender.custom_attributes.categoria }}",
+	"contact_id": "={{ $('\''Webhook'\'').item.json.body.conversation.contact_inbox.contact_id }}"
+}'

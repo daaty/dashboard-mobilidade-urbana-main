@@ -29,6 +29,12 @@ class DashboardAPITools(Toolkit):
             self.get_rides_by_city,
             self.get_drivers_overview,
             self.get_drivers_by_city,
+            self.get_drivers_list,
+            self.get_drivers_summary,
+            self.get_drivers_basic_list,
+            self.get_driver_personal_details,
+            self.get_driver_analytics,
+            self.find_driver_personal_data,
             self.get_financial_overview,
             self.get_financial_by_category,
             self.get_strategic_goals,
@@ -113,30 +119,30 @@ class DashboardAPITools(Toolkit):
     
     def get_drivers_overview(self, periodo: str = "30d") -> str:
         """
-        Busca métricas gerais de motoristas.
+        Busca KPIs gerais de motoristas - métricas principais.
         
         Args:
             periodo: Período de análise (7d, 30d, 90d) - informativo apenas
             
         Returns:
-            JSON com dados de motoristas ativos, avaliações, etc.
+            JSON com KPIs de motoristas: total, ativos, horas online, etc.
         """
         print(f"🚗 [TOOL] get_drivers_overview() chamada com periodo={periodo}")
         print(f"🔗 [TOOL] URL base configurada: {self.base_url}")
         print(f"🤖 [TOOL] Chamada vem do framework AGNO")
         
         try:
-            # API não aceita parâmetros de período, então fazemos requisição simples
-            data = self._make_request("GET", "/api/drivers/overview")
+            # Usar o endpoint correto de KPIs
+            data = self._make_request("GET", "/api/drivers/kpis")
             
             if "error" in data:
-                error_msg = f"Erro ao buscar dados de motoristas: {data['error']}"
+                error_msg = f"Erro ao buscar KPIs de motoristas: {data['error']}"
                 print(f"❌ [TOOL] {error_msg}")
                 return error_msg
             
-            print(f"✅ [TOOL] Dados de motoristas obtidos: {data.get('active_drivers', 'N/A')} ativos")
+            print(f"✅ [TOOL] KPIs de motoristas obtidos: {data.get('total_drivers', 'N/A')} total")
             result = json.dumps(data, indent=2, ensure_ascii=False)
-            print(f"📤 [TOOL] Retornando dados de motoristas ({len(result)} caracteres)")
+            print(f"📤 [TOOL] Retornando KPIs de motoristas ({len(result)} caracteres)")
             return result
             
         except Exception as e:
@@ -144,24 +150,136 @@ class DashboardAPITools(Toolkit):
             print(error_msg)
             return error_msg
     
-    def get_drivers_by_city(self, cidade: str) -> str:
+    def get_drivers_by_city(self, cidade: str = None) -> str:
         """
-        Busca motoristas específicos de uma cidade.
+        Busca cidades disponíveis ou lista de motoristas.
         
         Args:
-            cidade: Nome da cidade
+            cidade: Nome da cidade (se None, retorna cidades disponíveis)
             
         Returns:
-            JSON com motoristas da cidade especificada
+            JSON com cidades disponíveis ou lista de motoristas
         """
-        params = {"cidade": cidade}
-        data = self._make_request("GET", "/api/drivers/by-city", params=params)
-        
-        if "error" in data:
-            return f"Erro ao buscar motoristas de {cidade}: {data['error']}"
-            
-        return json.dumps(data, indent=2, ensure_ascii=False)
+        try:
+            if cidade is None:
+                # Buscar cidades disponíveis
+                data = self._make_request("GET", "/api/drivers/cities")
+                if "error" in data:
+                    return f"Erro ao buscar cidades: {data['error']}"
+                return json.dumps(data, indent=2, ensure_ascii=False)
+            else:
+                # Buscar lista de motoristas (filtrar por cidade no frontend se necessário)
+                data = self._make_request("GET", "/api/drivers/list")
+                if "error" in data:
+                    return f"Erro ao buscar motoristas: {data['error']}"
+                return json.dumps(data, indent=2, ensure_ascii=False)
+        except Exception as e:
+            return f"Erro ao buscar dados: {str(e)}"
     
+    def get_drivers_list(self) -> str:
+        """
+        Busca lista completa de motoristas.
+        
+        Returns:
+            JSON com lista de todos os motoristas
+        """
+        try:
+            data = self._make_request("GET", "/api/drivers/list")
+            if "error" in data:
+                return f"Erro ao buscar lista de motoristas: {data['error']}"
+            return json.dumps(data, indent=2, ensure_ascii=False)
+        except Exception as e:
+            return f"Erro ao buscar lista de motoristas: {str(e)}"
+    
+    def get_drivers_summary(self) -> str:
+        """
+        Busca resumo detalhado de motoristas.
+        
+        Returns:
+            JSON com resumo de motoristas
+        """
+        try:
+            data = self._make_request("GET", "/api/drivers/summary")
+            if "error" in data:
+                return f"Erro ao buscar resumo de motoristas: {data['error']}"
+            return json.dumps(data, indent=2, ensure_ascii=False)
+        except Exception as e:
+            return f"Erro ao buscar resumo de motoristas: {str(e)}"
+    
+    def get_drivers_basic_list(self) -> str:
+        """
+        Busca lista básica de motoristas.
+        
+        Returns:
+            JSON com lista básica de motoristas
+        """
+        try:
+            data = self._make_request("GET", "/api/drivers/summary/basic-list")
+            if "error" in data:
+                return f"Erro ao buscar lista básica de motoristas: {data['error']}"
+            return json.dumps(data, indent=2, ensure_ascii=False)
+        except Exception as e:
+            return f"Erro ao buscar lista básica de motoristas: {str(e)}"
+    
+    def get_driver_personal_details(self, driver_id: str = None) -> str:
+        """
+        Busca dados pessoais de motoristas.
+        
+        Args:
+            driver_id: ID do motorista específico (opcional)
+            
+        Returns:
+            JSON com dados pessoais do motorista ou todos os motoristas
+        """
+        try:
+            if driver_id:
+                data = self._make_request("GET", f"/api/drivers/personal-details/{driver_id}")
+                if "error" in data:
+                    return f"Erro ao buscar dados do motorista {driver_id}: {data['error']}"
+            else:
+                data = self._make_request("GET", "/api/drivers/personal-details")
+                if "error" in data:
+                    return f"Erro ao buscar dados pessoais de motoristas: {data['error']}"
+            return json.dumps(data, indent=2, ensure_ascii=False)
+        except Exception as e:
+            return f"Erro ao buscar dados pessoais: {str(e)}"
+    
+    def get_driver_analytics(self, driver_id: str) -> str:
+        """
+        Busca analytics de um motorista específico.
+        
+        Args:
+            driver_id: ID do motorista
+            
+        Returns:
+            JSON com analytics do motorista
+        """
+        try:
+            data = self._make_request("GET", f"/api/drivers/analytics/{driver_id}")
+            if "error" in data:
+                return f"Erro ao buscar analytics do motorista {driver_id}: {data['error']}"
+            return json.dumps(data, indent=2, ensure_ascii=False)
+        except Exception as e:
+            return f"Erro ao buscar analytics do motorista: {str(e)}"
+    
+    def find_driver_personal_data(self, analytics_driver_id: str) -> str:
+        """
+        Busca dados pessoais por ID do analytics.
+        
+        Args:
+            analytics_driver_id: ID do motorista no sistema de analytics
+            
+        Returns:
+            JSON com dados pessoais do motorista
+        """
+        try:
+            data = self._make_request("GET", f"/api/drivers/find-personal-data/{analytics_driver_id}")
+            if "error" in data:
+                return f"Erro ao buscar dados por analytics ID {analytics_driver_id}: {data['error']}"
+            return json.dumps(data, indent=2, ensure_ascii=False)
+        except Exception as e:
+            return f"Erro ao buscar dados por analytics ID: {str(e)}"
+
     # ========== ANÁLISE FINANCEIRA ==========
     
     def get_financial_overview(self, periodo: str = "30d") -> str:

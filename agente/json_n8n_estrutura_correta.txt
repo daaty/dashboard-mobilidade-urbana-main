@@ -1,0 +1,16 @@
+{
+  "kind": "{{ $json.kind }}",
+  "id": "{{ $json.id }}",
+  "name": "{{ $json.name }}",
+  "mimeType": "{{ $json.mimeType }}",
+  "webContentLink": "{{ $json.webContentLink }}",
+  "webViewLink": "{{ $json.webViewLink }}",
+  "content": {
+    "parts": [
+      {
+        "text": "{{ $json.content.parts[0].text }}"
+      }
+    ],
+    "role": "{{ $json.content.role }}"
+  }
+}

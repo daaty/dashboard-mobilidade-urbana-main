@@ -19,6 +19,9 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 # Adicionar o diretório dashboard_agent ao path
 sys.path.append(os.path.join(os.path.dirname(__file__), "dashboard_agent"))
 
+# Importar financial_endpoint
+from financial_endpoint import router as financial_router
+
 try:
     from dashboard_agent.mobility_agent import MobilityDashboardAgent
 except ImportError:
@@ -51,6 +54,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Incluir routers
+app.include_router(financial_router, prefix="/api")
 
 # Modelos de request/response
 class AnalysisRequest(BaseModel):
@@ -109,6 +115,9 @@ async def startup_event():
         print(f"❌ Erro ao inicializar agente: {e}")
         # Criar versão mock para não quebrar o deploy
         agente = MobilityDashboardAgent()
+
+# Exporta o agente para uso em outros módulos (como playground)
+mobility_agent = agente
 
 @app.get("/")
 async def root():

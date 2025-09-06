@@ -1,0 +1,16 @@
+{
+  "kind": $('Merge4').item.json.kind,
+  "id": $('Merge4').item.json.id,
+  "name": $('Merge4').item.json.name,
+  "mimeType": $('Merge4').item.json.mimeType,
+  "webContentLink": $('Merge4').item.json.webContentLink,
+  "webViewLink": $('Merge4').item.json.webViewLink,
+  "content": {
+    "parts": [
+      {
+        "text": $('Merge4').item.json.content.parts[0].text
+      }
+    ],
+    "role": $('Merge4').item.json.content.role
+  }
+}

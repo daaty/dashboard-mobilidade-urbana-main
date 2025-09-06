@@ -1,0 +1,19 @@
+
+DADOS RECEBIDOS PARA REGISTRO FINANCEIRO:
+
+DESCRIÇÃO DO ARQUIVO: ```json
+{
+  "dados_extraidos": {
+    "data_despesa": "2025-09-05",
+    "valor_total": 150.75,
+    "descricao_item": "Combustível para veículo da empresa",
+    "tipo_documento": "Comprovante",
+    "fornecedor": "Posto Shell"
+  },
+  "descricao_imagem": "Comprovante de pagamento de combustível no Posto Shell. Data: 05/09/2025. Valor: R$ 150,75. Produto: Gasolina comum. Placa do veículo: ABC-1234."
+}
+```
+
+LINK DO ARQUIVO: https://drive.google.com/uc?id=1OY3GUVQ_DQFg6FSzadSNFRDlKXBHB1y8&export=download
+
+Por favor, processe estes dados e registre na tabela de gastos da empresa.
