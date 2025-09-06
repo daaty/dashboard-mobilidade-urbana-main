@@ -5,10 +5,8 @@
 ### Arquivos Configurados:
 - **Procfile**: `python -m uvicorn mobility_playground:app --host 0.0.0.0 --port $PORT`
 - **requirements.txt**: Todas dependências incluídas
-- **runtime.txt**: Python 3.11.5
-- **financial_endpoint.py**: Integrado ao mobility_playground
-
-### Funcionalidades Disponíveis:
+- **.python-version**: `3.11` (novo formato Heroku)
+- **financial_endpoint.py**: Integrado ao mobility_playground### Funcionalidades Disponíveis:
 1. **🤖 Agente Conversacional AGNO**: Análises inteligentes de mobilidade
 2. **💰 Endpoint Financeiro N8N**: `/financial/register` - Processamento de documentos
 3. **📊 Dashboard API**: Integração completa com backend
