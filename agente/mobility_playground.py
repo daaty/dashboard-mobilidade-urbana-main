@@ -37,8 +37,8 @@ from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.playground import Playground
 
-# Importação do endpoint financeiro simples e eficaz
-from financial_endpoint_simple import router as financial_router
+# Importação do endpoint financeiro original
+from financial_endpoint import router as financial_router
 
 # Importações das nossas ferramentas
 import sys
