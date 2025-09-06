@@ -55,25 +55,29 @@ async def register_financial_data(data: N8NFinancialData):
     """
     Endpoint unificado para dados financeiros do N8N
     
-    Detecta automaticamente:
-    1. Dados de imagem (kind, content.parts[0].text com JSON)
-    2. Interação de texto (userName, userMessage)
-    3. Áudio convertido (mesmo que interação de texto)
+    REGRAS DE NEGÓCIO:
+    1. Dados de imagem (kind, content) → INICIA novo fluxo de registro
+    2. Interação (userName, userMessage) → SÓ processa se previous_gasto_id existe (fluxo já iniciado)
+    3. Interação sem previous_gasto_id → Resposta conversacional SEM registrar dados
     """
     try:
-        # DETECTAR TIPO DE DADOS
-        if data.userName and data.userMessage:
-            # CENÁRIO: INTERAÇÃO DE TEXTO/ÁUDIO
-            logger.info(f"💬 Modo interação - Usuário: {data.userName}, Mensagem: {data.userMessage}")
-            return await handle_user_interaction(data.userName, data.userMessage)
-            
-        elif data.kind and data.content:
-            # CENÁRIO: DADOS DE IMAGEM
-            logger.info(f"📋 Modo extração - Arquivo: {data.name}")
+        # CENÁRIO 1: DADOS DE IMAGEM - INICIA FLUXO DE REGISTRO
+        if data.kind and data.content:
+            logger.info(f"📋 INICIANDO fluxo de registro - Arquivo: {data.name}")
             return await handle_image_extraction(data)
             
+        # CENÁRIO 2: INTERAÇÃO COM FLUXO JÁ INICIADO
+        elif data.userName and data.userMessage and data.previous_gasto_id:
+            logger.info(f"💬 Continuando fluxo de registro - Usuário: {data.userName}, Gasto ID: {data.previous_gasto_id}")
+            return await handle_user_interaction_with_context(data.userName, data.userMessage, data.previous_gasto_id)
+            
+        # CENÁRIO 3: INTERAÇÃO SEM CONTEXTO - APENAS CONVERSACIONAL
+        elif data.userName and data.userMessage and not data.previous_gasto_id:
+            logger.info(f"� Modo conversacional - Usuário: {data.userName}, Mensagem: {data.userMessage}")
+            return await handle_conversational_interaction(data.userName, data.userMessage)
+            
         else:
-            raise HTTPException(status_code=400, detail="Formato de dados inválido: nem interação nem extração de imagem identificada")
+            raise HTTPException(status_code=400, detail="Formato de dados inválido: dados insuficientes")
             
     except Exception as e:
         logger.error(f"❌ Erro no endpoint financeiro: {e}")
@@ -83,7 +87,114 @@ async def register_financial_data(data: N8NFinancialData):
             error=str(e)
         )
 
-async def handle_user_interaction(user_name: str, user_message: str):
+async def handle_conversational_interaction(user_name: str, user_message: str):
+    """Lidar com interação conversacional SEM contexto de registro - apenas chat"""
+    logger.info(f"💭 Interação conversacional: {user_name} disse '{user_message}'")
+    
+    # Normalizar mensagem para análise
+    msg_lower = user_message.lower().strip()
+    
+    # CUMPRIMENTOS E INTERAÇÕES GERAIS
+    if any(cumprimento in msg_lower for cumprimento in ['ola', 'olá', 'oi', 'hello', 'hey', 'bom dia', 'boa tarde', 'boa noite']):
+        response_msg = f"Olá {user_name}! 👋 Como posso te ajudar hoje? Posso registrar gastos, comprovantes ou notas fiscais para você!"
+    
+    elif any(palavra in msg_lower for palavra in ['help', 'ajuda', 'como funciona', 'o que você faz', 'ferramenta', 'funcionalidade', 'o que pode fazer', 'que ferramentas', 'quais ferramentas', 'funcoes', 'funções']):
+        response_msg = f"Olá {user_name}! 🤖 Sou a Alice-Financeira, sua assistente para controle financeiro!\n\n**Minhas ferramentas:**\n• 📷 **Análise de Imagens**: Processo comprovantes e notas fiscais automaticamente\n• 💾 **Registro de Gastos**: Salvo dados extraídos no sistema financeiro\n• 🔗 **Vinculação de Documentos**: Conecto comprovantes com suas respectivas NFs\n• 📊 **Categorização**: Organizo gastos por tipo (Alimentação, Transporte, etc.)\n• 🏢 **Gestão de Fornecedores**: Identifico e valido empresas dos documentos\n\n**Como usar:**\nApenas envie a imagem do documento que eu cuido do resto! 📸"
+    
+    elif any(palavra in msg_lower for palavra in ['comprovante', 'nota fiscal', 'nf', 'gasto', 'despesa', 'pagamento']):
+        response_msg = f"Perfeito {user_name}! Para registrar um gasto, envie a **imagem** do comprovante ou nota fiscal que eu processarei automaticamente os dados para você!\n\n📸 **Importante:** Preciso da imagem do documento para iniciar o registro."
+    
+    elif any(palavra in msg_lower for palavra in ['tchau', 'bye', 'obrigado', 'obrigada', 'valeu']):
+        response_msg = f"Até logo {user_name}! Foi um prazer ajudar. Qualquer novo gasto é só me enviar! 😊"
+    
+    else:
+        # RESPOSTA INTELIGENTE PARA MENSAGENS NÃO IDENTIFICADAS
+        if len(user_message.strip()) <= 3:
+            response_msg = f"Não entendi bem {user_name}. Você poderia:\n• Enviar imagem de um comprovante para registrar\n• Me dizer se tem alguma dúvida específica\n• Ou ser mais específico sobre o que precisa? 😄"
+        elif any(palavra in msg_lower for palavra in ['qual', 'que', 'como', '?']):
+            response_msg = f"Olá {user_name}! Para perguntas específicas, use palavras-chave como:\n• **'ferramentas'** ou **'ajuda'** - para saber minhas funcionalidades\n• **'como funciona'** - para entender o processo\n• **'comprovante'** - para registrar gastos\n\nOu simplesmente envie a imagem do documento que precisa processar! 📸"
+        else:
+            response_msg = f"Olá {user_name}! Recebi sua mensagem: '{user_message}'\n\n💡 **Para registrar gastos:** Envie a imagem do comprovante/NF\n❓ **Para dúvidas:** Digite 'ajuda' ou 'ferramentas'\n\nComo posso ajudar?"
+    
+    return FinancialResponse(
+        success=True,
+        message=response_msg,
+        gasto_id=None,
+        data={
+            "user": user_name,
+            "message": user_message,
+            "interaction_type": "conversational_only"
+        },
+        error=None
+    )
+
+async def handle_user_interaction_with_context(user_name: str, user_message: str, gasto_id: Union[int, str]):
+    """Lidar com interação no contexto de um registro já iniciado"""
+    logger.info(f"💬 Processando resposta no contexto do gasto ID {gasto_id}: {user_name} disse '{user_message}'")
+    
+    # Normalizar mensagem para análise
+    msg_lower = user_message.lower().strip()
+    
+    # DETECTAR RESPOSTAS SOBRE WORKFLOW DE REGISTRO
+    if any(palavra in msg_lower for palavra in ['não', 'nao', 'não tenho', 'nao tenho', 'sem nf', 'sem nota']):
+        response_msg = f"Ok {user_name}! Registro confirmado apenas com o comprovante. Agora informe a natureza do gasto (Alimentação, Transporte, Material de Escritório, Serviços, Marketing, Viagem, Outros)."
+    
+    elif any(palavra in msg_lower for palavra in ['sim', 'tenho nota fiscal', 'tenho nf', 'possui nf', 'tem nota']):
+        response_msg = f"Perfeito {user_name}! Você confirmou que possui Nota Fiscal. Por favor, envie a imagem da NF para que eu possa processar e vincular ao comprovante anterior."
+    
+    elif any(categoria in msg_lower for categoria in ['alimentação', 'alimentacao', 'transporte', 'material de escritório', 'material escritorio', 'material', 'escritorio', 'serviços', 'servicos', 'marketing', 'viagem', 'outros', 'alimento', 'comida', 'lanche', 'refeição', 'refeicao']):
+        # Mapear categoria para nome padrão
+        categoria_mapeada = user_message
+        if any(palavra in msg_lower for palavra in ['alimentação', 'alimentacao', 'alimento', 'comida', 'lanche', 'refeição', 'refeicao']):
+            categoria_mapeada = "Alimentação"
+        elif 'transporte' in msg_lower:
+            categoria_mapeada = "Transporte"
+        elif any(palavra in msg_lower for palavra in ['material', 'escritorio', 'escritório']):
+            categoria_mapeada = "Material de Escritório"
+        elif any(palavra in msg_lower for palavra in ['serviços', 'servicos']):
+            categoria_mapeada = "Serviços"
+        elif 'marketing' in msg_lower:
+            categoria_mapeada = "Marketing"
+        elif 'viagem' in msg_lower:
+            categoria_mapeada = "Viagem"
+        elif 'outros' in msg_lower:
+            categoria_mapeada = "Outros"
+            
+        response_msg = f"✅ Categoria '{categoria_mapeada}' registrada! {user_name}, agora confirme se o fornecedor extraído está correto ou me informe o nome correto."
+    
+    # DETECTAR CONFIRMAÇÕES DE FORNECEDOR (mais específicas)
+    elif any(confirmacao in msg_lower for confirmacao in ['ta correto', 'está correto', 'correto', 'certo', 'confirmo', 'sim, correto', 'perfeito', 'exato']) or (msg_lower.strip() == 'ok' and len(user_message.strip()) <= 3):
+        response_msg = f"Perfeito {user_name}! ✅ Fornecedor confirmado. Registro financeiro completo!\n\n📋 **Resumo do registro:**\n• Documento processado\n• Categoria definida\n• Fornecedor validado\n• Dados salvos no sistema\n\nRegistro finalizado com sucesso! Posso ajudar com mais alguma coisa?"
+    
+    # DETECTAR CORREÇÃO DE FORNECEDOR (mais específico)
+    elif any(palavra in msg_lower for palavra in ['fornecedor correto é', 'fornecedor é', 'empresa é', 'estabelecimento é', 'nome correto é']):
+        # Extrair o nome do fornecedor da mensagem
+        fornecedor_match = re.search(r'(?:fornecedor|empresa|estabelecimento)(?:\s+correto)?\s+é\s+(.+)', msg_lower)
+        if fornecedor_match:
+            novo_fornecedor = fornecedor_match.group(1).strip()
+            response_msg = f"Fornecedor atualizado para: '{novo_fornecedor}' ✅\n\n📋 **Registro financeiro completo!**\n• Documento processado\n• Categoria definida  \n• Fornecedor: {novo_fornecedor}\n• Dados salvos no sistema\n\nRegistro finalizado com sucesso! Posso ajudar com mais alguma coisa?"
+        else:
+            response_msg = f"Para corrigir o fornecedor, use o formato: 'O fornecedor é [Nome da Empresa]' ou 'Fornecedor correto é [Nome]'"
+    
+    else:
+        # Resposta contextual para o registro em andamento
+        response_msg = f"Estou aguardando suas respostas para completar o registro do gasto ID {gasto_id}:\n\n1️⃣ Possui Nota Fiscal? (Sim/Não)\n2️⃣ Categoria do gasto? (Alimentação, Transporte, etc.)\n3️⃣ Fornecedor está correto? (Correto ou nome correto)\n\nPor favor, responda uma pergunta por vez."
+    
+    return FinancialResponse(
+        success=True,
+        message=response_msg,
+        gasto_id=int(gasto_id) if isinstance(gasto_id, str) else gasto_id,
+        data={
+            "user": user_name,
+            "message": user_message,
+            "interaction_type": "registration_workflow",
+            "gasto_id": gasto_id
+        },
+        error=None
+    )
+
+# Função original renomeada para referência (pode ser removida depois)
+async def handle_user_interaction_old(user_name: str, user_message: str):
     """Lidar com interação conversacional inteligente"""
     logger.info(f"🗣️ Processando interação: {user_name} disse '{user_message}'")
     
@@ -121,13 +232,6 @@ async def handle_user_interaction(user_name: str, user_message: str):
     elif any(confirmacao in msg_lower for confirmacao in ['ta correto', 'está correto', 'correto', 'certo', 'confirmo', 'sim, correto', 'perfeito', 'exato']) or (msg_lower.strip() == 'ok' and len(user_message.strip()) <= 3):
         response_msg = f"Perfeito {user_name}! ✅ Fornecedor confirmado. Registro financeiro completo!\n\n📋 **Resumo do registro:**\n• Documento processado\n• Categoria definida\n• Fornecedor validado\n• Dados salvos no sistema\n\nRegistro finalizado com sucesso! Posso ajudar com mais alguma coisa?"
     
-    # DETECTAR CORREÇÃO DE FORNECEDOR (mais inteligente)
-    elif (any(palavra in msg_lower for palavra in ['fornecedor', 'empresa', 'estabelecimento']) or 
-          (len(user_message.strip()) > 5 and 
-           not any(palavra in msg_lower for palavra in ['ola', 'olá', 'oi', 'hello', 'ajuda', 'help', 'não', 'nao', 'sim', 'tenho', 'possui']) and
-           not any(categoria in msg_lower for categoria in ['alimentação', 'alimentacao', 'transporte', 'material', 'serviços', 'servicos', 'marketing', 'viagem', 'outros']))):
-        response_msg = f"Fornecedor atualizado para: '{user_message}' ✅\n\n📋 **Registro financeiro completo!**\n• Documento processado\n• Categoria definida  \n• Fornecedor: {user_message}\n• Dados salvos no sistema\n\nRegistro finalizado com sucesso! Posso ajudar com mais alguma coisa?"
-    
     # CUMPRIMENTOS E INTERAÇÕES GERAIS
     elif any(cumprimento in msg_lower for cumprimento in ['ola', 'olá', 'oi', 'hello', 'hey', 'bom dia', 'boa tarde', 'boa noite']):
         response_msg = f"Olá {user_name}! 👋 Como posso te ajudar hoje? Posso registrar gastos, comprovantes ou notas fiscais para você!"
@@ -135,8 +239,18 @@ async def handle_user_interaction(user_name: str, user_message: str):
     elif any(palavra in msg_lower for palavra in ['comprovante', 'nota fiscal', 'nf', 'gasto', 'despesa', 'pagamento']):
         response_msg = f"Perfeito {user_name}! Vejo que você quer registrar um gasto. Envie a imagem do comprovante ou nota fiscal que eu processarei automaticamente os dados para você!"
     
-    elif any(palavra in msg_lower for palavra in ['help', 'ajuda', 'como funciona', 'o que você faz']):
-        response_msg = f"Claro {user_name}! Sou sua assistente financeira. Posso:\n• 📷 Processar imagens de comprovantes\n• 🧾 Extrair dados de notas fiscais\n• 💾 Registrar gastos no sistema\n• 🔗 Vincular documentos relacionados\n\nApenas envie a imagem do documento!"
+    elif any(palavra in msg_lower for palavra in ['help', 'ajuda', 'como funciona', 'o que você faz', 'ferramenta', 'funcionalidade', 'o que pode fazer', 'que ferramentas', 'quais ferramentas', 'funcoes', 'funções']):
+        response_msg = f"Olá {user_name}! 🤖 Sou a Alice-Financeira, sua assistente para controle financeiro!\n\n**Minhas ferramentas:**\n• 📷 **Análise de Imagens**: Processo comprovantes e notas fiscais automaticamente\n• 💾 **Registro de Gastos**: Salvo dados extraídos no sistema financeiro\n• 🔗 **Vinculação de Documentos**: Conecto comprovantes com suas respectivas NFs\n• 📊 **Categorização**: Organizo gastos por tipo (Alimentação, Transporte, etc.)\n• 🏢 **Gestão de Fornecedores**: Identifico e valido empresas dos documentos\n\n**Como usar:**\nApenas envie a imagem do documento que eu cuido do resto! �"
+    
+    # DETECTAR CORREÇÃO DE FORNECEDOR (mais específico)
+    elif any(palavra in msg_lower for palavra in ['fornecedor correto é', 'fornecedor é', 'empresa é', 'estabelecimento é', 'nome correto é']):
+        # Extrair o nome do fornecedor da mensagem
+        fornecedor_match = re.search(r'(?:fornecedor|empresa|estabelecimento)(?:\s+correto)?\s+é\s+(.+)', msg_lower)
+        if fornecedor_match:
+            novo_fornecedor = fornecedor_match.group(1).strip()
+            response_msg = f"Fornecedor atualizado para: '{novo_fornecedor}' ✅\n\n📋 **Registro financeiro completo!**\n• Documento processado\n• Categoria definida  \n• Fornecedor: {novo_fornecedor}\n• Dados salvos no sistema\n\nRegistro finalizado com sucesso! Posso ajudar com mais alguma coisa?"
+        else:
+            response_msg = f"Para corrigir o fornecedor, use o formato: 'O fornecedor é [Nome da Empresa]' ou 'Fornecedor correto é [Nome]'"
     
     elif any(palavra in msg_lower for palavra in ['tchau', 'bye', 'obrigado', 'obrigada', 'valeu']):
         response_msg = f"Até logo {user_name}! Foi um prazer ajudar. Qualquer novo gasto é só me enviar! 😊"
@@ -146,9 +260,12 @@ async def handle_user_interaction(user_name: str, user_message: str):
         if len(user_message.strip()) <= 3:
             # Mensagem muito curta - pedir esclarecimento
             response_msg = f"Não entendi bem {user_name}. Você poderia:\n• Enviar imagem de um comprovante para registrar\n• Me dizer se tem alguma dúvida específica\n• Ou ser mais específico sobre o que precisa? 😄"
+        elif any(palavra in msg_lower for palavra in ['qual', 'que', 'como', '?']):
+            # Detectar perguntas e responder sem registrar
+            response_msg = f"Olá {user_name}! Para perguntas específicas, use palavras-chave como:\n• **'ferramentas'** ou **'ajuda'** - para saber minhas funcionalidades\n• **'como funciona'** - para entender o processo\n• **'comprovante'** - para registrar gastos\n\nOu simplesmente envie a imagem do documento que precisa processar! 📸"
         else:
-            # Mensagem específica não identificada - tratar como informação adicional
-            response_msg = f"Informação registrada: '{user_message}' ✅\n\n{user_name}, se você estava respondendo sobre o fornecedor, use palavras como 'correto', 'certo' ou 'ok' para confirmar, ou me informe o nome correto.\n\nPosso ajudar com mais alguma coisa?"
+            # Para mensagens que não são claramente perguntas nem comandos
+            response_msg = f"Olá {user_name}! Recebi sua mensagem: '{user_message}'\n\nSe você quer:\n• 📸 **Registrar um gasto** → Envie a imagem do comprovante/NF\n• ❓ **Saber minhas funcionalidades** → Digite 'ajuda' ou 'ferramentas'\n• 🔄 **Corrigir dados** → Use formato específico como 'fornecedor é [nome]'\n\nComo posso ajudar?"
     
     return FinancialResponse(
         success=True,
