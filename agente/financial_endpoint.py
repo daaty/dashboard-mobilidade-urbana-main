@@ -153,36 +153,38 @@ class IntentAnalyzer:
         """
         msg_lower = user_message.lower().strip()
         
-        # INTENÇÃO 1: RESPOSTAS DE FLUXO DE REGISTRO ATIVO
+        # PRIORIDADE 1: CONSULTAS FINANCEIRAS (sempre verificar primeiro!)
+        financial_queries = [
+            'gastos', 'despesas', 'quanto gastei', 'meus gastos', 'gastos de ontem',
+            'gastos de hoje', 'gastos da semana', 'gastos do mês', 'total gasto',
+            'resumo financeiro', 'relatório', 'relatorio', 'balanço', 'balanco',
+            'fornecedores', 'categorias', 'alimentação gasta', 'transporte gasto',
+            'últimos gastos', 'ultimos gastos', 'quais os gastos', 'ver gastos'
+        ]
+        if any(query in msg_lower for query in financial_queries):
+            return {
+                "intent": "financial_query",
+                "confidence": 0.9,
+                "action": "execute_financial_query",
+                "query_type": IntentAnalyzer._detect_query_type(msg_lower)
+            }
+        
+        # PRIORIDADE 2: RESPOSTAS DE FLUXO DE REGISTRO ATIVO (só se não for consulta)
         if has_active_registration:
             registration_responses = [
                 'não', 'nao', 'sim', 'alimentação', 'alimentacao', 'transporte', 
                 'material', 'escritorio', 'serviços', 'servicos', 'marketing', 
                 'viagem', 'outros', 'correto', 'certo', 'perfeito', 'exato'
             ]
+            # Verificar se é resposta simples de registro (sem palavras de consulta)
             if any(keyword in msg_lower for keyword in registration_responses):
                 return {
                     "intent": "continue_registration",
-                    "confidence": 0.9,
+                    "confidence": 0.8,
                     "action": "process_registration_response"
                 }
         
-        # INTENÇÃO 2: CONSULTAS FINANCEIRAS
-        financial_queries = [
-            'gastos', 'despesas', 'quanto gastei', 'meus gastos', 'gastos de ontem',
-            'gastos de hoje', 'gastos da semana', 'gastos do mês', 'total gasto',
-            'resumo financeiro', 'relatório', 'relatorio', 'balanço', 'balanco',
-            'fornecedores', 'categorias', 'alimentação gasta', 'transporte gasto'
-        ]
-        if any(query in msg_lower for query in financial_queries):
-            return {
-                "intent": "financial_query",
-                "confidence": 0.8,
-                "action": "execute_financial_query",
-                "query_type": IntentAnalyzer._detect_query_type(msg_lower)
-            }
-        
-        # INTENÇÃO 3: ANÁLISES E INSIGHTS
+        # PRIORIDADE 3: ANÁLISES E INSIGHTS
         analysis_requests = [
             'análise', 'analise', 'insights', 'tendências', 'tendencias',
             'padrões', 'padroes', 'estatísticas', 'estatisticas', 'comparar',
@@ -195,7 +197,7 @@ class IntentAnalyzer:
                 "action": "generate_financial_analysis"
             }
         
-        # INTENÇÃO 4: COMANDOS DE GESTÃO
+        # PRIORIDADE 4: COMANDOS DE GESTÃO
         management_commands = [
             'validar documentação', 'validar', 'verificar', 'conferir',
             'atualizar', 'corrigir', 'editar', 'modificar'
@@ -207,7 +209,7 @@ class IntentAnalyzer:
                 "action": "execute_management_command"
             }
         
-        # INTENÇÃO 5: CUMPRIMENTOS E AJUDA
+        # PRIORIDADE 5: CUMPRIMENTOS E AJUDA
         greetings_help = [
             'ola', 'olá', 'oi', 'bom dia', 'boa tarde', 'boa noite',
             'ajuda', 'help', 'ferramentas', 'funcionalidades', 'o que pode fazer'
@@ -263,9 +265,13 @@ async def handle_conversational_interaction(user_name: str, user_message: str):
     """🤖 Alice-Financeira Inteligente - Motor de Resposta Avançado"""
     logger.info(f"💭 Alice processando: {user_name} disse '{user_message}'")
     
-    # STEP 1: Analisar intenção
-    intent_info = IntentAnalyzer.analyze_intent(user_message)
-    logger.info(f"🧠 Intenção detectada: {intent_info['intent']} (confiança: {intent_info['confidence']})")
+    # STEP 0: Verificar se há registro ativo
+    registration_context = await try_recover_registration_context(user_name, user_message)
+    has_active_registration = registration_context is not None
+    
+    # STEP 1: Analisar intenção COM contexto de registro
+    intent_info = IntentAnalyzer.analyze_intent(user_message, has_active_registration)
+    logger.info(f"🧠 Intenção detectada: {intent_info['intent']} (confiança: {intent_info['confidence']}) - Registro ativo: {has_active_registration}")
     
     # STEP 2: Executar ação baseada na intenção
     try:
