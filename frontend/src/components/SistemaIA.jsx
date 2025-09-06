@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Brain, TrendingUp, AlertCircle, Lightbulb, BarChart3, RefreshCw, MessageCircle, Target, Users, DollarSign, MapPin, Calendar, Send, X, Minimize2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-// URL da API do agente (local para desenvolvimento, Heroku para produção)
+// URL da API do agente - usando o endpoint do playground
 const AGENT_API_URL = import.meta.env.VITE_AGENT_API_URL || 
   (import.meta.env.PROD 
-    ? 'https://dashboard-mobility-agent.herokuapp.com' 
+    ? 'https://agentdash.urbanmt.com.br' 
     : 'http://localhost:8001');
 
+// ID do agente para o playground
+const AGENT_ID = 'mobility-agent-sistema-ia';
+
 const SistemaIA = () => {
+  const { user } = useAuth(); // Capturar dados do usuário autenticado
   const [insights, setInsights] = useState(null);
   const [reports, setReports] = useState(null);
   const [loading, setLoading] = useState({
@@ -20,16 +25,24 @@ const SistemaIA = () => {
   // Estados do Chat
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMinimized, setChatMinimized] = useState(false);
-  const [chatMessages, setChatMessages] = useState([
-    {
-      type: 'agent',
-      message: 'Olá! Sou seu assistente inteligente. Como posso ajudá-lo hoje?',
-      timestamp: new Date()
-    }
-  ]);
+  const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const chatMessagesRef = useRef(null);
+
+  // Inicializar mensagem de boas-vindas personalizada
+  useEffect(() => {
+    const userName = user?.username && user.username !== 'Usuário' ? user.username : null;
+    const welcomeMessage = userName 
+      ? `Olá ${userName}! Bem-vindo ao Sistema de IA & Insights. Como posso ajudá-lo com análises de mobilidade urbana hoje?`
+      : 'Olá! Bem-vindo ao Sistema de IA & Insights. Como posso ajudá-lo com análises de mobilidade urbana hoje?';
+    
+    setChatMessages([{
+      type: 'agent',
+      message: welcomeMessage,
+      timestamp: new Date()
+    }]);
+  }, [user?.username]);
 
   // Tipos de análise disponíveis
   const analysisTypes = [
@@ -41,34 +54,67 @@ const SistemaIA = () => {
     { id: 'executive', name: 'Relatório Executivo', icon: Target, color: 'indigo' }
   ];
 
+  // Função auxiliar para usar o novo agente playground
+  const callAgent = async (message, sessionId = null) => {
+    const userName = user?.username && user.username !== 'Usuário' ? user.username : null;
+    const userId = user?.id || user?.username || 'sistema_ia_user';
+    
+    const payload = {
+      message: message,
+      user_id: userId,
+      session_id: sessionId || `sistema_ia_${userId}_${Date.now()}`
+    };
+    
+    // Só adicionar user_name se realmente tiver um nome válido
+    if (userName) {
+      payload.user_name = userName;
+    }
+    
+    const response = await fetch(`${AGENT_API_URL}/v1/playground/agents/${AGENT_ID}/runs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.status !== 'completed') {
+      throw new Error(data.error || 'Falha na execução do agente');
+    }
+    
+    return data.content || data.result || data.message;
+  };
+
   const fetchAnalysis = async (type) => {
     setLoading(prev => ({ ...prev, insights: true }));
     setError(null);
     
     try {
-      const response = await fetch(`${AGENT_API_URL}/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          analysis_type: type,
-          parameters: {}
-        })
+      // Mapear tipos de análise para prompts específicos
+      const analysisPrompts = {
+        'performance': 'Faça uma análise completa de performance da empresa de mobilidade urbana, incluindo métricas de corridas, cancelamentos e tendências.',
+        'financial': 'Analise a saúde financeira da empresa, incluindo receitas, custos operacionais e projeções.',
+        'drivers': 'Analise a performance dos motoristas, incluindo ratings, eficiência e padrões de comportamento.',
+        'expansion': 'Avalie oportunidades de expansão geográfica com base nos dados atuais de performance por cidade.',
+        'trends': 'Identifique tendências de mercado e padrões sazonais nos dados de mobilidade urbana.',
+        'executive': 'Gere um relatório executivo completo com insights estratégicos e recomendações para a alta direção.'
+      };
+      
+      const prompt = analysisPrompts[type] || `Faça uma análise de ${type} dos dados de mobilidade urbana.`;
+      const result = await callAgent(prompt);
+      
+      setInsights({
+        type: type,
+        result: result,
+        timestamp: new Date().toISOString(),
+        metadata: { source: 'agente_playground' }
       });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setInsights({
-          type: type,
-          result: data.result,
-          timestamp: data.timestamp,
-          metadata: data.metadata
-        });
-      } else {
-        setError('Erro ao gerar análise: ' + (data.detail || 'Erro desconhecido'));
-      }
     } catch (err) {
-      setError('Erro de conexão com o agente: ' + err.message);
+      setError('Erro ao gerar análise: ' + err.message);
       console.error('Erro na análise:', err);
     } finally {
       setLoading(prev => ({ ...prev, insights: false }));
@@ -80,27 +126,15 @@ const SistemaIA = () => {
     setError(null);
     
     try {
-      const response = await fetch(`${AGENT_API_URL}/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          analysis_type: 'executive',
-          parameters: {}
-        })
+      const prompt = 'Gere um relatório executivo detalhado com análise completa da empresa de mobilidade urbana, incluindo KPIs, tendências, insights estratégicos e recomendações acionáveis para a alta direção.';
+      const result = await callAgent(prompt);
+      
+      setReports({
+        result: result,
+        timestamp: new Date().toISOString()
       });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setReports({
-          result: data.result,
-          timestamp: data.timestamp
-        });
-      } else {
-        setError('Erro ao gerar relatório: ' + (data.detail || 'Erro desconhecido'));
-      }
     } catch (err) {
-      setError('Erro de conexão com o agente: ' + err.message);
+      setError('Erro ao gerar relatório: ' + err.message);
       console.error('Erro no relatório:', err);
     } finally {
       setLoading(prev => ({ ...prev, reports: false }));
@@ -123,36 +157,18 @@ const SistemaIA = () => {
     setChatLoading(true);
 
     try {
-      const response = await fetch(`${AGENT_API_URL}/ask`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: currentInput,
-          context: {}
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        const agentMessage = {
-          type: 'agent',
-          message: data.result,
-          timestamp: new Date()
-        };
-        setChatMessages(prev => [...prev, agentMessage]);
-      } else {
-        const errorMessage = {
-          type: 'error',
-          message: 'Erro ao processar sua pergunta. Tente novamente.',
-          timestamp: new Date()
-        };
-        setChatMessages(prev => [...prev, errorMessage]);
-      }
+      const result = await callAgent(currentInput, `sistema_ia_chat_${user?.username || 'anonymous'}_${Date.now()}`);
+      
+      const agentMessage = {
+        type: 'agent',
+        message: result,
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, agentMessage]);
     } catch (err) {
       const errorMessage = {
         type: 'error',
-        message: 'Erro de conexão. Verifique sua conexão e tente novamente.',
+        message: 'Erro ao processar sua pergunta. Tente novamente.',
         timestamp: new Date()
       };
       setChatMessages(prev => [...prev, errorMessage]);

@@ -108,7 +108,7 @@ class DashboardAPITools(Toolkit):
         Returns:
             JSON com ranking de cidades por volume de corridas
         """
-        data = self._make_request("GET", "/api/metrics/rides-by-city")
+        data = self._make_request("GET", "/api/metrics/cities")
         
         if "error" in data:
             return f"Erro ao buscar corridas por cidade: {data['error']}"
