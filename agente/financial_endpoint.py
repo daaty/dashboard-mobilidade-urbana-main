@@ -1,6 +1,6 @@
 """
 Endpoint específico para receber dados financeiros do N8N
-AGORA COM AGENTE AGNO INTELIGENTE - Não mais robótico!
+Mais direto e simples que o endpoint AGNO conversacional
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, field_validator
@@ -9,12 +9,6 @@ import json
 import re
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Union
-
-# Importar o novo agente AGNO
-from financial_agent_agno import process_with_agno_agent
-
-# Importar ferramentas para fallback
-from dashboard_agent.tools.financial_tools import FinancialTools
 from dashboard_agent.tools.financial_tools import FinancialTools
 
 logger = logging.getLogger(__name__)
@@ -68,91 +62,36 @@ async def register_financial_data(data: N8NFinancialData):
     3. Interação sem previous_gasto_id → Resposta conversacional SEM registrar dados
     """
     try:
-        # 🤖 USAR AGENTE AGNO INTELIGENTE PARA TUDO!
-        
-        # CENÁRIO 1: DADOS DE IMAGEM - INICIA FLUXO DE REGISTRO COM AGNO
+        # CENÁRIO 1: DADOS DE IMAGEM - INICIA FLUXO DE REGISTRO
         if data.kind and data.content:
-            logger.info(f"📋 INICIANDO fluxo de registro AGNO - Arquivo: {data.name}")
+            logger.info(f"📋 INICIANDO fluxo de registro - Arquivo: {data.name}")
+            return await handle_image_extraction(data)
             
-            # Preparar contexto de registro para AGNO
-            registration_context = f"""
-📸 **NOVO DOCUMENTO FINANCEIRO RECEBIDO**
-
-**Arquivo:** {data.name}
-**Tipo:** {data.kind}
-**Link Google Drive:** {data.webContentLink}
-
-**Dados Extraídos da Imagem:**
-```
-{data.content}
-```
-
-**Instrução:** Este é um documento financeiro que precisa ser registrado no sistema. 
-Analise os dados extraídos e execute o fluxo de registro completo usando suas ferramentas financeiras.
-"""
-            
-            # USAR AGENTE AGNO
-            result = await process_with_agno_agent(
-                user_name=data.userName or "Usuário",
-                user_message=registration_context
-            )
-            
-            return FinancialResponse(**result)
-            
-        # CENÁRIO 2: INTERAÇÃO COM FLUXO JÁ INICIADO - AGNO COM CONTEXTO
+        # CENÁRIO 2: INTERAÇÃO COM FLUXO JÁ INICIADO
         elif data.userName and data.userMessage and data.previous_gasto_id:
-            logger.info(f"� Continuando fluxo AGNO - Usuário: {data.userName}, Gasto ID: {data.previous_gasto_id}")
+            logger.info(f"💬 Continuando fluxo de registro - Usuário: {data.userName}, Gasto ID: {data.previous_gasto_id}")
+            return await handle_user_interaction_with_context(data.userName, data.userMessage, data.previous_gasto_id)
             
-            # USAR AGENTE AGNO com contexto
-            result = await process_with_agno_agent(
-                user_name=data.userName,
-                user_message=data.userMessage,
-                previous_gasto_id=data.previous_gasto_id
-            )
+        # CENÁRIO 3: INTERAÇÃO SEM CONTEXTO - VERIFICAR SE É PARTE DE UM FLUXO ATIVO
+        elif data.userName and data.userMessage and not data.previous_gasto_id:
+            logger.info(f"🔍 Verificando contexto - Usuário: {data.userName}, Mensagem: {data.userMessage}")
             
-            return FinancialResponse(**result)
+            # Tentar recuperar contexto de registro ativo
+            recovered_context = await try_recover_registration_context(data.userName, data.userMessage)
             
-        # CENÁRIO 3: INTERAÇÃO CONVERSACIONAL - AGNO INTELIGENTE
-        elif data.userName and data.userMessage:
-            logger.info(f"🧠 Conversa inteligente AGNO - Usuário: {data.userName}, Mensagem: {data.userMessage}")
-            
-            # USAR AGENTE AGNO para conversa inteligente
-            result = await process_with_agno_agent(
-                user_name=data.userName,
-                user_message=data.userMessage
-            )
-            
-            return FinancialResponse(**result)
+            if recovered_context:
+                logger.info(f"🔄 Contexto recuperado - Gasto ID: {recovered_context['gasto_id']}")
+                return await handle_user_interaction_with_context(data.userName, data.userMessage, recovered_context['gasto_id'])
+            else:
+                logger.info(f"💭 Modo conversacional - Usuário: {data.userName}, Mensagem: {data.userMessage}")
+                return await handle_conversational_interaction(data.userName, data.userMessage)
             
         else:
             raise HTTPException(status_code=400, detail="Formato de dados inválido: dados insuficientes")
             
     except Exception as e:
-        logger.error(f"❌ Erro no endpoint AGNO: {e}")
+        logger.error(f"❌ Erro no endpoint financeiro: {e}")
         return FinancialResponse(
-            success=False,
-            message=f"Desculpe, tive um problema técnico. Pode tentar novamente?",
-            error=str(e)
-        )
-
-# === FUNÇÕES DE APOIO MANTIDAS PARA COMPATIBILIDADE ===
-
-async def try_recover_registration_context(user_name: str, user_message: str = "") -> Optional[Dict[str, Any]]:
-    """Tenta recuperar contexto de registro ativo usando FinancialTools"""
-    try:
-        financial_tools = FinancialTools()
-        result = financial_tools.buscar_gastos_pendentes_usuario(user_name)
-        
-        if result.get('sucesso') and result.get('gastos_pendentes'):
-            gasto_pendente = result['gastos_pendentes'][0]
-            return {
-                "gasto_id": str(gasto_pendente['id']),
-                "user_name": user_name
-            }
-        return None
-    except Exception as e:
-        logger.error(f"❌ Erro ao recuperar contexto: {e}")
-        return None
             success=False,
             message=f"Erro interno: {str(e)}",
             error=str(e)
@@ -321,80 +260,40 @@ class IntentAnalyzer:
             return "general_summary"
 
 async def handle_conversational_interaction(user_name: str, user_message: str):
-    """🤖 Alice-Financeira Simples e Inteligente - SEM loops ou complexidade desnecessária"""
+    """🤖 Alice-Financeira Inteligente - Motor de Resposta Avançado"""
     logger.info(f"💭 Alice processando: {user_name} disse '{user_message}'")
     
-    msg_lower = user_message.lower().strip()
+    # STEP 1: Analisar intenção
+    intent_info = IntentAnalyzer.analyze_intent(user_message)
+    logger.info(f"🧠 Intenção detectada: {intent_info['intent']} (confiança: {intent_info['confidence']})")
     
-    # 1. CUMPRIMENTOS
-    if any(cumprimento in msg_lower for cumprimento in ['ola', 'olá', 'oi', 'bom dia', 'boa tarde', 'boa noite']):
-        response_msg = f"Olá {user_name}! 👋 Sou a Alice-Financeira!\n\n🚀 **Posso ajudar com:**\n• 📸 **Registrar gastos** - envie fotos de comprovantes\n• 💰 **Consultar gastos** - 'meus gastos de ontem', 'gastos desta semana'\n• 📊 **Ver resumos** - 'resumo financeiro', 'total gasto'\n\n💡 **Teste:** Pergunte 'quais foram meus gastos de hoje?'"
-    
-    # 2. CONSULTAS FINANCEIRAS SIMPLES
-    elif any(palavra in msg_lower for palavra in ['gastos', 'quanto gastei', 'meus gastos', 'resumo', 'total']):
-        financial_tools = FinancialTools()
+    # STEP 2: Executar ação baseada na intenção
+    try:
+        if intent_info["action"] == "financial_query":
+            return await execute_financial_query(user_name, user_message, intent_info)
         
-        try:
-            if 'ontem' in msg_lower:
-                from datetime import datetime, timedelta
-                yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-                result = financial_tools.consultar_gastos_por_periodo(yesterday, yesterday)
-                if result and result.get('sucesso') and result.get('total_gastos', 0) > 0:
-                    response_msg = f"📊 **Gastos de ontem:** R$ {result['total_gastos']:.2f} ({result['quantidade_gastos']} transações)"
-                else:
-                    response_msg = f"✨ Ontem você não teve gastos registrados! Economia em dia! 💚"
-            
-            elif 'hoje' in msg_lower:
-                today = datetime.now().strftime('%Y-%m-%d')
-                result = financial_tools.consultar_gastos_por_periodo(today, today)
-                if result and result.get('sucesso') and result.get('total_gastos', 0) > 0:
-                    response_msg = f"📊 **Gastos de hoje:** R$ {result['total_gastos']:.2f} ({result['quantidade_gastos']} transações)"
-                else:
-                    response_msg = f"📅 Hoje ainda não temos gastos registrados. Começando bem! ✨"
-            
-            elif 'semana' in msg_lower:
-                from datetime import datetime, timedelta
-                start_week = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-                today = datetime.now().strftime('%Y-%m-%d')
-                result = financial_tools.consultar_gastos_por_periodo(start_week, today)
-                if result and result.get('sucesso') and result.get('total_gastos', 0) > 0:
-                    response_msg = f"📊 **Gastos da semana:** R$ {result['total_gastos']:.2f} ({result['quantidade_gastos']} transações)"
-                else:
-                    response_msg = f"📅 Nenhum gasto na última semana. Economia total! 💰"
-            
-            else:
-                # Resumo geral
-                result = financial_tools.obter_resumo_financeiro()
-                if result and result.get('sucesso') and result.get('total_gastos', 0) > 0:
-                    response_msg = f"📊 **Resumo Financeiro:**\n💰 **Total:** R$ {result['total_gastos']:.2f}\n📝 **Registros:** {result['quantidade_gastos']}\n\n💡 Quer ver por período específico?"
-                else:
-                    response_msg = f"📊 Ainda não há gastos registrados no sistema. Envie comprovantes para começar!"
+        elif intent_info["action"] == "generate_financial_analysis":
+            return await generate_financial_analysis(user_name, user_message)
         
-        except Exception as e:
-            logger.error(f"❌ Erro na consulta: {e}")
-            response_msg = f"Tive um problema ao buscar os dados, {user_name}. Pode tentar novamente?"
-    
-    # 3. AJUDA
-    elif any(palavra in msg_lower for palavra in ['ajuda', 'help', 'ferramentas', 'funcionalidades']):
-        response_msg = f"🤖 **Central de Ajuda - {user_name}**\n\n📸 **Registro:**\n• Envie foto de comprovante/nota fiscal\n• Processamento automático dos dados\n\n💰 **Consultas:**\n• 'meus gastos de ontem'\n• 'gastos desta semana'\n• 'resumo financeiro'\n\n⚙️ **Gestão:**\n• Categorização automática\n• Vinculação de documentos\n• Validação de fornecedores\n\n💡 **Dica:** Converse naturalmente!"
-    
-    # 4. DESPEDIDAS
-    elif any(palavra in msg_lower for palavra in ['tchau', 'obrigado', 'obrigada', 'valeu', 'bye']):
-        response_msg = f"👋 {user_name}! Foi ótimo ajudar!\n\n🚀 Sempre que precisar:\n• 📸 Registrar gastos\n• 💰 Consultar dados\n• 📊 Ver relatórios\n\nAté a próxima! ✨"
-    
-    # 5. CONVERSA GERAL
-    else:
-        response_msg = f"💬 Olá {user_name}! Recebi: '{user_message}'\n\n💡 **Posso ajudar com:**\n• 📊 Consultas: 'meus gastos de hoje'\n• 📸 Registros: envie foto do comprovante\n• ❓ Ajuda: digite 'help'\n\nO que gostaria de fazer?"
-    
-    return FinancialResponse(
-        success=True,
-        message=response_msg,
-        data={
-            "user": user_name,
-            "interaction_type": "conversational_simple",
-            "timestamp": datetime.now().isoformat()
-        }
-    )
+        elif intent_info["action"] == "execute_management_command":
+            return await execute_management_command(user_name, user_message)
+        
+        elif intent_info["action"] == "provide_help_or_greeting":
+            return await provide_help_or_greeting(user_name, user_message)
+        
+        elif intent_info["action"] == "acknowledge_thanks_goodbye":
+            return await acknowledge_thanks_goodbye(user_name, user_message)
+        
+        else:  # general_conversation
+            return await intelligent_conversation(user_name, user_message)
+            
+    except Exception as e:
+        logger.error(f"❌ Erro no motor de resposta: {e}")
+        return FinancialResponse(
+            success=True,
+            message=f"Desculpe {user_name}, tive um problema técnico. Pode repetir ou tentar uma pergunta diferente?",
+            error=str(e)
+        )
 
 async def execute_financial_query(user_name: str, user_message: str, intent_info: Dict[str, Any]):
     """💰 Executa consultas financeiras inteligentes"""
