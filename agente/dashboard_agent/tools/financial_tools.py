@@ -430,9 +430,9 @@ class FinancialTools(Toolkit):
                                natureza_do_gasto, possui_nota_fiscal, data_processamento
                         FROM gastos_empresa 
                         WHERE (observacoes LIKE %s OR observacoes IS NULL)
-                        AND data_processamento >= NOW() - INTERVAL '2 hours'
+                        AND data_processamento::timestamp >= NOW() - INTERVAL '2 hours'
                         AND (natureza_do_gasto IS NULL OR possui_nota_fiscal IS NULL)
-                        ORDER BY data_processamento DESC 
+                        ORDER BY data_processamento::timestamp DESC 
                         LIMIT 1
                     """, (f'%{user_name}%',))
                     
