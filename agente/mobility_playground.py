@@ -484,10 +484,14 @@ class MobilityPlayground(Playground):
                 "https://app.agno.com", 
                 "http://localhost:8001", 
                 "http://127.0.0.1:8001",
-                "http://localhost:3000",  # Frontend React
+                "http://localhost:3000",  # Frontend React local
                 "http://127.0.0.1:3000",  # Frontend React alternativo
                 "http://localhost:5173",  # Vite dev server
-                "http://127.0.0.1:5173"   # Vite dev server alternativo
+                "http://127.0.0.1:5173",  # Vite dev server alternativo
+                "https://dashbord.urbanmt.com.br",  # Frontend produção
+                "https://dashboard.urbanmt.com.br",  # Frontend produção alternativo
+                "https://agentdash.urbanmt.com.br",  # Agente produção
+                "*"  # Temporário para debug - REMOVER depois
             ],
             allow_credentials=True,
             allow_methods=["*"],
@@ -560,6 +564,22 @@ class MobilityPlayground(Playground):
                 "agents_count": 1,
                 "available": True,
                 "timestamp": datetime.now().isoformat()
+            }
+        
+        @app.get("/cors-debug", tags=["Debug"])
+        async def cors_debug(request: Request):
+            """Debug endpoint para verificar CORS"""
+            return {
+                "origin": request.headers.get("origin"),
+                "host": request.headers.get("host"),
+                "user_agent": request.headers.get("user-agent"),
+                "cors_configured": "OK",
+                "allowed_origins": [
+                    "https://app.agno.com",
+                    "https://dashbord.urbanmt.com.br",
+                    "https://dashboard.urbanmt.com.br",
+                    "https://agentdash.urbanmt.com.br"
+                ]
             }
         
         # Rota customizada - Compatível com AGNO
