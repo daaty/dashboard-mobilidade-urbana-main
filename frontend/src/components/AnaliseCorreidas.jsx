@@ -40,7 +40,17 @@ export default function AnaliseCorreidas() {
   })
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
+    console.log('🔄 AnaliseCorreidas - Filtro mudando:', key, 'de', filters[key], 'para', value);
+    setFilters(prev => {
+      const newFilters = { ...prev, [key]: value };
+      console.log('📊 AnaliseCorreidas - Novos filtros:', newFilters);
+      return newFilters;
+    });
+
+    // Forçar re-renderização
+    setTimeout(() => {
+      console.log('🔄 Forçando re-renderização do componente');
+    }, 100);
   }
 
   // Buscar cidades reais do backend
@@ -754,11 +764,15 @@ export default function AnaliseCorreidas() {
                 <BarChart3 className="w-5 h-5 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-orange-800">
-                Mapa de Problemas Operacionais
+                Mapa de Calor de Problemas
               </h3>
             </div>
             <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200">
-              <MapaCalorProblemas />
+              <MapaCalorProblemas
+                key={`mapa-${filters.periodo}-${filters.cidade}-${Date.now()}`}
+                periodo={filters.periodo}
+                cidade={filters.cidade}
+              />
             </div>
           </div>
         </motion.div>

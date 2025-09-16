@@ -47,22 +47,16 @@ function App() {
     fetchAlertasData()
   }, [])
 
-  const fetchMetricsData = async (period = '7d') => {
+  const fetchMetricsData = async (period = '30d') => {
     try {
       setLoading(true)
       // Ajusta o valor para o backend: 'hoje', '7d', '30d'
-      let periodoParam = '7d';
+      let periodoParam = '30d'; // Período padrão alterado para 30d
       if (period === 'hoje') periodoParam = 'hoje';
       else if (period === '30dias' || period === '30d') periodoParam = '30d';
       else if (period === '7dias' || period === '7d') periodoParam = '7d';
       const response = await fetch(`${API_URL}/api/metrics/overview?periodo=${periodoParam}`)
       const data = await response.json()
-      
-      // DEBUG: Verificar se os dados de canceladas estão chegando
-      console.log('🔍 Dados recebidos da API:', data);
-      console.log('🔍 Atividade recente:', data.atividade_recente);
-      console.log('🔍 Canceladas:', data.atividade_recente?.canceladas);
-      console.log('🔍 Métricas principais:', data.metricas_principais);
       
       setMetricsData(data)
     } catch (error) {
