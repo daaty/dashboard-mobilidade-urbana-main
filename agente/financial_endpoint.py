@@ -608,24 +608,53 @@ async def handle_user_interaction_with_context(user_name: str, user_message: str
         response_msg = f"Perfeito {user_name}! Você confirmou que possui Nota Fiscal. Por favor, envie a imagem da NF para que eu possa processar e vincular ao comprovante anterior."
     
     elif any(categoria in msg_lower for categoria in ['alimentação', 'alimentacao', 'transporte', 'material de escritório', 'material escritorio', 'material', 'escritorio', 'serviços', 'servicos', 'marketing', 'viagem', 'outros', 'alimento', 'comida', 'lanche', 'refeição', 'refeicao']):
-        # Mapear categoria para nome padrão
-        categoria_mapeada = user_message
-        if any(palavra in msg_lower for palavra in ['alimentação', 'alimentacao', 'alimento', 'comida', 'lanche', 'refeição', 'refeicao']):
-            categoria_mapeada = "Alimentação"
-        elif 'transporte' in msg_lower:
-            categoria_mapeada = "Transporte"
-        elif any(palavra in msg_lower for palavra in ['material', 'escritorio', 'escritório']):
-            categoria_mapeada = "Material de Escritório"
-        elif any(palavra in msg_lower for palavra in ['serviços', 'servicos']):
-            categoria_mapeada = "Serviços"
-        elif 'marketing' in msg_lower:
-            categoria_mapeada = "Marketing"
-        elif 'viagem' in msg_lower:
-            categoria_mapeada = "Viagem"
-        elif 'outros' in msg_lower:
-            categoria_mapeada = "Outros"
-            
-        response_msg = f"✅ Categoria '{categoria_mapeada}' registrada! {user_name}, agora confirme se o fornecedor extraído está correto ou me informe o nome correto."
+        # DETECTAR RESPOSTAS SOBRE CATEGORIA DO GASTO (mais abrangente)
+        categoria_keywords = {
+            'Alimentação': ['alimentação', 'alimentacao', 'alimento', 'comida', 'lanche', 'refeição', 'refeicao', 'restaurante', 'bar', 'cafe', 'café'],
+            'Transporte': ['transporte', 'combustivel', 'combustível', 'gasolina', 'diesel', 'uber', 'taxi', 'onibus', 'ônibus', 'metro', 'trem', 'aviao', 'avião', 'estacionamento'],
+            'Material de Escritório': ['material', 'escritorio', 'escritório', 'papel', 'caneta', 'impressora', 'computador', 'notebook', 'mouse', 'teclado'],
+            'Serviços': ['serviços', 'servicos', 'manutencao', 'manutenção', 'limpeza', 'segurança', 'consultoria', 'assessoria', 'telefone', 'internet', 'luz', 'agua', 'água', 'gas'],
+            'Marketing': ['marketing', 'publicidade', 'propaganda', 'anuncio', 'anúncio', 'redes sociais', 'facebook', 'instagram', 'google', 'site', 'web'],
+            'Viagem': ['viagem', 'hotel', 'hospedagem', 'passagem', 'bilhete', 'aviao', 'avião', 'trem', 'onibus', 'ônibus'],
+            'Outros': ['outros', 'outro', 'diversos', 'diverso', 'varios', 'vários']
+        }
+        
+        # Verificar se a mensagem contém alguma categoria conhecida
+        categoria_detectada = None
+        for categoria_padrao, keywords in categoria_keywords.items():
+            if any(keyword in msg_lower for keyword in keywords):
+                categoria_detectada = categoria_padrao
+                break
+        
+        # Se encontrou uma categoria conhecida, processar
+        if categoria_detectada:
+            response_msg = f"✅ Categoria '{categoria_detectada}' registrada! {user_name}, agora confirme se o fornecedor extraído está correto ou me informe o nome correto."
+        
+        # Se não encontrou categoria conhecida, tentar detectar se parece ser uma categoria personalizada
+        elif len(user_message.strip()) > 2 and len(user_message.strip()) < 50 and not any(word in msg_lower for word in ['sim', 'não', 'nao', 'correto', 'certo', 'ok', 'perfeito', 'exato', 'fornecedor', 'empresa']):
+            # Parece ser uma categoria personalizada - aceitar como "Outros" mas registrar o nome fornecido
+            categoria_personalizada = user_message.strip()
+            response_msg = f"✅ Categoria '{categoria_personalizada}' registrada como personalizada! {user_name}, agora confirme se o fornecedor extraído está correto ou me informe o nome correto."
+        
+        else:
+            # Mapear categoria para nome padrão (fallback para casos antigos)
+            categoria_mapeada = user_message
+            if any(palavra in msg_lower for palavra in ['alimentação', 'alimentacao', 'alimento', 'comida', 'lanche', 'refeição', 'refeicao']):
+                categoria_mapeada = "Alimentação"
+            elif 'transporte' in msg_lower:
+                categoria_mapeada = "Transporte"
+            elif any(palavra in msg_lower for palavra in ['material', 'escritorio', 'escritório']):
+                categoria_mapeada = "Material de Escritório"
+            elif any(palavra in msg_lower for palavra in ['serviços', 'servicos']):
+                categoria_mapeada = "Serviços"
+            elif 'marketing' in msg_lower:
+                categoria_mapeada = "Marketing"
+            elif 'viagem' in msg_lower:
+                categoria_mapeada = "Viagem"
+            elif 'outros' in msg_lower:
+                categoria_mapeada = "Outros"
+                
+            response_msg = f"✅ Categoria '{categoria_mapeada}' registrada! {user_name}, agora confirme se o fornecedor extraído está correto ou me informe o nome correto."
     
     # DETECTAR CONFIRMAÇÕES DE FORNECEDOR (mais específicas)
     elif any(confirmacao in msg_lower for confirmacao in ['ta correto', 'está correto', 'correto', 'certo', 'confirmo', 'sim, correto', 'perfeito', 'exato']) or (msg_lower.strip() == 'ok' and len(user_message.strip()) <= 3):
