@@ -8,6 +8,7 @@ from app.database.db import SessionLocal
 from app.models.gastos_empresa import GastosEmpresa
 from collections import defaultdict
 import calendar
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -203,9 +204,9 @@ async def get_financial_overview(
                 resumo_mensal[mes_ano]["valor"] += gasto["valor_total"]
                 resumo_mensal[mes_ano]["quantidade"] += 1
         
-        # Aplicar agrupamento e pegar os top 10
+        # Aplicar agrupamento e pegar todos os gastos ordenados
         gastos_agrupados = agrupar_documentos_relacionados(gastos_data)
-        top_gastos_formatted = sorted(gastos_agrupados, key=lambda x: x["valor_total"], reverse=True)[:10]
+        top_gastos_formatted = sorted(gastos_agrupados, key=lambda x: x["valor_total"], reverse=True)
         
         # Métricas de documentação (usando dados agrupados)
         gastos_com_nf = sum(1 for gasto in gastos_agrupados_para_metricas if gasto["possui_nota_fiscal"])
@@ -352,3 +353,79 @@ async def get_top_fornecedores(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar fornecedores: {str(e)}")
+
+# Pydantic models for CRUD operations
+class GastoUpdate(BaseModel):
+    data_despesa: Optional[str] = None
+    valor_total: Optional[float] = None
+    descricao_item: Optional[str] = None
+    tipo_documento: Optional[str] = None
+    fornecedor: Optional[str] = None
+    natureza_do_gasto: Optional[str] = None
+    possui_nota_fiscal: Optional[bool] = None
+    numero_nota_fiscal: Optional[str] = None
+    observacoes: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+@router.put("/gastos/{gasto_id}")
+async def update_gasto(
+    gasto_id: int,
+    gasto_update: GastoUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Atualizar um gasto específico
+    """
+    try:
+        # Buscar o gasto
+        result = await db.execute(
+            select(GastosEmpresa).where(GastosEmpresa.id == gasto_id)
+        )
+        gasto = result.scalar_one_or_none()
+        
+        if not gasto:
+            raise HTTPException(status_code=404, detail="Gasto não encontrado")
+        
+        # Atualizar apenas os campos fornecidos
+        update_data = gasto_update.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(gasto, field, value)
+        
+        await db.commit()
+        await db.refresh(gasto)
+        
+        return {"message": "Gasto atualizado com sucesso", "gasto": gasto}
+        
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Erro ao atualizar gasto: {str(e)}")
+
+@router.delete("/gastos/{gasto_id}")
+async def delete_gasto(
+    gasto_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Deletar um gasto específico
+    """
+    try:
+        # Buscar o gasto
+        result = await db.execute(
+            select(GastosEmpresa).where(GastosEmpresa.id == gasto_id)
+        )
+        gasto = result.scalar_one_or_none()
+        
+        if not gasto:
+            raise HTTPException(status_code=404, detail="Gasto não encontrado")
+        
+        # Deletar o gasto
+        await db.delete(gasto)
+        await db.commit()
+        
+        return {"message": "Gasto deletado com sucesso"}
+        
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Erro ao deletar gasto: {str(e)}")

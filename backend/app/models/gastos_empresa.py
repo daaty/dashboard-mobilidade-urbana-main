@@ -8,14 +8,14 @@ class GastosEmpresa(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     data_despesa = Column(String(20))  # Tratado como string pois vem em formato texto
-    valor_total = Column(String(20))   # Tratado como string pois vem em formato texto
+    valor_total = Column(Float)   # Alterado para Float pois o banco é numeric
     descricao_item = Column(String(255))
     tipo_documento = Column(String(100))
     fornecedor = Column(String(255))
     natureza_do_gasto = Column(String(100))
     descricao_imagem = Column(Text)
     arquivo_drive_url = Column(String(500))  # URL do documento/comprovante (Google Drive)
-    possui_nota_fiscal = Column(Integer)  # 0 ou 1
+    possui_nota_fiscal = Column(Boolean)  # Alterado para Boolean
     id_documento_vinculado = Column(Integer)
     status_documentacao = Column(String(100))
     observacoes = Column(Text)

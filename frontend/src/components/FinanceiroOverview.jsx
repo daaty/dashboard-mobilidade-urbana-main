@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { DollarSign, TrendingUp, TrendingDown, FileText, Building, Receipt, CreditCard, PieChart, Calendar, AlertTriangle, ExternalLink, Filter } from 'lucide-react'
+import { DollarSign, TrendingUp, TrendingDown, FileText, Building, Receipt, CreditCard, PieChart, Calendar, AlertTriangle, ExternalLink, Filter, Edit, Trash2 } from 'lucide-react'
 
 // Simulação dos componentes de UI, já que não temos acesso a eles.
 const Card = ({ children, className }) => <div className={`border rounded-lg shadow-sm ${className}`}>{children}</div>;
@@ -60,6 +60,8 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
     fornecedor: '',
     documentacao: ''
   });
+  const [editingGasto, setEditingGasto] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Função para lidar com mudanças de filtro
   const handleFilterChange = (filterType, value) => {
@@ -114,6 +116,68 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
   const formatPercentage = (value) => {
     return `${(value || 0).toFixed(1)}%`
   }
+
+  // Funções para editar e deletar gastos
+  const handleEditGasto = (gasto) => {
+    setEditingGasto(gasto);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteGasto = async (gastoId) => {
+    if (window.confirm('Tem certeza que deseja deletar este gasto?')) {
+      try {
+        // Chamar API de delete
+        const response = await fetch(`/api/financeiro/gastos/${gastoId}`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          // Recarregar dados ou atualizar estado
+          alert('Gasto deletado com sucesso!');
+          // Aqui você pode chamar uma função para recarregar os dados
+        } else {
+          alert('Erro ao deletar gasto');
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao deletar gasto');
+      }
+    }
+  };
+
+  const handleSaveEdit = async (updatedGasto) => {
+    try {
+      // Preparar apenas os campos que serão atualizados
+      const updateData = {
+        descricao_item: updatedGasto.descricao_item,
+        fornecedor: updatedGasto.fornecedor,
+        valor_total: updatedGasto.valor_total, // Já é number
+        data_despesa: updatedGasto.data_despesa,
+        possui_nota_fiscal: updatedGasto.possui_nota_fiscal, // Já é boolean
+        tipo_documento: updatedGasto.tipo_documento,
+      };
+
+      const response = await fetch(`/api/financeiro/gastos/${updatedGasto.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+      if (response.ok) {
+        setIsModalOpen(false);
+        setEditingGasto(null);
+        alert('Gasto atualizado com sucesso!');
+        // Recarregar dados
+      } else {
+        const errorData = await response.json();
+        console.error('Erro na resposta:', errorData);
+        alert(`Erro ao atualizar gasto: ${errorData.detail || 'Erro desconhecido'}`);
+      }
+    } catch (error) {
+      console.error('Erro:', error);
+      alert('Erro ao atualizar gasto');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
@@ -315,8 +379,8 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
                   Maiores Gastos
                 </h3>
               </div>
-              <div className="space-y-4 bg-white/60 backdrop-blur-sm rounded-xl border border-red-200 p-4">
-                {financeiroData.top_gastos?.length > 0 ? financeiroData.top_gastos.slice(0, 5).map((gasto, index) => (
+              <div className="space-y-4 bg-white/60 backdrop-blur-sm rounded-xl border border-red-200 p-4 max-h-96 overflow-y-auto">
+                {financeiroData.top_gastos?.length > 0 ? financeiroData.top_gastos.map((gasto, index) => (
                   <div key={index} className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-red-50 rounded-xl shadow-md border border-red-100 hover:shadow-lg transition-all duration-300">
                     <div className="flex items-center gap-4 flex-1">
                       <div className="relative">
@@ -376,6 +440,22 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
                       </div>
                       <div className="text-xs text-gray-500">
                         {gasto.tipo_documento}
+                      </div>
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => handleEditGasto(gasto)}
+                          className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                          title="Editar gasto"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteGasto(gasto.id)}
+                          className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+                          title="Deletar gasto"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -476,6 +556,105 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
             </div>
           </motion.div>
         </>
+      )}
+
+      {/* Modal de Edição */}
+      {isModalOpen && editingGasto && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-xl font-bold mb-4">Editar Gasto</h3>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              const updatedGasto = {
+                id: editingGasto.id,
+                descricao_item: formData.get('descricao'),
+                fornecedor: formData.get('fornecedor'),
+                valor_total: parseFloat(formData.get('valor')),
+                data_despesa: formData.get('data'),
+                possui_nota_fiscal: formData.get('notaFiscal') === 'true',
+                tipo_documento: formData.get('tipoDocumento'),
+              };
+              handleSaveEdit(updatedGasto);
+            }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Descrição</label>
+                  <input
+                    name="descricao"
+                    defaultValue={editingGasto.descricao_item}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Fornecedor</label>
+                  <input
+                    name="fornecedor"
+                    defaultValue={editingGasto.fornecedor}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Valor</label>
+                  <input
+                    name="valor"
+                    type="number"
+                    step="0.01"
+                    defaultValue={editingGasto.valor_total}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Data</label>
+                  <input
+                    name="data"
+                    type="date"
+                    defaultValue={editingGasto.data_despesa}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Possui Nota Fiscal</label>
+                  <select
+                    name="notaFiscal"
+                    defaultValue={editingGasto.possui_nota_fiscal ? 'true' : 'false'}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                  >
+                    <option value="true">Sim</option>
+                    <option value="false">Não</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tipo de Documento</label>
+                  <input
+                    name="tipoDocumento"
+                    defaultValue={editingGasto.tipo_documento}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
       </div>
     </div>
