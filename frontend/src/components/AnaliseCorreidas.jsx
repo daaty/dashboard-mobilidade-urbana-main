@@ -32,9 +32,8 @@ export default function AnaliseCorreidas() {
   const [loading, setLoading] = React.useState(true)
   const [cities, setCities] = React.useState([])
   const [filters, setFilters] = React.useState({
-    periodo: '30d',
+    periodo: '6m',
     cidade: '',
-    categoria: '',
     diaSemana: '',
     horario: ''
   })
@@ -201,7 +200,7 @@ export default function AnaliseCorreidas() {
               </div>
             </div>
             <div className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700 tracking-wide">Período</label>
                   <Select
@@ -231,20 +230,6 @@ export default function AnaliseCorreidas() {
                         {city}
                       </SelectOption>
                     ))}
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Categoria</label>
-                  <Select
-                    value={filters.categoria}
-                    onChange={(value) => handleFilterChange('categoria', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
-                  >
-                    <SelectOption value="">Todas as categorias</SelectOption>
-                    <SelectOption value="economico">Econômico</SelectOption>
-                    <SelectOption value="executivo">Executivo</SelectOption>
-                    <SelectOption value="premium">Premium</SelectOption>
                   </Select>
                 </div>
                 

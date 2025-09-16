@@ -12,7 +12,7 @@ import os
 import sys
 import re
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from services.city_service import get_cities_from_rides_data
+from services.city_service import get_cities_from_rides_data, normalize_city_name, extract_city_from_address
 
 def extract_datetime_from_record(rec, index):
     """Extrai data/hora de um registro, lidando com AMBOS os formatos (scraper + frontend)"""
@@ -33,35 +33,98 @@ def extract_datetime_from_record(rec, index):
     
     return None
 
+def matches_city_filter(cidade_item, cidade_filter):
+    """Compara cidade de forma robusta, lidando com None e diferenças de formatação"""
+    if not cidade_filter:
+        return True  # Sem filtro, aceitar tudo
+
+    if not cidade_item:
+        return False  # Item sem cidade não corresponde a filtro
+
+    # Aplicar normalização completa a ambas as strings
+    item_norm = normalize_city_name(str(cidade_item).strip())
+    filter_norm = normalize_city_name(str(cidade_filter).strip())
+
+    # Se a normalização falhar, usar o valor original em maiúsculo
+    if not item_norm:
+        item_norm = str(cidade_item).strip().upper()
+    if not filter_norm:
+        filter_norm = str(cidade_filter).strip().upper()
+
+    return item_norm == filter_norm
+
 def extract_city_from_record(rec):
-    """Detecta cidade baseada nos dados do registro"""
-    # Diferentes índices dependendo do tipo de corrida
-    possible_city_indices = [15, 17, 8, 9, 10]  # Diferentes posições onde a cidade pode estar
-    
-    for idx in possible_city_indices:
-        if idx < len(rec) and rec[idx]:
-            city_str = str(rec[idx]).strip().upper()
-            # Limpar dados de cidade
-            if city_str in ["MATUPA", "MATUPÁ"]:
-                return "MATUPA"
-            elif city_str == "PEIXOTO":
-                return "PEIXOTO"
-            elif "GUARANTA" in city_str:
-                return "GUARANTA DO NORTE"
-    
-    # Fallback: detectar pela localização (índices 5 e 6)
-    if len(rec) > 6:
-        local_str = str(rec[5]) if len(rec) > 5 else ""
-        destino_str = str(rec[6]) if len(rec) > 6 else ""
-        local_destino = (local_str + " " + destino_str).upper()
-        
-        if "MATUPA" in local_destino or "MATUPÁ" in local_destino:
-            return "MATUPA"
-        elif "PEIXOTO" in local_destino:
-            return "PEIXOTO"
-        elif "GUARANTA" in local_destino:
-            return "GUARANTA DO NORTE"
-    
+    """Detecta cidade baseada nos dados do registro usando normalização completa"""
+    if not rec or len(rec) == 0:
+        return "Unnamed"
+
+    # Detectar tipo de corrida baseado na estrutura dos dados
+    rec_length = len(rec)
+
+    # Cancelled Rides: geralmente têm 18 campos, cidade no índice 17 (último) ou 7 (endereço)
+    if rec_length >= 18:
+        # Tentar primeiro o último campo (índice 17 para 18 campos)
+        if rec_length > 17 and rec[17]:
+            city_str = str(rec[17]).strip()
+            normalized_city = normalize_city_name(city_str)
+            if normalized_city:
+                return normalized_city
+            extracted_city = extract_city_from_address(city_str)
+            if extracted_city:
+                return extracted_city
+
+        # Tentar endereço no índice 7
+        if len(rec) > 7 and rec[7]:
+            city_str = str(rec[7]).strip()
+            normalized_city = normalize_city_name(city_str)
+            if normalized_city:
+                return normalized_city
+            extracted_city = extract_city_from_address(city_str)
+            if extracted_city:
+                return extracted_city
+
+    # Missed Rides: geralmente têm 8-9 campos, cidade no índice 8 (último) ou 3 (endereço)
+    elif rec_length >= 8 and rec_length <= 10:
+        # Tentar primeiro o último campo
+        last_idx = len(rec) - 1
+        if rec[last_idx]:
+            city_str = str(rec[last_idx]).strip()
+            normalized_city = normalize_city_name(city_str)
+            if normalized_city:
+                return normalized_city
+            extracted_city = extract_city_from_address(city_str)
+            if extracted_city:
+                return extracted_city
+
+        # Tentar endereço no índice 3
+        if len(rec) > 3 and rec[3]:
+            city_str = str(rec[3]).strip()
+            normalized_city = normalize_city_name(city_str)
+            if normalized_city:
+                return normalized_city
+            extracted_city = extract_city_from_address(city_str)
+            if extracted_city:
+                return extracted_city
+
+    # Completed Rides e outros: usar índices tradicionais
+    else:
+        # Priorizar índices onde as cidades realmente aparecem nos dados atuais
+        possible_city_indices = [5, 6, 15, 17, 8, 9, 10]  # Reordenado por prioridade baseada nos dados
+
+        for idx in possible_city_indices:
+            if idx < len(rec) and rec[idx]:
+                city_str = str(rec[idx]).strip()
+
+                # Primeiro tentar normalização direta
+                normalized_city = normalize_city_name(city_str)
+                if normalized_city:
+                    return normalized_city
+
+                # Se não conseguiu normalizar diretamente, tentar extrair de endereço
+                extracted_city = extract_city_from_address(city_str)
+                if extracted_city:
+                    return extracted_city
+
     return "Unnamed"  # Default se não conseguir detectar
 
 
@@ -414,7 +477,7 @@ async def get_metrics_overview(
                 }
                 # Verificar filtro de cidade
                 cidade_item = item.get("cidade")
-                if cidade and cidade_item != cidade:
+                if not matches_city_filter(cidade_item, cidade):
                     continue  # Pular se não corresponde ao filtro de cidade
                     
                 if dt_corrida and dt_ini <= dt_corrida <= dt_fim:
@@ -464,13 +527,13 @@ async def get_metrics_overview(
                     "grupo": rec[2] if len(rec) > 2 else None,
                     "local": rec[3] if len(rec) > 3 else None,
                     "destino": None,
-                    "cidade": rec[8] if len(rec) > 8 else None,  # Cidade no índice 8 para corridas perdidas
+                    "cidade": (extract_city_from_address(rec[3]) if len(rec) > 3 and rec[3] else None) if len(rec) > 3 and rec[3] else (normalize_city_name(str(rec[8]).strip()) if len(rec) > 8 and rec[8] else None),  # Extrair do endereço ou índice 8
                     "tempo": None,
                     "motivo": motivo
                 }
                 # Verificar filtro de cidade
                 cidade_item = item.get("cidade")
-                if cidade and cidade_item != cidade:
+                if not matches_city_filter(cidade_item, cidade):
                     continue  # Pular se não corresponde ao filtro de cidade
                     
                 if dt_corrida and dt_ini <= dt_corrida <= dt_fim:
@@ -515,13 +578,6 @@ async def get_metrics_overview(
                         motivo = rec[idx]
                         break
 
-                # Cidade: preferir 8, depois 17, depois 15
-                cidade_val = None
-                for idx in (8, 17, 15):
-                    if len(rec) > idx and rec[idx]:
-                        cidade_val = rec[idx]
-                        break
-
                 # Detectar se rec[5] é telefone (formatos como +5566...) e mapear corretamente
                 telefone = None
                 local_val = None
@@ -546,6 +602,29 @@ async def get_metrics_overview(
                     # padrão: rec[5] é local, rec[6] destino
                     local_val = rec[5] if len(rec) > 5 else None
                     destino_val = rec[6] if len(rec) > 6 else None
+
+                # Cidade: primeiro tentar extrair dos endereços, depois índices específicos
+                cidade_val = None
+
+                # Tentar extrair cidade do endereço de origem
+                if local_val:
+                    try:
+                        extracted = extract_city_from_address(local_val)
+                        if extracted:
+                            cidade_val = normalize_city_name(extracted)
+                    except Exception:
+                        pass  # Silenciar erros na extração
+
+                # Se não conseguiu do endereço, tentar índices específicos
+                if not cidade_val:
+                    for idx in (8, 17, 15):
+                        if len(rec) > idx and rec[idx]:
+                            cidade_val = rec[idx]
+                            break
+
+                    # Aplicar normalização à cidade detectada dos índices
+                    if cidade_val:
+                        cidade_val = normalize_city_name(str(cidade_val).strip())
 
                 dt_corrida = None
                 hora_formatada = None
@@ -578,7 +657,7 @@ async def get_metrics_overview(
                 }
                 # Verificar filtro de cidade
                 cidade_item = item.get("cidade")
-                if cidade and cidade_item != cidade:
+                if not matches_city_filter(cidade_item, cidade):
                     continue  # Pular se não corresponde ao filtro de cidade
 
                 if dt_corrida and dt_ini <= dt_corrida <= dt_fim:
@@ -621,7 +700,7 @@ async def get_metrics_overview(
                 }
                 # Verificar filtro de cidade
                 cidade_item = item.get("cidade")
-                if cidade and cidade_item != cidade:
+                if not matches_city_filter(cidade_item, cidade):
                     continue  # Pular se não corresponde ao filtro de cidade
                     
                 if dt_corrida and dt_ini <= dt_corrida <= dt_fim and (id_corrida, hora_formatada) not in ids_canceladas:
