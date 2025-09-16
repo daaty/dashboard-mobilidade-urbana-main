@@ -24,18 +24,13 @@ from slowapi.errors import RateLimitExceeded
 from cachetools import TTLCache
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
-# Adicionar o caminho da implementação local do AGNO
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "agno", "libs", "agno"))
-
-from agno.playground import Playground
-from agno.storage.postgres import PostgresStorage
-from agno.memory.v2.db.postgres import PostgresMemoryDb
-from agno.memory.v2.memory import Memory
-
 # Importações do AGNO
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.playground import Playground
+from agno.storage.postgres import PostgresStorage
+from agno.memory.v2.db.postgres import PostgresMemoryDb
+from agno.memory.v2.memory import Memory
 
 # Importação do endpoint financeiro original
 from financial_endpoint import router as financial_router
