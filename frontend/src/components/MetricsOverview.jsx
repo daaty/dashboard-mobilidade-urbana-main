@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { CheckCircle, XCircle, AlertCircle, MessageCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 // import { ResumoPerformance } from './ResumoPerformance'
 // import { SistemaAlertas } from './SistemaAlertas'
@@ -112,7 +112,10 @@ export function MetricsOverview({ data, loading = false, onPeriodChange }) {
                       <span className="font-bold text-gray-900">{corrida.nome}</span>
                       <span className="text-green-500 font-semibold">{corrida.hora}</span>
                     </div>
-                    <div className="text-xs text-gray-500">{corrida.grupo}</div>
+                    <a href={`https://wa.me/${corrida.grupo.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-sm text-green-500 hover:text-green-700 underline flex items-center">
+                      <MessageCircle className="w-4 h-4 mr-1" />
+                      {corrida.grupo}
+                    </a>
                     <div className="text-xs text-gray-700 mt-1">{corrida.local}</div>
                     <div className="text-xs text-gray-700 font-semibold mt-1">{corrida.destino}</div>
                     <div className="text-xs text-gray-400">{corrida.cidade}</div>
@@ -134,7 +137,10 @@ export function MetricsOverview({ data, loading = false, onPeriodChange }) {
                       <span className="font-bold text-gray-900">{corrida.nome}</span>
                       <span className="text-red-500 font-semibold">{corrida.hora}</span>
                     </div>
-                    <div className="text-xs text-gray-500">{corrida.grupo}</div>
+                    <a href={`https://wa.me/${corrida.grupo.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-sm text-green-500 hover:text-green-700 underline flex items-center">
+                      <MessageCircle className="w-4 h-4 mr-1" />
+                      {corrida.grupo}
+                    </a>
                     <div className="text-xs text-gray-700 mt-1">{corrida.local}</div>
                     <div className="text-xs text-gray-700 font-semibold mt-1">{corrida.motivo}</div>
                   </div>
@@ -154,7 +160,10 @@ export function MetricsOverview({ data, loading = false, onPeriodChange }) {
                       <span className="font-bold text-gray-900">{corrida.nome}</span>
                       <span className="text-yellow-500 font-semibold">{corrida.hora}</span>
                     </div>
-                    <div className="text-xs text-gray-500">{corrida.grupo}</div>
+                    <a href={`https://wa.me/${corrida.grupo.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-sm text-green-500 hover:text-green-700 underline flex items-center">
+                      <MessageCircle className="w-4 h-4 mr-1" />
+                      {corrida.grupo}
+                    </a>
                     <div className="text-xs text-gray-700 mt-1">{corrida.local}</div>
                     <div className="text-xs text-gray-700 font-semibold mt-1">{corrida.motivo}</div>
                   </div>
