@@ -607,8 +607,8 @@ async def handle_user_interaction_with_context(user_name: str, user_message: str
     elif any(palavra in msg_lower for palavra in ['sim', 'tenho nota fiscal', 'tenho nf', 'possui nf', 'tem nota']):
         response_msg = f"Perfeito {user_name}! Você confirmou que possui Nota Fiscal. Por favor, envie a imagem da NF para que eu possa processar e vincular ao comprovante anterior."
     
-    elif any(categoria in msg_lower for categoria in ['alimentação', 'alimentacao', 'transporte', 'material de escritório', 'material escritorio', 'material', 'escritorio', 'serviços', 'servicos', 'marketing', 'viagem', 'outros', 'alimento', 'comida', 'lanche', 'refeição', 'refeicao']):
-        # DETECTAR RESPOSTAS SOBRE CATEGORIA DO GASTO (mais abrangente)
+    # DETECTAR RESPOSTAS SOBRE CATEGORIA DO GASTO (sempre verificar no contexto de registro)
+    elif len(user_message.strip()) > 1 and len(user_message.strip()) < 100 and not any(word in msg_lower for word in ['sim', 'não', 'nao', 'correto', 'certo', 'ok', 'perfeito', 'exato', 'fornecedor', 'empresa', 'estabelecimento', 'nome correto', 'help', 'ajuda', 'como funciona']):
         categoria_keywords = {
             'Alimentação': ['alimentação', 'alimentacao', 'alimento', 'comida', 'lanche', 'refeição', 'refeicao', 'restaurante', 'bar', 'cafe', 'café'],
             'Transporte': ['transporte', 'combustivel', 'combustível', 'gasolina', 'diesel', 'uber', 'taxi', 'onibus', 'ônibus', 'metro', 'trem', 'aviao', 'avião', 'estacionamento'],
@@ -628,12 +628,35 @@ async def handle_user_interaction_with_context(user_name: str, user_message: str
         
         # Se encontrou uma categoria conhecida, processar
         if categoria_detectada:
+            # Salvar a categoria no banco de dados
+            try:
+                financial_tools = FinancialTools()
+                update_result = financial_tools.atualizar_gasto_empresa(
+                    id_gasto=int(gasto_id),
+                    natureza_do_gasto=categoria_detectada
+                )
+                logger.info(f"✅ Categoria '{categoria_detectada}' salva para gasto ID {gasto_id}")
+            except Exception as e:
+                logger.error(f"❌ Erro ao salvar categoria: {e}")
+            
             response_msg = f"✅ Categoria '{categoria_detectada}' registrada! {user_name}, agora confirme se o fornecedor extraído está correto ou me informe o nome correto."
         
         # Se não encontrou categoria conhecida, tentar detectar se parece ser uma categoria personalizada
         elif len(user_message.strip()) > 2 and len(user_message.strip()) < 50 and not any(word in msg_lower for word in ['sim', 'não', 'nao', 'correto', 'certo', 'ok', 'perfeito', 'exato', 'fornecedor', 'empresa']):
             # Parece ser uma categoria personalizada - aceitar como "Outros" mas registrar o nome fornecido
             categoria_personalizada = user_message.strip()
+            
+            # Salvar como "Outros" no banco
+            try:
+                financial_tools = FinancialTools()
+                update_result = financial_tools.atualizar_gasto_empresa(
+                    id_gasto=int(gasto_id),
+                    natureza_do_gasto="Outros"
+                )
+                logger.info(f"✅ Categoria personalizada '{categoria_personalizada}' salva como 'Outros' para gasto ID {gasto_id}")
+            except Exception as e:
+                logger.error(f"❌ Erro ao salvar categoria personalizada: {e}")
+            
             response_msg = f"✅ Categoria '{categoria_personalizada}' registrada como personalizada! {user_name}, agora confirme se o fornecedor extraído está correto ou me informe o nome correto."
         
         else:
@@ -653,6 +676,17 @@ async def handle_user_interaction_with_context(user_name: str, user_message: str
                 categoria_mapeada = "Viagem"
             elif 'outros' in msg_lower:
                 categoria_mapeada = "Outros"
+                
+            # Salvar a categoria mapeada no banco
+            try:
+                financial_tools = FinancialTools()
+                update_result = financial_tools.atualizar_gasto_empresa(
+                    id_gasto=int(gasto_id),
+                    natureza_do_gasto=categoria_mapeada
+                )
+                logger.info(f"✅ Categoria mapeada '{categoria_mapeada}' salva para gasto ID {gasto_id}")
+            except Exception as e:
+                logger.error(f"❌ Erro ao salvar categoria mapeada: {e}")
                 
             response_msg = f"✅ Categoria '{categoria_mapeada}' registrada! {user_name}, agora confirme se o fornecedor extraído está correto ou me informe o nome correto."
     
