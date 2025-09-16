@@ -64,6 +64,47 @@ def extract_city_from_record(rec):
     
     return "Unnamed"  # Default se não conseguir detectar
 
+
+def get_user_info_from_record(rec):
+    """Heurística para extrair usuario_id e nome do passageiro de registros heterogêneos.
+    Retorna (usuario_id, nome)
+    """
+    usuario_id = None
+    nome = None
+    try:
+        # Caso comum: rec[5] pode conter id numérico ou telefone; rec[3] costuma ser o nome
+        if len(rec) > 5 and rec[5] and str(rec[5]).strip():
+            if str(rec[5]).isdigit():
+                usuario_id = str(rec[5])
+                if len(rec) > 3 and rec[3] and not str(rec[3]).isdigit():
+                    nome = rec[3]
+            else:
+                # rec[5] pode ser o nome do passageiro
+                nome = rec[5]
+                # tentar preencher usuario_id com rec[1]
+                if len(rec) > 1 and str(rec[1]).isdigit():
+                    usuario_id = str(rec[1])
+
+        # fallbacks para nome
+        if not nome:
+            if len(rec) > 1 and rec[1] and not str(rec[1]).isdigit():
+                nome = rec[1]
+            elif len(rec) > 3 and rec[3] and not str(rec[3]).isdigit():
+                nome = rec[3]
+            elif len(rec) > 0 and rec[0]:
+                nome = rec[0]
+
+        # fallback para usuario_id: procurar campo numérico entre 1..3
+        if not usuario_id:
+            for idx in (1, 2, 3):
+                if len(rec) > idx and rec[idx] and str(rec[idx]).isdigit():
+                    usuario_id = str(rec[idx])
+                    break
+    except Exception:
+        # Silenciar falhas na heurística e retornar valores parciais
+        pass
+    return usuario_id, nome
+
 router = APIRouter()
 
 async def get_db():
@@ -514,11 +555,26 @@ async def get_metrics_overview(
                 if id_corrida in ids_concluidas:
                     continue
                     
-                nome_motorista = rec[1] if len(rec) > 1 else None  # Driver Name
-                nome_passageiro = rec[2] if len(rec) > 2 else None  # User Name
-                telefone = rec[3] if len(rec) > 3 else None  # User Phone No
-                
+                # Forçar índice fixo: Completed -> nome em rec[3] (fallback para rec[2])
+                usuario_id = None
+                nome_passageiro = None
+                telefone = None
+                if len(rec) > 3 and rec[3] and not str(rec[3]).isdigit():
+                    nome_passageiro = rec[3]
+                elif len(rec) > 2 and rec[2] and not str(rec[2]).isdigit():
+                    nome_passageiro = rec[2]
+                # tentar detectar telefone em posições comuns (3 ou 4)
+                if len(rec) > 3 and isinstance(rec[3], str) and rec[3].strip().startswith('+'):
+                    telefone = rec[3]
+                elif len(rec) > 4 and isinstance(rec[4], str) and rec[4].strip().startswith('+'):
+                    telefone = rec[4]
+                # usuario_id tentar detectar nas posições 1..3
+                for idx in (1,2,3):
+                    if len(rec) > idx and rec[idx] and str(rec[idx]).isdigit():
+                        usuario_id = rec[idx]
+                        break
                 # Usar nome do passageiro como principal, motorista como fallback
+                nome_motorista = rec[1] if len(rec) > 1 else None
                 nome = nome_passageiro or nome_motorista or "Usuário"
                 
                 # Corrigir índices para corridas concluídas baseado na estrutura real da VPS
@@ -561,13 +617,15 @@ async def get_metrics_overview(
                 
                 item = {
                     "id_corrida": id_corrida,
+                    "usuario_id": usuario_id,
                     "nome": nome,
                     "avatar": gerar_avatar(nome),
                     "hora": hora_formatada,
                     "dt_corrida": dt_corrida,
-                    "grupo": rec[9] if len(rec) > 9 else None,  # Categoria
+                    "grupo": rec[4] if len(rec) > 4 else None,  # Telefone do passageiro (antes era rec[9])
                     "local": rec[5] if len(rec) > 5 else None,  # Origem  
                     "destino": rec[6] if len(rec) > 6 else None,  # Destino
+                    "telefone": telefone,
                     "cidade": cidade_detectada,
                     "tempo": None
                 }
@@ -591,7 +649,13 @@ async def get_metrics_overview(
                 if id_corrida in ids_perdidas:
                     continue
                     
+                # Forçar índice fixo: Missed -> nome em rec[1]
                 nome = rec[1] if len(rec) > 1 else None  # passageiro correto
+                usuario_id = None
+                for idx in (1,2,3):
+                    if len(rec) > idx and rec[idx] and str(rec[idx]).isdigit():
+                        usuario_id = rec[idx]
+                        break
                 hora = rec[6] if len(rec) > 6 else None
                 motivo = rec[5] if len(rec) > 5 else None  # índice correto para motivo
                 dt_corrida = None
@@ -614,7 +678,7 @@ async def get_metrics_overview(
                     "avatar": gerar_avatar(nome),
                     "hora": hora_formatada,
                     "dt_corrida": dt_corrida,
-                    "grupo": rec[4] if len(rec) > 4 else None,
+                    "grupo": rec[2] if len(rec) > 2 else None,
                     "local": rec[3] if len(rec) > 3 else None,
                     "destino": None,
                     "cidade": rec[8] if len(rec) > 8 else None,  # Cidade no índice 8 para corridas perdidas
@@ -636,18 +700,73 @@ async def get_metrics_overview(
         elif table_name in ["Cancelled Rides", "corridas_canceladas"]:
             for rec in new_records:
                 id_corrida = rec[0] if len(rec) > 0 else None
-                
+
                 # DEDUPLICAÇÃO: Pular se ID já foi processado
                 if id_corrida in ids_canceladas:
                     continue
-                    
-                nome = rec[2] if len(rec) > 2 else None  # passageiro correto (índice 2)
-                hora = rec[11] if len(rec) > 11 else None  # CORRIGIDO: data está no índice 11
-                motivo = rec[12] if len(rec) > 12 else None  # CORRIGIDO: motivo está no índice 12
+
+                # Forçar índice fixo: Cancelled -> nome em rec[6] (fallback rec[3])
+                usuario_id = None
+                nome = None
+                if len(rec) > 6 and rec[6] and not str(rec[6]).isdigit():
+                    nome = rec[6]
+                elif len(rec) > 3 and rec[3] and not str(rec[3]).isdigit():
+                    nome = rec[3]
+                # usuario_id fallback nas posições 1 e 3 (remover uso de índice 2)
+                for idx in (1,3):
+                    if len(rec) > idx and rec[idx] and str(rec[idx]).isdigit():
+                        usuario_id = rec[idx]
+                        break
+
+                # Data/hora: preferir índice 12, depois 11, depois 7/8
+                hora = None
+                for idx in (12, 11, 8, 7):
+                    if len(rec) > idx and rec[idx]:
+                        hora = rec[idx]
+                        break
+
+                # Motivo: 13 (pt) ou 14 (en) ou fallback 12
+                motivo = None
+                for idx in (13, 14, 12):
+                    if len(rec) > idx and rec[idx]:
+                        motivo = rec[idx]
+                        break
+
+                # Cidade: preferir 8, depois 17, depois 15
+                cidade_val = None
+                for idx in (8, 17, 15):
+                    if len(rec) > idx and rec[idx]:
+                        cidade_val = rec[idx]
+                        break
+
+                # Detectar se rec[5] é telefone (formatos como +5566...) e mapear corretamente
+                telefone = None
+                local_val = None
+                destino_val = None
+                try:
+                    maybe_5 = str(rec[5]).strip() if len(rec) > 5 and rec[5] is not None else ""
+                except Exception:
+                    maybe_5 = ""
+                if maybe_5 and re.match(r"^\+?\d{7,}$", maybe_5.replace(' ', '').replace('-', '')):
+                    telefone = maybe_5
+                    # se rec[5] é telefone, buscar endereço em 8/9/6
+                    if len(rec) > 8 and rec[8]:
+                        local_val = rec[8]
+                        destino_val = rec[9] if len(rec) > 9 and rec[9] else (rec[6] if len(rec) > 6 else None)
+                    elif len(rec) > 6 and rec[6]:
+                        local_val = rec[6]
+                        destino_val = rec[9] if len(rec) > 9 and rec[9] else None
+                    else:
+                        local_val = None
+                        destino_val = None
+                else:
+                    # padrão: rec[5] é local, rec[6] destino
+                    local_val = rec[5] if len(rec) > 5 else None
+                    destino_val = rec[6] if len(rec) > 6 else None
+
                 dt_corrida = None
                 hora_formatada = None
                 if hora:
-                    # Usar função unificada para extrair datetime
                     dt_str = extract_datetime_from_record([hora], 0)
                     if dt_str:
                         try:
@@ -658,16 +777,19 @@ async def get_metrics_overview(
                             hora_formatada = str(hora)
                     else:
                         hora_formatada = str(hora)
+
                 item = {
                     "id_corrida": id_corrida,
+                    "usuario_id": usuario_id,
                     "nome": nome,
                     "avatar": gerar_avatar(nome),
                     "hora": hora_formatada,
                     "dt_corrida": dt_corrida,
-                    "grupo": rec[4] if len(rec) > 4 else None,
-                    "local": rec[5] if len(rec) > 5 else None,
-                    "destino": rec[6] if len(rec) > 6 else None,
-                    "cidade": rec[17] if len(rec) > 17 else None,  # Cidade no índice 17 para corridas canceladas
+                    "grupo": rec[5] if len(rec) > 5 else (rec[4] if len(rec) > 4 else None),
+                    "local": local_val,
+                    "destino": destino_val,
+                    "telefone": telefone,
+                    "cidade": cidade_val,
                     "tempo": None,
                     "motivo": motivo
                 }
@@ -675,7 +797,7 @@ async def get_metrics_overview(
                 cidade_item = item.get("cidade")
                 if cidade and cidade_item != cidade:
                     continue  # Pular se não corresponde ao filtro de cidade
-                    
+
                 if dt_corrida and dt_ini <= dt_corrida <= dt_fim:
                     canceladas.append(item)
                     ids_canceladas.add(id_corrida)
