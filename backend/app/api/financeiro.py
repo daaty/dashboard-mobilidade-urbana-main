@@ -398,6 +398,10 @@ async def update_gasto(
         
         return {"message": "Gasto atualizado com sucesso", "gasto": gasto}
         
+    except HTTPException:
+        # Re-raise HTTPExceptions para manter o status code correto
+        await db.rollback()
+        raise
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Erro ao atualizar gasto: {str(e)}")
@@ -426,6 +430,10 @@ async def delete_gasto(
         
         return {"message": "Gasto deletado com sucesso"}
         
+    except HTTPException:
+        # Re-raise HTTPExceptions para manter o status code correto
+        await db.rollback()
+        raise
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Erro ao deletar gasto: {str(e)}")

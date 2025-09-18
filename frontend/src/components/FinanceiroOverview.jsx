@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { DollarSign, TrendingUp, TrendingDown, FileText, Building, Receipt, CreditCard, PieChart, Calendar, AlertTriangle, ExternalLink, Filter, Edit, Trash2 } from 'lucide-react'
 
+// Configuração da API
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 // Simulação dos componentes de UI, já que não temos acesso a eles.
 const Card = ({ children, className }) => <div className={`border rounded-lg shadow-sm ${className}`}>{children}</div>;
 const CardContent = ({ children, className }) => <div className={`p-6 ${className}`}>{children}</div>;
@@ -127,7 +130,7 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
     if (window.confirm('Tem certeza que deseja deletar este gasto?')) {
       try {
         // Chamar API de delete
-        const response = await fetch(`/api/financeiro/gastos/${gastoId}`, {
+        const response = await fetch(`${API_URL}/api/financeiro/gastos/${gastoId}`, {
           method: 'DELETE',
         });
         if (response.ok) {
@@ -156,7 +159,7 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
         tipo_documento: updatedGasto.tipo_documento,
       };
 
-      const response = await fetch(`/api/financeiro/gastos/${updatedGasto.id}`, {
+      const response = await fetch(`${API_URL}/api/financeiro/gastos/${updatedGasto.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
