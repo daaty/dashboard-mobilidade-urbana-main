@@ -11,6 +11,8 @@ import {
   Smartphone,
   CreditCard
 } from 'lucide-react'
+import PassengerDetailsModal from './PassengerDetailsModal'
+import { usePassengerModal } from '../hooks/usePassengerModal'
 
 // Configuração da URL da API baseada no ambiente
 const API_URL = import.meta.env.VITE_API_URL || 
@@ -25,6 +27,9 @@ const PassengersOverview = () => {
   const [passengersData, setPassengersData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState('3_months')
+  
+  // Hook para modal de detalhes do passageiro
+  const { isModalOpen, selectedPassengerId, selectedPassengerName, openModal, closeModal } = usePassengerModal()
 
   useEffect(() => {
     fetchAllData()
@@ -111,7 +116,8 @@ const PassengersOverview = () => {
         >
           <motion.div
             whileHover={{ scale: 1.02 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
+            onClick={() => openModal(null, 'Gerenciar Passageiros')}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px] cursor-pointer"
           >
             <div className="flex items-center justify-between h-full">
               <div className="flex-1 min-w-0">
@@ -936,6 +942,14 @@ const PassengersOverview = () => {
           </div>
         </motion.div>
       )}
+
+      {/* Modal de Detalhes do Passageiro */}
+      <PassengerDetailsModal 
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        passengerId={selectedPassengerId}
+        passengerName={selectedPassengerName}
+      />
     </div>
   )
 }

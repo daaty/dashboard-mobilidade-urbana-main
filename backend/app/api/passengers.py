@@ -43,6 +43,13 @@ class PassengerDetails(BaseModel):
     app_version: Optional[str]
     device_type: Optional[str]
 
+class PassengerUpdateData(BaseModel):
+    user_name: Optional[str] = None
+    user_email: Optional[str] = None  
+    user_phone: Optional[str] = None
+    city: Optional[str] = None
+    blocked: Optional[str] = None  # "Yes" ou "No"
+
 class CityDistribution(BaseModel):
     city: str
     passenger_count: int
@@ -56,7 +63,7 @@ class CityDistribution(BaseModel):
 # ===== FUNÇÕES AUXILIARES =====
 
 def normalize_city_name(city_name: str) -> str:
-    """Normaliza nomes de cidades para lidar com problemas de codificação"""
+    """Normaliza nomes de cidades para lidar com problemas de codificação e comparação"""
     if not city_name or city_name.strip() == '' or city_name.strip().upper() == 'N/A':
         return "Não informado"
     
@@ -70,6 +77,21 @@ def normalize_city_name(city_name: str) -> str:
     }
     
     for old, new in replacements.items():
+        city_name = city_name.replace(old, new)
+    
+    # Normalização para comparação: converter para maiúsculo e remover acentos
+    city_name = city_name.upper()
+    accent_replacements = {
+        'Á': 'A', 'À': 'A', 'Ã': 'A', 'Â': 'A', 'Ä': 'A',
+        'É': 'E', 'È': 'E', 'Ê': 'E', 'Ë': 'E',
+        'Í': 'I', 'Ì': 'I', 'Î': 'I', 'Ï': 'I',
+        'Ó': 'O', 'Ò': 'O', 'Õ': 'O', 'Ô': 'O', 'Ö': 'O',
+        'Ú': 'U', 'Ù': 'U', 'Û': 'U', 'Ü': 'U',
+        'Ç': 'C',
+        'Ñ': 'N'
+    }
+    
+    for old, new in accent_replacements.items():
         city_name = city_name.replace(old, new)
     
     return city_name
@@ -404,6 +426,7 @@ async def get_passengers_by_city(
 @router.get("/passengers/list", response_model=List[PassengerDetails])
 async def get_passengers_list(
     city: str = Query("all", description="Cidade específica ou 'all'"),
+    search: str = Query("", description="Buscar por nome do passageiro"),
     limit: int = Query(50, description="Limite de resultados"),
     offset: int = Query(0, description="Offset para paginação"),
     order_by: str = Query("rides_count", description="Ordenar por: rides_count, revenue, registration_date"),
@@ -411,24 +434,28 @@ async def get_passengers_list(
 ):
     """Retorna lista de passageiros com detalhes"""
     try:
-        city_filter = "AND city = :city" if city != "all" else ""
-        
-        query = text(f"""
+        # Buscar todos os passageiros sem limite para permitir filtros completos
+        query = text("""
             SELECT 
                 passenger_id,
                 city,
                 personal_data,
                 rides_history
             FROM passenger_personal_details 
-            WHERE 1=1 {city_filter}
-            LIMIT :limit OFFSET :offset
+            ORDER BY passenger_id DESC
         """)
         
-        params = {"limit": limit, "offset": offset}
+        results = db.execute(query).fetchall()
+        
+        # Aplicar filtro por cidade se necessário
         if city != "all":
-            params["city"] = city
-            
-        results = db.execute(query, params).fetchall()
+            filtered_results = []
+            normalized_city_param = normalize_city_name(city)
+            for row in results:
+                row_city_normalized = normalize_city_name(row.city or "")
+                if row_city_normalized == normalized_city_param:
+                    filtered_results.append(row)
+            results = filtered_results
         
         passengers = []
         for row in results:
@@ -445,11 +472,21 @@ async def get_passengers_list(
                 total_spent=rides_data["total_revenue"],
                 avg_rating=rides_data["avg_rating"] if rides_data["avg_rating"] > 0 else None,
                 date_registered=personal_info.get('date_registered'),
-                status="Bloqueado" if personal_info.get('blocked') else "Ativo",
+                status="Bloqueado" if personal_info.get('blocked') == 'Yes' else "Ativo",
                 app_version=personal_info.get('app_version'),
                 device_type=personal_info.get('device_type')
             )
             passengers.append(passenger)
+        
+        # Aplicar filtro por busca de nome se necessário
+        if search.strip():
+            search_normalized = search.strip().lower()
+            filtered_passengers = []
+            for passenger in passengers:
+                passenger_name = passenger.user_name or ""
+                if search_normalized in passenger_name.lower():
+                    filtered_passengers.append(passenger)
+            passengers = filtered_passengers
         
         # Ordenar baseado no parâmetro
         if order_by == "rides_count":
@@ -458,6 +495,11 @@ async def get_passengers_list(
             passengers.sort(key=lambda x: x.total_spent, reverse=True)
         elif order_by == "registration_date":
             passengers.sort(key=lambda x: x.date_registered or "", reverse=True)
+        
+        # Aplicar paginação após todos os filtros
+        start_index = offset
+        end_index = offset + limit
+        passengers = passengers[start_index:end_index]
         
         return passengers
         
@@ -670,3 +712,116 @@ async def get_passenger_details(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar detalhes do passageiro: {str(e)}")
+
+@router.get("/passengers/find-personal-data/{passenger_id}")
+async def find_passenger_personal_data(
+    passenger_id: str,
+    db: Session = Depends(get_db)
+):
+    """Endpoint para encontrar dados pessoais de um passageiro específico"""
+    try:
+        query = text("""
+            SELECT *
+            FROM passenger_personal_details
+            WHERE passenger_id = :passenger_id
+        """)
+        
+        result = db.execute(query, {"passenger_id": passenger_id}).fetchone()
+        
+        if not result:
+            raise HTTPException(status_code=404, detail=f"Dados pessoais não encontrados para passenger_id {passenger_id}")
+        
+        # Parse dos dados pessoais
+        personal_data = result.personal_data
+        if isinstance(personal_data, str):
+            try:
+                personal_data = json.loads(personal_data)
+            except json.JSONDecodeError:
+                personal_data = {}
+        
+        # Retornar dados no formato esperado pelo frontend
+        return {
+            "passenger_id": result.passenger_id,
+            "personal_driver_id": result.passenger_id,  # Para compatibilidade
+            "analytics_passenger_id": result.passenger_id,
+            "city": result.city,
+            "personal_data": personal_data,
+            "extraction_source": result.extraction_source,
+            "extracted_at": result.extracted_at.isoformat() if result.extracted_at else None,
+            "updated_at": result.updated_at.isoformat() if result.updated_at else None
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar dados pessoais do passageiro: {str(e)}")
+
+@router.put("/passengers/{passenger_id}")
+async def update_passenger(
+    passenger_id: str,
+    update_data: PassengerUpdateData,
+    db: Session = Depends(get_db)
+):
+    """Atualiza dados de um passageiro específico"""
+    try:
+        # Buscar o passageiro existente
+        query = text("""
+            SELECT passenger_id, city, personal_data, extraction_source, extracted_at, updated_at
+            FROM passenger_personal_details 
+            WHERE passenger_id = :passenger_id
+        """)
+        
+        result = db.execute(query, {"passenger_id": passenger_id}).fetchone()
+        
+        if not result:
+            raise HTTPException(status_code=404, detail=f"Passageiro não encontrado: {passenger_id}")
+        
+        # Parse dos dados pessoais existentes
+        personal_data = result.personal_data
+        if isinstance(personal_data, str):
+            try:
+                personal_data = json.loads(personal_data)
+            except json.JSONDecodeError:
+                personal_data = {}
+        
+        # Atualizar apenas os campos fornecidos
+        updates = {}
+        if update_data.city is not None:
+            updates["city"] = update_data.city
+            
+        # Atualizar campos nos personal_data
+        if update_data.user_name is not None:
+            personal_data["user_name"] = update_data.user_name
+        if update_data.user_email is not None:
+            personal_data["user_email"] = update_data.user_email
+        if update_data.user_phone is not None:
+            personal_data["user_phone"] = update_data.user_phone
+        if update_data.blocked is not None:
+            personal_data["blocked"] = update_data.blocked
+            
+        # Sempre atualizar personal_data e updated_at
+        updates["personal_data"] = json.dumps(personal_data)
+        updates["updated_at"] = datetime.now()
+        
+        # Construir a query de update dinamicamente
+        set_clause = ", ".join([f"{key} = :{key}" for key in updates.keys()])
+        update_query = text(f"""
+            UPDATE passenger_personal_details 
+            SET {set_clause}
+            WHERE passenger_id = :passenger_id
+        """)
+        
+        # Adicionar passenger_id aos parâmetros
+        updates["passenger_id"] = passenger_id
+        
+        # Executar update
+        db.execute(update_query, updates)
+        db.commit()
+        
+        return {"message": "Passageiro atualizado com sucesso", "passenger_id": passenger_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Erro ao atualizar passageiro: {str(e)}")
