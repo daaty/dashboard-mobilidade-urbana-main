@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { MetricsOverview } from './MetricsOverview'
 import DriversOverview from './DriversOverview'
+import PassengersOverview from './PassengersOverview'
 import { FinanceiroOverview } from './FinanceiroOverview'
 import MetasCidades from './MetasCidades'
 import DashboardExecutivoIntegrado from './DashboardExecutivoIntegradoSimple'
@@ -198,6 +199,12 @@ function App() {
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
             <DriversOverview />
+          </motion.div>
+        )
+      case 'passengers':
+        return (
+          <motion.div variants={contentVariants} initial="hidden" animate="visible">
+            <PassengersOverview />
           </motion.div>
         )
       case 'performance':

@@ -10,6 +10,7 @@ import {
   Home,
   AlertCircle,
   Users,
+  UserCheck,
   DollarSign,
   Building2,
   Upload
@@ -22,6 +23,7 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
     { id: 'overview', label: 'Visão Geral', icon: Home },
     { id: 'analises', label: 'Análise de Corridas', icon: PieChart },
     { id: 'drivers', label: 'Motoristas', icon: Users },
+    { id: 'passengers', label: 'Passageiros', icon: UserCheck },
     { id: 'financeiro', label: 'Financeiro', icon: DollarSign },
     { id: 'performance', label: 'Performance', icon: TrendingUp },
     { id: 'metas', label: 'Metas por Cidade', icon: Target },
