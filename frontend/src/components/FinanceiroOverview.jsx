@@ -180,7 +180,7 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
+    <div className="p-6 space-y-6">
       <div className="max-w-7xl mx-auto">
         {/* Header - Executive Style */}
         <motion.div
@@ -202,7 +202,7 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl backdrop-blur-lg">
             <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
               <div className="flex items-center gap-3 text-lg font-semibold">
                 <div className="bg-green-500/20 p-2 rounded-lg">
@@ -214,11 +214,11 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
             <div className="p-8">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Período</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">Período</label>
                   <Select
                     value={filters.periodo}
                     onChange={(value) => handleFilterChange('periodo', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 p-2"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg shadow-sm hover:border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 p-2"
                   >
                     <SelectOption value="">Selecione o período</SelectOption>
                     {periodOptions.map(option => (
@@ -230,11 +230,11 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Categoria</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">Categoria</label>
                   <Select
                     value={filters.categoria}
                     onChange={(value) => handleFilterChange('categoria', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 p-2"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg shadow-sm hover:border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 p-2"
                   >
                     {categoryOptions.map(option => (
                       <SelectOption key={option.value} value={option.value}>
@@ -245,11 +245,11 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Fornecedor</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">Fornecedor</label>
                   <Select
                     value={filters.fornecedor}
                     onChange={(value) => handleFilterChange('fornecedor', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 p-2"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg shadow-sm hover:border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 p-2"
                   >
                     {supplierOptions.map(option => (
                       <SelectOption key={option.value} value={option.value}>
@@ -260,11 +260,11 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Documentação</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">Documentação</label>
                   <Select
                     value={filters.documentacao}
                     onChange={(value) => handleFilterChange('documentacao', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 p-2"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg shadow-sm hover:border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 p-2"
                   >
                     <SelectOption value="">Todos</SelectOption>
                     <SelectOption value="com_nf">Com Nota Fiscal</SelectOption>
@@ -284,7 +284,7 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="animate-pulse bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+            <div key={i} className="animate-pulse bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
               <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-24 mb-4"></div>
               <div className="h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-20 mb-3"></div>
               <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-32"></div>
@@ -300,67 +300,67 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
           >
             {/* Total de Gastos */}
-            <div className="bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-200 text-sm font-medium tracking-wide uppercase">Total de Gastos</p>
-                  <p className="text-4xl font-bold bg-gradient-to-r from-green-300 to-emerald-300 bg-clip-text text-transparent mt-2">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Gastos</p>
+                  <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
                     {formatCurrency(financeiroData.total_gastos)}
                   </p>
-                  <p className="text-green-300 text-sm mt-2">{financeiroData.total_despesas} despesas registradas</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{financeiroData.total_despesas} despesas registradas</p>
                 </div>
-                <div className="bg-green-500/20 p-4 rounded-xl">
-                  <DollarSign className="w-8 h-8 text-green-400" />
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-green-600" />
                 </div>
               </div>
             </div>
 
             {/* Média por Dia */}
-            <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-200 text-sm font-medium tracking-wide uppercase">Média por Dia</p>
-                  <p className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent mt-2">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Média por Dia</p>
+                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
                     {formatCurrency(financeiroData.media_gastos_dia)}
                   </p>
-                  <p className="text-blue-300 text-sm mt-2">Gasto médio diário</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Gasto médio diário</p>
                 </div>
-                <div className="bg-blue-500/20 p-4 rounded-xl">
-                  <Calendar className="w-8 h-8 text-blue-400" />
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-blue-600" />
                 </div>
               </div>
             </div>
 
             {/* Taxa de Documentação */}
-            <div className="bg-gradient-to-br from-yellow-600 via-orange-700 to-orange-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-orange-200 text-sm font-medium tracking-wide uppercase">Taxa de Documentação</p>
-                  <p className="text-4xl font-bold bg-gradient-to-r from-orange-300 to-yellow-300 bg-clip-text text-transparent mt-2">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Taxa de Documentação</p>
+                  <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1">
                     {formatPercentage(financeiroData.taxa_documentacao)}
                   </p>
-                  <p className="text-orange-300 text-sm mt-2">{financeiroData.resumo_kpis.gastos_com_nf} com nota fiscal</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{financeiroData.resumo_kpis.gastos_com_nf} com nota fiscal</p>
                 </div>
-                <div className="bg-orange-500/20 p-4 rounded-xl">
-                  <FileText className="w-8 h-8 text-orange-400" />
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-orange-600" />
                 </div>
               </div>
             </div>
 
             {/* Variação do Período */}
-            <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-200 text-sm font-medium tracking-wide uppercase">Variação</p>
-                  <p className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent mt-2">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Variação</p>
+                  <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">
                     {financeiroData.variacao_percentual > 0 ? '+' : ''}{formatPercentage(financeiroData.variacao_percentual)}
                   </p>
-                  <p className="text-purple-300 text-sm mt-2">vs período anterior</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">vs período anterior</p>
                 </div>
-                <div className="bg-purple-500/20 p-4 rounded-xl">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                   {financeiroData.variacao_percentual > 0 ? 
-                    <TrendingUp className="w-8 h-8 text-purple-400" /> : 
-                    <TrendingDown className="w-8 h-8 text-purple-400" />
+                    <TrendingUp className="w-6 h-6 text-purple-600" /> : 
+                    <TrendingDown className="w-6 h-6 text-purple-600" />
                   }
                 </div>
               </div>
@@ -370,18 +370,18 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
           {/* Seção de análises detalhadas */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Top Gastos */}
-            <div className="bg-gradient-to-br from-red-50 to-pink-100 border border-red-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300">
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:shadow-xl transition-all duration-300">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-red-600 rounded-xl">
                   <Receipt className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-red-800">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                   Maiores Gastos
                 </h3>
               </div>
-              <div className="space-y-4 bg-white/60 backdrop-blur-sm rounded-xl border border-red-200 p-4 max-h-96 overflow-y-auto">
+              <div className="space-y-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 max-h-96 overflow-y-auto">
                 {financeiroData.top_gastos?.length > 0 ? financeiroData.top_gastos.map((gasto, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-red-50 rounded-xl shadow-md border border-red-100 hover:shadow-lg transition-all duration-300">
+                  <div key={index} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
                     <div className="flex items-center gap-4 flex-1">
                       <div className="relative">
                         <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg">
@@ -444,7 +444,7 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
                       <div className="flex gap-2 mt-2">
                         <button
                           onClick={() => handleEditGasto(gasto)}
-                          className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                          className="p-1 text-blue-600 hover:text-blue-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                           title="Editar gasto"
                         >
                           <Edit className="h-4 w-4" />
@@ -470,22 +470,22 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
             </div>
 
             {/* Top Fornecedores */}
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-100 border border-indigo-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300">
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:shadow-xl transition-all duration-300">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-indigo-600 rounded-xl">
                   <Building className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-indigo-800">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                   Top Fornecedores
                 </h3>
               </div>
-              <div className="space-y-4 bg-white/60 backdrop-blur-sm rounded-xl border border-indigo-200 p-4">
+              <div className="space-y-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                 {Object.entries(financeiroData.gastos_por_fornecedor || {}).length > 0 ? 
                   Object.entries(financeiroData.gastos_por_fornecedor).slice(0, 5).map(([fornecedor, valor], index) => (
-                    <div key={index} className="flex justify-between items-center p-4 bg-gradient-to-r from-white to-indigo-50 rounded-xl shadow-md border border-indigo-100">
+                    <div key={index} className="flex justify-between items-center p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-md">
                       <div className="flex items-center gap-3">
                         <div className="w-3 h-3 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full shadow-lg"></div>
-                        <span className="font-semibold text-gray-700 text-sm">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300 text-sm">
                           {fornecedor}
                         </span>
                       </div>
@@ -507,18 +507,18 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-slate-50 to-gray-100 border border-slate-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300"
+            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:shadow-xl transition-all duration-300"
           >
             <div className="flex items-center gap-3 mb-6">
               <div className="p-4 bg-gradient-to-r from-slate-600 to-slate-700 rounded-xl shadow-lg">
                 <PieChart className="h-7 w-7 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-800">
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
                 Resumo Financeiro Detalhado
               </h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-lg border border-green-200">
+              <div className="text-center p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg">
                 <div className="text-3xl font-bold text-green-700 mb-2">
                   {formatCurrency(financeiroData.resumo_kpis.maior_gasto)}
                 </div>
@@ -527,7 +527,7 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
                 </div>
               </div>
               
-              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-lg border border-blue-200">
+              <div className="text-center p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg">
                 <div className="text-3xl font-bold text-blue-700 mb-2">
                   {formatCurrency(financeiroData.resumo_kpis.menor_gasto)}
                 </div>
@@ -536,7 +536,7 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
                 </div>
               </div>
               
-              <div className="text-center p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl shadow-lg border border-yellow-200">
+              <div className="text-center p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg">
                 <div className="text-3xl font-bold text-yellow-700 mb-2">
                   {financeiroData.resumo_kpis.gastos_com_nf}
                 </div>
@@ -545,7 +545,7 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
                 </div>
               </div>
               
-              <div className="text-center p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl shadow-lg border border-red-200">
+              <div className="text-center p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg">
                 <div className="text-3xl font-bold text-red-700 mb-2">
                   {financeiroData.resumo_kpis.gastos_sem_nf}
                 </div>
@@ -579,61 +579,61 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
             }}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Descrição</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Descrição</label>
                   <input
                     name="descricao"
                     defaultValue={editingGasto.descricao_item}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Fornecedor</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Fornecedor</label>
                   <input
                     name="fornecedor"
                     defaultValue={editingGasto.fornecedor}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Valor</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Valor</label>
                   <input
                     name="valor"
                     type="number"
                     step="0.01"
                     defaultValue={editingGasto.valor_total}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Data</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Data</label>
                   <input
                     name="data"
                     type="date"
                     defaultValue={editingGasto.data_despesa}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Possui Nota Fiscal</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Possui Nota Fiscal</label>
                   <select
                     name="notaFiscal"
                     defaultValue={editingGasto.possui_nota_fiscal ? 'true' : 'false'}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   >
                     <option value="true">Sim</option>
                     <option value="false">Não</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Tipo de Documento</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Documento</label>
                   <input
                     name="tipoDocumento"
                     defaultValue={editingGasto.tipo_documento}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                   />
                 </div>
               </div>

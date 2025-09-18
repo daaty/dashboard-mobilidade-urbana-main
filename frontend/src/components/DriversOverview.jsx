@@ -1,16 +1,9 @@
-                                                                                    import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Star, TrendingUp, UserCheck, Activity, Award, AlertTriangle, Clock, BarChart3, Wifi, Filter, Target, DollarSign, MapPin, Car, AlertCircle, CheckCircle, XCircle, TrendingDown, Calendar, Lightbulb, RefreshCw, Eye } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
 import DriverDetailsModal from './DriverDetailsModal';
 import { useDriverModal } from '../hooks/useDriverModal';
-
-// Simulação dos componentes de UI, já que não temos acesso a eles.
-// Em um projeto real, você importaria de '@/components/ui/card'.
-const Card = ({ children, className }) => <div className={`border rounded-lg shadow-sm ${className}`}>{children}</div>;
-const CardContent = ({ children, className }) => <div className={`p-6 ${className}`}>{children}</div>;
-const CardHeader = ({ children, className }) => <div className={`p-6 ${className}`}>{children}</div>;
-const CardTitle = ({ children, className }) => <h3 className={`font-semibold ${className}`}>{children}</h3>;
 
 
 const periodOptions = [
@@ -416,7 +409,7 @@ export default function DriversOverview({ onPeriodChange }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 font-sans">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <style>{`
         .custom-scrollbar {
           scrollbar-width: thin;
@@ -437,14 +430,18 @@ export default function DriversOverview({ onPeriodChange }) {
           background: #94a3b8;
         }
       `}</style>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Cabeçalho animado e padronizado */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2 flex items-center gap-3">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
+        >
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3">
             <Users className="h-8 w-8 text-blue-500" />
             GESTÃO DE MOTORISTAS
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
             Dashboard executivo com KPIs e métricas de performance dos motoristas
           </p>
           
@@ -464,24 +461,28 @@ export default function DriversOverview({ onPeriodChange }) {
         </motion.div>
 
         {/* Filtros executivos - Estilo AnaliseCorreidas */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
-              <div className="flex items-center gap-3 text-lg font-semibold">
-                <div className="bg-blue-500/20 p-2 rounded-lg">
-                  <Filter className="w-5 h-5 text-blue-400" />
-                </div>
-                Filtros de Análise - Motoristas
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700"
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                <Filter className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filtros de Análise - Motoristas</h2>
             </div>
-            <div className="p-8">
+          </div>
+          <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Período</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">Período</label>
                   <select
                     value={filters.period}
                     onChange={(e) => handleFilterChange('period', e.target.value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2 text-gray-900 dark:text-white"
                   >
                     {periodOptions.map(option => (
                       <option key={option.value} value={option.value}>
@@ -492,11 +493,11 @@ export default function DriversOverview({ onPeriodChange }) {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Status</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">Status</label>
                   <select
                     value={filters.status}
                     onChange={(e) => handleFilterChange('status', e.target.value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2 text-gray-900 dark:text-white"
                   >
                     {statusOptions.map(option => (
                       <option key={option.value} value={option.value}>
@@ -507,11 +508,11 @@ export default function DriversOverview({ onPeriodChange }) {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Performance</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">Performance</label>
                   <select
                     value={filters.performance}
                     onChange={(e) => handleFilterChange('performance', e.target.value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2 text-gray-900 dark:text-white"
                   >
                     {performanceOptions.map(option => (
                       <option key={option.value} value={option.value}>
@@ -522,11 +523,11 @@ export default function DriversOverview({ onPeriodChange }) {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Cidade</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">Cidade</label>
                   <select
                     value={filters.city}
                     onChange={(e) => handleFilterChange('city', e.target.value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2 text-gray-900 dark:text-white"
                   >
                     <option value="all">Todas as Cidades</option>
                     {citiesData && citiesData.length > 0 ? citiesData.map(city => (
@@ -538,11 +539,11 @@ export default function DriversOverview({ onPeriodChange }) {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Faixa de Receita</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">Faixa de Receita</label>
                   <select
                     value={filters.revenue_range}
                     onChange={(e) => handleFilterChange('revenue_range', e.target.value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2 text-gray-900 dark:text-white"
                   >
                     {revenueRanges.map(option => (
                       <option key={option.label} value={JSON.stringify(option.value)}>
@@ -553,11 +554,11 @@ export default function DriversOverview({ onPeriodChange }) {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Ordenação</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">Ordenação</label>
                   <select
                     value={filters.order_by}
                     onChange={(e) => handleFilterChange('order_by', e.target.value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2 text-gray-900 dark:text-white"
                   >
                     <option value="rating">Por Avaliação</option>
                     <option value="rides">Por Número de Corridas</option>
@@ -569,7 +570,6 @@ export default function DriversOverview({ onPeriodChange }) {
                 </div>
               </div>
             </div>
-          </div>
         </motion.div>
 
         {/* Seção de Conteúdo: Exibe o loader ou os dados */}
@@ -582,111 +582,161 @@ export default function DriversOverview({ onPeriodChange }) {
         ) : (
           <div className="space-y-8">
             {/* KPIs Principais - Estilo Executivo */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            >
                 {/* Total de Motoristas */}
-                <div className="bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-slate-300 text-sm font-medium tracking-wide uppercase">Total de Motoristas</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mt-2">{dashboardData.total_drivers || 0}</p>
-                            <p className="text-slate-400 text-sm mt-2">{dashboardData.active_drivers || 0} com atividade registrada</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Total de Motoristas</p>
+                            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{dashboardData.total_drivers || 0}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">{dashboardData.active_drivers || 0} com atividade registrada</p>
                         </div>
-                        <div className="bg-blue-500/20 p-4 rounded-xl"><Users className="w-8 h-8 text-blue-400" /></div>
+                        <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
+                          <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                        </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Corridas Canceladas pelos Motoristas */}
-                <div className="bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-red-200 text-sm font-medium tracking-wide uppercase">Corridas Canceladas</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-red-300 to-pink-300 bg-clip-text text-transparent mt-2">{dashboardData.cancelled_rides || 0}</p>
-                            <p className="text-red-300 text-sm mt-2">Total por todos os motoristas</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Corridas Canceladas</p>
+                            <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">{dashboardData.cancelled_rides || 0}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Total por todos os motoristas</p>
                         </div>
-                        <div className="bg-red-500/20 p-4 rounded-xl"><AlertTriangle className="w-8 h-8 text-red-400" /></div>
+                        <div className="bg-red-100 dark:bg-red-900 p-3 rounded-lg">
+                          <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                        </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Média Horas por Motorista */}
-                <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-purple-200 text-sm font-medium tracking-wide uppercase">Média por Motorista</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.avg_hours_online || 0).toFixed(1)}h</p>
-                            <p className="text-purple-300 text-sm mt-2">Horas online médias</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Média por Motorista</p>
+                            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">{Number(dashboardData.avg_hours_online || 0).toFixed(1)}h</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Horas online médias</p>
                         </div>
-                        <div className="bg-purple-500/20 p-4 rounded-xl"><Activity className="w-8 h-8 text-purple-400" /></div>
+                        <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-lg">
+                          <Activity className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                        </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Rating Médio dos Motoristas */}
-                <div className="bg-gradient-to-br from-amber-600 via-orange-700 to-orange-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                >
                     <div className="flex items-center justify-between">
                          <div>
-                            <p className="text-orange-200 text-sm font-medium tracking-wide uppercase">Rating Médio</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-orange-300 to-yellow-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.avg_rating || 0).toFixed(1)}</p>
-                            <p className="text-orange-300 text-sm mt-2">Avaliação média dos motoristas</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Rating Médio</p>
+                            <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">{Number(dashboardData.avg_rating || 0).toFixed(1)}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Avaliação média dos motoristas</p>
                         </div>
-                        <div className="bg-orange-500/20 p-4 rounded-xl"><Target className="w-8 h-8 text-orange-400" /></div>
+                        <div className="bg-amber-100 dark:bg-amber-900 p-3 rounded-lg">
+                          <Target className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                        </div>
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
             {/* KPIs Financeiros - Nova Linha */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            >
                 {/* Receita Total */}
-                <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-emerald-200 text-sm font-medium tracking-wide uppercase">Receita Total</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-emerald-300 to-green-300 bg-clip-text text-transparent mt-2">R$ {Number(dashboardData.total_revenue || 0).toFixed(2)}</p>
-                            <p className="text-emerald-300 text-sm mt-2">Últimos {dashboardData.periodo_dias} dias</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Receita Total</p>
+                            <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">R$ {Number(dashboardData.total_revenue || 0).toFixed(2)}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Últimos {dashboardData.periodo_dias} dias</p>
                         </div>
-                        <div className="bg-emerald-500/20 p-4 rounded-xl"><DollarSign className="w-8 h-8 text-emerald-400" /></div>
+                        <div className="bg-emerald-100 dark:bg-emerald-900 p-3 rounded-lg">
+                          <DollarSign className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                        </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Taxa de Aceitação */}
-                <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-blue-200 text-sm font-medium tracking-wide uppercase">Taxa de Aceitação</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.acceptance_rate || 0).toFixed(1)}%</p>
-                            <p className="text-blue-300 text-sm mt-2">Média geral</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Taxa de Aceitação</p>
+                            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{Number(dashboardData.acceptance_rate || 0).toFixed(1)}%</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Média geral</p>
                         </div>
-                        <div className="bg-blue-500/20 p-4 rounded-xl"><CheckCircle className="w-8 h-8 text-blue-400" /></div>
+                        <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
+                          <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                        </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Receita por Hora */}
-                <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-indigo-200 text-sm font-medium tracking-wide uppercase">Receita por Hora</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent mt-2">R$ {Number(dashboardData.revenue_per_hour || 0).toFixed(2)}</p>
-                            <p className="text-indigo-300 text-sm mt-2">Produtividade média</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Receita por Hora</p>
+                            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-2">R$ {Number(dashboardData.revenue_per_hour || 0).toFixed(2)}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Produtividade média</p>
                         </div>
-                        <div className="bg-indigo-500/20 p-4 rounded-xl"><TrendingUp className="w-8 h-8 text-indigo-400" /></div>
+                        <div className="bg-indigo-100 dark:bg-indigo-900 p-3 rounded-lg">
+                          <TrendingUp className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                        </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Distância Total */}
-                <div className="bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-teal-200 text-sm font-medium tracking-wide uppercase">Distância Total</p>
-                            <p className="text-4xl font-bold bg-gradient-to-r from-teal-300 to-cyan-300 bg-clip-text text-transparent mt-2">{Number(dashboardData.total_distance || 0).toFixed(1)} km</p>
-                            <p className="text-teal-300 text-sm mt-2">Quilometragem acumulada</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Distância Total</p>
+                            <p className="text-3xl font-bold text-teal-600 dark:text-teal-400 mt-2">{Number(dashboardData.total_distance || 0).toFixed(1)} km</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Quilometragem acumulada</p>
                         </div>
-                        <div className="bg-teal-500/20 p-4 rounded-xl"><MapPin className="w-8 h-8 text-teal-400" /></div>
+                        <div className="bg-teal-100 dark:bg-teal-900 p-3 rounded-lg">
+                          <MapPin className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                        </div>
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
             {/* Alertas Inteligentes */}
             {dashboardData.alerts && dashboardData.alerts.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-                <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl">
                   <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
                     <div className="flex items-center gap-3 text-lg font-semibold">
                       <div className="bg-yellow-500/20 p-2 rounded-lg">
@@ -734,7 +784,7 @@ export default function DriversOverview({ onPeriodChange }) {
 
             {/* Gráficos e Detalhes - Estilo Executivo */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl">
                 <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
                   <div className="flex items-center gap-3 text-lg font-semibold">
                     <div className="bg-blue-500/20 p-2 rounded-lg">
@@ -746,7 +796,7 @@ export default function DriversOverview({ onPeriodChange }) {
                 <div className="p-8">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Gráfico de Status */}
-                    <div className="bg-gradient-to-br from-white to-gray-100 border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:shadow-xl transition-all duration-300">
                       <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 bg-blue-600 rounded-xl"><BarChart3 className="w-5 h-5 text-white" /></div>
                         <h3 className="text-lg font-semibold text-blue-800">Distribuição por Status</h3>
@@ -767,16 +817,19 @@ export default function DriversOverview({ onPeriodChange }) {
                     </div>
                     
                      {/* Métricas Operacionais */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-800">
-                        <CardHeader className="border-b border-blue-100 dark:border-blue-800 pb-4">
-                            <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                        <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                                 <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg">
                                     <Activity className="h-6 w-6 text-white" />
                                 </div>
                                 Métricas Operacionais
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6 pt-6">
+                            </h3>
+                        </div>
+                        <div className="space-y-6 p-6">
                             <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl">
                                 <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Corridas Completadas</span>
                                 <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{dashboardData.total_rides_completed || 0}</span>
@@ -789,8 +842,8 @@ export default function DriversOverview({ onPeriodChange }) {
                                 <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Período de Análise</span>
                                 <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{dashboardData.periodo_dias || 0} dias</span>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </motion.div>
                   </div>
                 </div>
               </div>
@@ -798,7 +851,7 @@ export default function DriversOverview({ onPeriodChange }) {
             
             {/* Top Motoristas e Performance - Estilo Executivo */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl">
                 <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
                   <div className="flex items-center gap-3 text-lg font-semibold">
                     <div className="bg-green-500/20 p-2 rounded-lg">
@@ -810,16 +863,19 @@ export default function DriversOverview({ onPeriodChange }) {
                 <div className="p-8">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Top 5 por Horas Online */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-green-900/20 rounded-2xl shadow-xl border border-green-100 dark:border-green-800">
-                        <CardHeader className="border-b border-green-100 dark:border-green-800 pb-4">
-                            <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                        <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                                 <div className="p-3 bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg">
                                     <Clock className="h-6 w-6 text-white" />
                                 </div>
                                 Top 5 - Horas Online
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-6">
+                            </h3>
+                        </div>
+                        <div className="p-6">
                             <div className="space-y-4">
                                 {topDrivers?.length > 0 ? topDrivers.map((driver, index) => (
                                     <div 
@@ -857,20 +913,23 @@ export default function DriversOverview({ onPeriodChange }) {
                                     </div>
                                 )}
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </motion.div>
                     
                     {/* Performance dos Motoristas */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-2xl shadow-xl border border-purple-100 dark:border-purple-800">
-                        <CardHeader className="border-b border-purple-100 dark:border-purple-800 pb-4">
-                            <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                        <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                                 <div className="p-3 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg">
                                     <TrendingUp className="h-6 w-6 text-white" />
                                 </div>
                                 Distribuição de Performance
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-6">
+                            </h3>
+                        </div>
+                        <div className="space-y-4 p-6">
                             {[
                                 { label: 'Excelente (≥4.5)', value: kpis.performanceDistribution.excellent, color: 'from-green-500 to-green-600', bgColor: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20', textColor: 'text-green-600 dark:text-green-400' },
                                 { label: 'Bom (4.0-4.4)', value: kpis.performanceDistribution.good, color: 'from-blue-500 to-blue-600', bgColor: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', textColor: 'text-blue-600 dark:text-blue-400' },
@@ -888,8 +947,8 @@ export default function DriversOverview({ onPeriodChange }) {
                                     </div>
                                 </div>
                             ))}
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </motion.div>
                   </div>
                 </div>
               </div>
@@ -897,7 +956,7 @@ export default function DriversOverview({ onPeriodChange }) {
 
             {/* Análise Geográfica e de Veículos */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl">
                 <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
                   <div className="flex items-center gap-3 text-lg font-semibold">
                     <div className="bg-cyan-500/20 p-2 rounded-lg">
@@ -910,16 +969,19 @@ export default function DriversOverview({ onPeriodChange }) {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
                     {/* Top Cidades por Receita */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-cyan-50 rounded-2xl shadow-xl border border-cyan-100">
-                      <CardHeader className="border-b border-cyan-100 pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                           <div className="p-2 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-lg shadow-lg">
                             <MapPin className="h-5 w-5 text-white" />
                           </div>
                           Top Cidades
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-6">
+                        </h3>
+                      </div>
+                      <div className="p-6">
                         <div className="space-y-4">
                           {filters.city === 'all' ? (
                             // Quando "todas as cidades" está selecionado, mostrar dados das cidades
@@ -964,20 +1026,23 @@ export default function DriversOverview({ onPeriodChange }) {
                             </div>
                           )}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
 
                     {/* Análise de Veículos */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-orange-50 rounded-2xl shadow-xl border border-orange-100">
-                      <CardHeader className="border-b border-orange-100 pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                           <div className="p-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg">
                             <Car className="h-5 w-5 text-white" />
                           </div>
                           Tipos de Veículos
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-6">
+                        </h3>
+                      </div>
+                      <div className="p-6">
                         <div className="space-y-4">
                           {Object.entries(getVehicleAnalysis())
                             .sort(([,a], [,b]) => b.drivers - a.drivers)
@@ -1006,20 +1071,23 @@ export default function DriversOverview({ onPeriodChange }) {
                             </div>
                           )}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
 
                     {/* Métricas de Eficiência */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-purple-50 rounded-2xl shadow-xl border border-purple-100">
-                      <CardHeader className="border-b border-purple-100 pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                           <div className="p-2 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg">
                             <Activity className="h-5 w-5 text-white" />
                           </div>
                           Eficiência Operacional
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4 pt-6">
+                        </h3>
+                      </div>
+                      <div className="space-y-4 p-6">
                         <div className="space-y-4">
                           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">Taxa de Conclusão</span>
@@ -1042,8 +1110,8 @@ export default function DriversOverview({ onPeriodChange }) {
                             <span className="text-xl font-bold text-blue-600">{Number(kpisData?.km_per_ride || 0).toFixed(1)}</span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
                   </div>
                 </div>
               </div>
@@ -1051,7 +1119,7 @@ export default function DriversOverview({ onPeriodChange }) {
 
             {/* Ranking e Performance - Todos os Motoristas */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl">
                 <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
                   <div className="flex items-center gap-3 text-lg font-semibold">
                     <div className="bg-yellow-500/20 p-2 rounded-lg">
@@ -1061,16 +1129,19 @@ export default function DriversOverview({ onPeriodChange }) {
                   </div>
                 </div>
                 <div className="p-8">
-                  <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl border border-gray-100">
-                    <CardHeader className="border-b border-gray-100 pb-4">
-                      <CardTitle className="text-xl font-bold flex items-center gap-3 text-gray-900">
+                  <motion.div 
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                  >
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                      <h3 className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                         <div className="p-3 bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl shadow-lg">
                           <Users className="h-6 w-6 text-white" />
                         </div>
                         Lista Completa de Motoristas
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-6">
+                      </h3>
+                    </div>
+                    <div className="p-6">
                       <div className="max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                         <div className="space-y-4">
                           {aggregatedData?.drivers?.length > 0 ? aggregatedData.drivers
@@ -1103,7 +1174,7 @@ export default function DriversOverview({ onPeriodChange }) {
                               return (
                                 <div 
                                   key={`all-driver-${driver.unique_key || driver.driver_id || driver.name}-${index}`} 
-                                  className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+                                  className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer"
                                   onClick={() => openModal(driver.driver_id || driver.id, driver.name || 'Motorista')}
                                 >
                                   <div className="flex items-center gap-4">
@@ -1114,8 +1185,8 @@ export default function DriversOverview({ onPeriodChange }) {
                                       </div>
                                     </div>
                                     <div>
-                                      <p className="font-bold text-gray-900 text-lg">{(driver.name || 'Motorista').replace("Motorista ", "")}</p>
-                                      <div className="flex gap-4 text-sm text-gray-600">
+                                      <p className="font-bold text-gray-900 dark:text-white text-lg">{(driver.name || 'Motorista').replace("Motorista ", "")}</p>
+                                      <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
                                         <span>{onlineHours.toFixed(1)}h online</span>
                                         <span>{totalRides} corridas</span>
                                         <span>{cancelledRides} canceladas</span>
@@ -1125,9 +1196,9 @@ export default function DriversOverview({ onPeriodChange }) {
                                   <div className="text-right">
                                     <div className="flex items-center gap-2 mb-1">
                                       <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                                      <span className="text-xl font-bold text-gray-900">{Number(driverRating).toFixed(1)}</span>
+                                      <span className="text-xl font-bold text-gray-900 dark:text-white">{Number(driverRating).toFixed(1)}</span>
                                     </div>
-                                    <p className="text-xs text-gray-500 mb-2">Rating</p>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Rating</p>
                                     <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
                                       driverRating >= 4.5 ? 'bg-green-100 text-green-800' : 
                                       driverRating >= 4.0 ? 'bg-blue-100 text-blue-800' : 
@@ -1143,21 +1214,21 @@ export default function DriversOverview({ onPeriodChange }) {
                                 </div>
                               );
                             }) : (
-                              <div className="text-center py-12 text-gray-500">
+                              <div className="text-center py-12 text-gray-600 dark:text-gray-400">
                                 <p className="text-lg font-medium">Nenhum motorista encontrado</p>
                               </div>
                             )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </motion.div>
                 </div>
               </div>
             </motion.div>
 
             {/* Análise Temporal Detalhada */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl">
                 <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
                   <div className="flex items-center gap-3 text-lg font-semibold">
                     <div className="bg-indigo-500/20 p-2 rounded-lg">
@@ -1170,16 +1241,19 @@ export default function DriversOverview({ onPeriodChange }) {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
                     {/* Estatísticas de Tempo */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-indigo-50 rounded-2xl shadow-xl border border-indigo-100">
-                      <CardHeader className="border-b border-indigo-100 pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                           <div className="p-2 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg shadow-lg">
                             <Clock className="h-5 w-5 text-white" />
                           </div>
                           Distribuição Temporal
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4 pt-6">
+                        </h3>
+                      </div>
+                      <div className="space-y-4 p-6">
                         <div className="space-y-4">
                           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">Total de Horas</span>
@@ -1199,20 +1273,23 @@ export default function DriversOverview({ onPeriodChange }) {
                             </span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
 
                     {/* Métricas de Produtividade */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-emerald-50 rounded-2xl shadow-xl border border-emerald-100">
-                      <CardHeader className="border-b border-emerald-100 pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                           <div className="p-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg shadow-lg">
                             <Activity className="h-5 w-5 text-white" />
                           </div>
                           Produtividade
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4 pt-6">
+                        </h3>
+                      </div>
+                      <div className="space-y-4 p-6">
                         <div className="space-y-4">
                           <div className="flex justify-between items-center p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-700">Corridas/Hora</span>
@@ -1237,20 +1314,23 @@ export default function DriversOverview({ onPeriodChange }) {
                             </span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
 
                     {/* Insights e Recomendações */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-amber-50 rounded-2xl shadow-xl border border-amber-100">
-                      <CardHeader className="border-b border-amber-100 pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                           <div className="p-2 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg shadow-lg">
                             <TrendingUp className="h-5 w-5 text-white" />
                           </div>
                           Insights
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-6">
+                        </h3>
+                      </div>
+                      <div className="p-6">
                         <div className="space-y-4">
                           {/* Análise automática baseada nos dados */}
                           {Number(dashboardData.avg_hours_per_driver || 0) > 100 ? (
@@ -1289,8 +1369,8 @@ export default function DriversOverview({ onPeriodChange }) {
                             </div>
                           )}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
                   </div>
                 </div>
               </div>
@@ -1298,7 +1378,7 @@ export default function DriversOverview({ onPeriodChange }) {
 
             {/* Nova Seção: Análise de Produtividade */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl">
                 <div className="bg-gradient-to-r from-emerald-900 to-emerald-800 text-white rounded-t-2xl p-6">
                   <div className="flex items-center gap-3 text-lg font-semibold">
                     <div className="bg-emerald-500/20 p-2 rounded-lg">
@@ -1311,16 +1391,19 @@ export default function DriversOverview({ onPeriodChange }) {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     
                     {/* Top 5 Motoristas por Horas */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-emerald-50 rounded-2xl shadow-xl border border-emerald-100">
-                      <CardHeader className="border-b border-emerald-100 pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                           <div className="p-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg shadow-lg">
                             <Clock className="h-5 w-5 text-white" />
                           </div>
                           Top 5 - Mais Horas Online
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4 pt-6">
+                        </h3>
+                      </div>
+                      <div className="space-y-4 p-6">
                         {getTopDrivers('total_online_hours', 5, daysFilter).map((driver, index) => (
                           <div 
                             key={`hours-${driver.unique_key || driver.driver_id}-${index}`} 
@@ -1345,20 +1428,23 @@ export default function DriversOverview({ onPeriodChange }) {
                             </div>
                           </div>
                         ))}
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
 
                     {/* Top 5 Motoristas por Rating */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-yellow-50 rounded-2xl shadow-xl border border-yellow-100">
-                      <CardHeader className="border-b border-yellow-100 pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                           <div className="p-2 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg shadow-lg">
                             <Star className="h-5 w-5 text-white" />
                           </div>
                           Top 5 - Melhor Rating
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4 pt-6">
+                        </h3>
+                      </div>
+                      <div className="space-y-4 p-6">
                         {getTopDrivers('rating', 5, daysFilter)
                           .sort((a, b) => (b.estimated_rating || 0) - (a.estimated_rating || 0))
                           .map((driver, index) => (
@@ -1388,8 +1474,8 @@ export default function DriversOverview({ onPeriodChange }) {
                             </div>
                           </div>
                         ))}
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
                     
                   </div>
                 </div>
@@ -1398,7 +1484,7 @@ export default function DriversOverview({ onPeriodChange }) {
 
             {/* Análise de Tendências e Comparações Temporais */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-              <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl">
                 <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
                   <div className="flex items-center gap-3 text-lg font-semibold">
                     <div className="bg-violet-500/20 p-2 rounded-lg">
@@ -1411,16 +1497,19 @@ export default function DriversOverview({ onPeriodChange }) {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     
                     {/* Tendências de Crescimento */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-violet-50 rounded-2xl shadow-xl border border-violet-100">
-                      <CardHeader className="border-b border-violet-100 pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                           <div className="p-2 bg-gradient-to-r from-violet-500 to-violet-600 rounded-lg shadow-lg">
                             <TrendingUp className="h-5 w-5 text-white" />
                           </div>
                           Tendências de Performance
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-6 pt-6">
+                        </h3>
+                      </div>
+                      <div className="space-y-6 p-6">
                         <div className="space-y-4">
                           {/* Crescimento de Receita */}
                           <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-lg">
@@ -1470,20 +1559,23 @@ export default function DriversOverview({ onPeriodChange }) {
                             </div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
 
                     {/* Padrões Sazonais e Oportunidades */}
-                    <Card className="group hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-amber-50 rounded-2xl shadow-xl border border-amber-100">
-                      <CardHeader className="border-b border-amber-100 pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3 text-gray-900">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
                           <div className="p-2 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg shadow-lg">
                             <Calendar className="h-5 w-5 text-white" />
                           </div>
                           Padrões e Oportunidades
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-6 pt-6">
+                        </h3>
+                      </div>
+                      <div className="space-y-6 p-6">
                         <div className="space-y-4">
                           
                           {/* Insights Temporais */}
@@ -1549,8 +1641,8 @@ export default function DriversOverview({ onPeriodChange }) {
                           </div>
 
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </motion.div>
                   </div>
                 </div>
               </div>

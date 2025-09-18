@@ -136,6 +136,11 @@ export default function AnaliseCorreidas() {
   // Dados reais para gráficos
   const statusData = data?.distribuicao_status || []
   
+  // Debug para ver os nomes dos status
+  React.useEffect(() => {
+    console.log('Status data:', statusData.map(item => ({ status: item.status, quantidade: item.quantidade })));
+  }, [statusData]);
+  
   // Criar dados de evolução temporal baseados nos dados disponíveis
   const evolucaoData = React.useMemo(() => {
     if (!data?.comparativo_horarios || data.comparativo_horarios.length === 0) {
@@ -168,384 +173,401 @@ export default function AnaliseCorreidas() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
         >
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            ANÁLISE OPERACIONAL DE CORRIDAS
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Análise de Corridas
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 dark:text-gray-400">
             Entenda a saúde e a eficiência da operação. Onde estamos performando bem e onde estão os gargalos?
           </p>
         </motion.div>
 
-        {/* Filtros - Executive Style */}
+        {/* Filtros */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          transition={{ delay: 0.1 }}
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
         >
-          <div className="bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200/50 shadow-2xl rounded-2xl backdrop-blur-lg">
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
-              <div className="flex items-center gap-3 text-lg font-semibold">
-                <div className="bg-blue-500/20 p-2 rounded-lg">
-                  <Filter className="w-5 h-5 text-blue-400" />
-                </div>
-                Filtros de Análise
-              </div>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <Filter className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Período</label>
-                  <Select
-                    value={filters.periodo}
-                    onChange={(value) => handleFilterChange('periodo', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
-                  >
-                    <SelectOption value="">Selecione o período</SelectOption>
-                    {periodOptions.map(option => (
-                      <SelectOption key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectOption>
-                    ))}
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Cidade/Região</label>
-                  <Select
-                    value={filters.cidade}
-                    onChange={(value) => handleFilterChange('cidade', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
-                  >
-                    <SelectOption value="">Todas as cidades</SelectOption>
-                    {cities.map(city => (
-                      <SelectOption key={city} value={city}>
-                        {city}
-                      </SelectOption>
-                    ))}
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Dia da Semana</label>
-                  <Select
-                    value={filters.diaSemana}
-                    onChange={(value) => handleFilterChange('diaSemana', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
-                  >
-                    <SelectOption value="">Todos os dias</SelectOption>
-                    <SelectOption value="seg">Segunda-feira</SelectOption>
-                    <SelectOption value="ter">Terça-feira</SelectOption>
-                    <SelectOption value="qua">Quarta-feira</SelectOption>
-                    <SelectOption value="qui">Quinta-feira</SelectOption>
-                    <SelectOption value="sex">Sexta-feira</SelectOption>
-                    <SelectOption value="sab">Sábado</SelectOption>
-                    <SelectOption value="dom">Domingo</SelectOption>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 tracking-wide">Horário</label>
-                  <Select
-                    value={filters.horario}
-                    onChange={(value) => handleFilterChange('horario', value)}
-                    className="w-full bg-white border-slate-200 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
-                  >
-                    <SelectOption value="">Todos os horários</SelectOption>
-                    <SelectOption value="manha">Manhã (6h-12h)</SelectOption>
-                    <SelectOption value="tarde">Tarde (12h-18h)</SelectOption>
-                    <SelectOption value="noite">Noite (18h-24h)</SelectOption>
-                    <SelectOption value="madrugada">Madrugada (0h-6h)</SelectOption>
-                  </Select>
-                </div>
-              </div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Filtros de Análise</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Período</label>
+              <Select
+                value={filters.periodo}
+                onChange={(value) => handleFilterChange('periodo', value)}
+                className="w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+              >
+                <SelectOption value="">Selecione o período</SelectOption>
+                {periodOptions.map(option => (
+                  <SelectOption key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectOption>
+                ))}
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Cidade/Região</label>
+              <Select
+                value={filters.cidade}
+                onChange={(value) => handleFilterChange('cidade', value)}
+                className="w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+              >
+                <SelectOption value="">Todas as cidades</SelectOption>
+                {cities.map(city => (
+                  <SelectOption key={city} value={city}>
+                    {city}
+                  </SelectOption>
+                ))}
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Dia da Semana</label>
+              <Select
+                value={filters.diaSemana}
+                onChange={(value) => handleFilterChange('diaSemana', value)}
+                className="w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+              >
+                <SelectOption value="">Todos os dias</SelectOption>
+                <SelectOption value="seg">Segunda-feira</SelectOption>
+                <SelectOption value="ter">Terça-feira</SelectOption>
+                <SelectOption value="qua">Quarta-feira</SelectOption>
+                <SelectOption value="qui">Quinta-feira</SelectOption>
+                <SelectOption value="sex">Sexta-feira</SelectOption>
+                <SelectOption value="sab">Sábado</SelectOption>
+                <SelectOption value="dom">Domingo</SelectOption>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Horário</label>
+              <Select
+                value={filters.horario}
+                onChange={(value) => handleFilterChange('horario', value)}
+                className="w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 p-2"
+              >
+                <SelectOption value="">Todos os horários</SelectOption>
+                <SelectOption value="manha">Manhã (6h-12h)</SelectOption>
+                <SelectOption value="tarde">Tarde (12h-18h)</SelectOption>
+                <SelectOption value="noite">Noite (18h-24h)</SelectOption>
+                <SelectOption value="madrugada">Madrugada (0h-6h)</SelectOption>
+              </Select>
             </div>
           </div>
         </motion.div>
 
-        {/* KPI Cards - Executive Style */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-        >
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total de Corridas */}
-          <div className="bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-300 text-sm font-medium tracking-wide uppercase">Total de Corridas Solicitadas</p>
-                <p className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mt-2">
+                <p className="text-gray-600 dark:text-gray-400 text-sm font-medium uppercase tracking-wide">Total de Corridas</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
                   {metrics ? formatNumber(metrics.total_corridas) : '0'}
                 </p>
-                <p className="text-slate-400 text-sm mt-2">Volume total da demanda</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Volume total da demanda</p>
               </div>
-              <div className="bg-blue-500/20 p-4 rounded-xl">
-                <Activity className="w-8 h-8 text-blue-400" />
+              <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
+                <Activity className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Taxa de Conclusão */}
-          <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-emerald-200 text-sm font-medium tracking-wide uppercase">Taxa de Conclusão</p>
-                <p className="text-4xl font-bold bg-gradient-to-r from-emerald-300 to-green-300 bg-clip-text text-transparent mt-2">
+                <p className="text-gray-600 dark:text-gray-400 text-sm font-medium uppercase tracking-wide">Taxa de Conclusão</p>
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
                   {metrics ? formatPercentage(metrics.taxa_conclusao) : '0%'}
                 </p>
-                <p className="text-emerald-300 text-sm mt-2">Eficiência geral da operação</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Eficiência geral da operação</p>
               </div>
-              <div className="bg-emerald-500/20 p-4 rounded-xl">
-                <CheckCircle className="w-8 h-8 text-emerald-400" />
+              <div className="bg-green-100 dark:bg-green-900 p-3 rounded-lg">
+                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Taxa de Cancelamento */}
-          <div className="bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-red-200 text-sm font-medium tracking-wide uppercase">Taxa de Cancelamento</p>
-                <p className="text-4xl font-bold bg-gradient-to-r from-red-300 to-pink-300 bg-clip-text text-transparent mt-2">
+                <p className="text-gray-600 dark:text-gray-400 text-sm font-medium uppercase tracking-wide">Taxa de Cancelamento</p>
+                <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">
                   {metrics ? formatPercentage(metrics.taxa_cancelamento) : '0%'}
                 </p>
-                <p className="text-red-300 text-sm mt-2">Corridas canceladas</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Corridas canceladas</p>
               </div>
-              <div className="bg-red-500/20 p-4 rounded-xl">
-                <XCircle className="w-8 h-8 text-red-400" />
+              <div className="bg-red-100 dark:bg-red-900 p-3 rounded-lg">
+                <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Taxa de Perda */}
-          <div className="bg-gradient-to-br from-amber-600 via-orange-700 to-orange-800 text-white border-0 shadow-2xl rounded-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-orange-200 text-sm font-medium tracking-wide uppercase">Taxa de Perda</p>
-                <p className="text-4xl font-bold bg-gradient-to-r from-orange-300 to-yellow-300 bg-clip-text text-transparent mt-2">
+                <p className="text-gray-600 dark:text-gray-400 text-sm font-medium uppercase tracking-wide">Taxa de Perda</p>
+                <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-2">
                   {metrics ? formatPercentage(metrics.taxa_perda) : '0%'}
                 </p>
-                <p className="text-orange-300 text-sm mt-2">Sem aceite de motorista</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Sem aceite de motorista</p>
               </div>
-              <div className="bg-orange-500/20 p-4 rounded-xl">
-                <AlertTriangle className="w-8 h-8 text-orange-400" />
+              <div className="bg-orange-100 dark:bg-orange-900 p-3 rounded-lg">
+                <AlertTriangle className="w-8 h-8 text-orange-600 dark:text-orange-400" />
               </div>
             </div>
+          </motion.div>
+        </div>
+
+        {/* Gráfico de Tendências */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                Evolução das Taxas de Performance por Horário
+              </h3>
+            </div>
+            <div className="text-xs text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900 px-3 py-1 rounded-lg">
+              Performance ao longo do dia
+            </div>
+          </div>
+          <div className="h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+            {evolucaoData && evolucaoData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={evolucaoData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="data" 
+                    tick={{ fontSize: 12, fill: '#666' }}
+                    label={{ value: 'Horário', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } }}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12, fill: '#666' }}
+                    label={{ value: 'Taxa (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
+                    domain={[0, 100]}
+                  />
+                  <Tooltip 
+                    formatter={(value, name) => [`${value.toFixed(1)}%`, name]}
+                    labelFormatter={(hora) => `Horário: ${hora}`}
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Legend 
+                    verticalAlign="top" 
+                    height={36}
+                    iconType="line"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="taxa_conclusao" 
+                    stroke={COLORS.concluidas} 
+                    strokeWidth={3}
+                    name="Taxa de Conclusão"
+                    dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="taxa_cancelamento" 
+                    stroke={COLORS.canceladas} 
+                    strokeWidth={3}
+                    name="Taxa de Cancelamento"
+                    dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="taxa_perda" 
+                    stroke={COLORS.perdidas} 
+                    strokeWidth={3}
+                    name="Taxa de Perda"
+                    dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="text-gray-600 dark:text-gray-400 text-lg font-medium">Sem dados de performance</div>
+                  <div className="text-gray-500 dark:text-gray-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
 
-        {/* Gráfico de Tendências - Largura Total */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-br from-emerald-50 to-green-100 border border-emerald-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-600 rounded-xl">
-                  <TrendingUp className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-emerald-800">
-                  Evolução das Taxas de Performance por Horário
-                </h3>
+        {/* Análise de Tempos */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
               </div>
-              <div className="text-xs text-emerald-600 bg-emerald-100 px-3 py-1 rounded-lg">
-                Performance ao longo do dia
-              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                Distribuição de Demanda por Horário
+              </h3>
             </div>
-            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-emerald-200 p-4">
-              {evolucaoData && evolucaoData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={evolucaoData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis 
-                      dataKey="data" 
-                      tick={{ fontSize: 12, fill: '#666' }}
-                      label={{ value: 'Horário', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } }}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: 12, fill: '#666' }}
-                      label={{ value: 'Taxa (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
-                      domain={[0, 100]}
-                    />
-                    <Tooltip 
-                      formatter={(value, name) => [`${value.toFixed(1)}%`, name]}
-                      labelFormatter={(hora) => `Horário: ${hora}`}
-                      contentStyle={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '13px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                      }}
-                    />
-                    <Legend 
-                      verticalAlign="top" 
-                      height={36}
-                      iconType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="taxa_conclusao" 
-                      stroke={COLORS.concluidas} 
-                      strokeWidth={3}
-                      name="Taxa de Conclusão"
-                      dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="taxa_cancelamento" 
-                      stroke={COLORS.canceladas} 
-                      strokeWidth={3}
-                      name="Taxa de Cancelamento"
-                      dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="taxa_perda" 
-                      stroke={COLORS.perdidas} 
-                      strokeWidth={3}
-                      name="Taxa de Perda"
-                      dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <div className="text-emerald-600 text-lg font-medium">Sem dados de performance</div>
-                    <div className="text-emerald-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
+            {data?.tempos_operacionais && (
+              <div className="flex gap-4 text-xs">
+                {data.tempos_operacionais.tempo_medio_espera && (
+                  <div className="bg-orange-100 dark:bg-orange-900 px-3 py-1 rounded-lg">
+                    <span className="text-orange-700 dark:text-orange-300">Espera: </span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{data.tempos_operacionais.tempo_medio_espera}min</span>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Análise de Tempos - Largura Total */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-br from-amber-50 to-yellow-100 border border-amber-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-600 rounded-xl">
-                  <Clock className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-amber-800">
-                  Distribuição de Demanda por Horário
-                </h3>
-              </div>
-              {data?.tempos_operacionais && (
-                <div className="flex gap-4 text-xs">
-                  {data.tempos_operacionais.tempo_medio_espera && (
-                    <div className="bg-amber-100 px-3 py-1 rounded-lg">
-                      <span className="text-amber-700">Espera: </span>
-                      <span className="font-semibold">{data.tempos_operacionais.tempo_medio_espera}min</span>
-                    </div>
-                  )}
-                  {data.tempos_operacionais.tempo_medio_chegada && (
-                    <div className="bg-amber-100 px-3 py-1 rounded-lg">
-                      <span className="text-amber-700">Chegada: </span>
-                      <span className="font-semibold">{data.tempos_operacionais.tempo_medio_chegada}min</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-amber-200 p-4">
-              {data?.comparativo_horarios && data.comparativo_horarios.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data.comparativo_horarios}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis 
-                      dataKey="hora" 
-                      tick={{ fontSize: 12, fill: '#666' }}
-                      label={{ value: 'Horário (24h)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } }}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: 12, fill: '#666' }}
-                      label={{ value: 'Volume de Corridas', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
-                    />
-                    <Tooltip 
-                      formatter={(value, name) => [
-                        `${value} corridas`, 
-                        name === 'concluidas' ? 'Concluídas' : 
-                        name === 'canceladas' ? 'Canceladas' : 'Perdidas'
-                      ]}
-                      labelFormatter={(hora) => `${hora}:00 - ${hora}:59`}
-                      contentStyle={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        fontSize: '13px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                      }}
-                    />
-                    <Legend 
-                      verticalAlign="top" 
-                      height={36}
-                      iconType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="concluidas" 
-                      stroke={COLORS.concluidas} 
-                      strokeWidth={3}
-                      name="Concluídas"
-                      dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="canceladas" 
-                      stroke={COLORS.canceladas} 
-                      strokeWidth={3}
-                      name="Canceladas"
-                      dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="perdidas" 
-                      stroke={COLORS.perdidas} 
-                      strokeWidth={3}
-                      name="Perdidas"
-                      dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <div className="text-amber-600 text-lg font-medium">Sem dados de horários</div>
-                    <div className="text-amber-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
+                )}
+                {data.tempos_operacionais.tempo_medio_chegada && (
+                  <div className="bg-orange-100 dark:bg-orange-900 px-3 py-1 rounded-lg">
+                    <span className="text-orange-700 dark:text-orange-300">Chegada: </span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{data.tempos_operacionais.tempo_medio_chegada}min</span>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
-        </div>
+          <div className="h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+            {data?.comparativo_horarios && data.comparativo_horarios.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data.comparativo_horarios}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="hora" 
+                    tick={{ fontSize: 12, fill: '#666' }}
+                    label={{ value: 'Horário (24h)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } }}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12, fill: '#666' }}
+                    label={{ value: 'Volume de Corridas', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
+                  />
+                  <Tooltip 
+                    formatter={(value, name) => [
+                      `${value} corridas`, 
+                      name === 'concluidas' ? 'Concluídas' : 
+                      name === 'canceladas' ? 'Canceladas' : 'Perdidas'
+                    ]}
+                    labelFormatter={(hora) => `${hora}:00 - ${hora}:59`}
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Legend 
+                    verticalAlign="top" 
+                    height={36}
+                    iconType="line"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="concluidas" 
+                    stroke={COLORS.concluidas} 
+                    strokeWidth={3}
+                    name="Concluídas"
+                    dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="canceladas" 
+                    stroke={COLORS.canceladas} 
+                    strokeWidth={3}
+                    name="Canceladas"
+                    dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="perdidas" 
+                    stroke={COLORS.perdidas} 
+                    strokeWidth={3}
+                    name="Perdidas"
+                    dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="text-gray-600 dark:text-gray-400 text-lg font-medium">Sem dados de horários</div>
+                  <div className="text-gray-500 dark:text-gray-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
 
         {/* Row 3: Distribuição de Status e Análise de Cancelamentos - Lado a Lado */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Gráfico de Pizza - Distribuição de Status */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-blue-600 rounded-xl">
                 <BarChart3 className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-blue-800">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
                 Distribuição por Status das Corridas
               </h3>
             </div>
-            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-200 p-4">
+            <div className="h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -556,6 +578,7 @@ export default function AnaliseCorreidas() {
                     cy="50%"
                     outerRadius={80}
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
                   >
                     {statusData.map((entry, idx) => (
                       <Cell key={`cell-${idx}`} fill={
@@ -575,33 +598,27 @@ export default function AnaliseCorreidas() {
                       fontSize: '14px'
                     }}
                   />
-                  <Legend 
-                    formatter={(value) => (
-                      <span style={{ 
-                        color: value === 'Concluídas' ? COLORS.concluidas :
-                               value === 'Canceladas' ? COLORS.canceladas :
-                               value === 'Perdidas' ? COLORS.perdidas : '#374151'
-                      }}>
-                        {value}
-                      </span>
-                    )}
-                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Análise de Cancelamentos */}
-          <div className="bg-gradient-to-br from-red-50 to-pink-100 border border-red-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-red-600 rounded-xl">
-                <XCircle className="w-5 h-5 text-white" />
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.9 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
-              <h3 className="text-lg font-semibold text-red-800">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 Análise de Causa Raiz - Cancelamentos
               </h3>
             </div>
-            <div className="h-80 bg-white/60 backdrop-blur-sm rounded-xl border border-red-200 p-4">
+            <div className="h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
               {data?.motivos_cancelamento && data.motivos_cancelamento.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -636,151 +653,161 @@ export default function AnaliseCorreidas() {
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <div className="text-red-600 text-lg font-medium">Sem dados de cancelamentos</div>
-                    <div className="text-red-500 text-sm mt-1">Nenhum cancelamento encontrado no período</div>
+                    <div className="text-gray-600 dark:text-gray-400 text-lg font-medium">Sem dados de cancelamentos</div>
+                    <div className="text-gray-500 dark:text-gray-500 text-sm mt-1">Nenhum cancelamento encontrado no período</div>
                   </div>
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Números Detalhados */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Corridas Concluídas */}
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-emerald-600 rounded-xl">
-                <CheckCircle className="w-5 h-5 text-white" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
-              <h3 className="text-lg font-semibold text-emerald-800">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Corridas Concluídas
               </h3>
             </div>
             <div className="text-center">
-              <p className="text-4xl font-bold text-emerald-700 mb-2">
+              <p className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
                 {metrics ? formatNumber(metrics.corridas_concluidas) : '0'}
               </p>
-              <p className="text-emerald-600 font-medium mb-4">
+              <p className="text-gray-600 dark:text-gray-400 font-medium mb-4">
                 {metrics ? formatPercentage(metrics.taxa_conclusao) : '0%'} do total
               </p>
-              <div className="bg-white/60 backdrop-blur-sm rounded-xl p-3 border border-emerald-200">
-                <p className="text-sm font-medium text-emerald-700">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 border border-gray-200 dark:border-gray-600">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Meta ideal: &gt; 85%
                 </p>
-                <p className="text-xs text-emerald-600 mt-1 font-medium">
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
                   {metrics && metrics.taxa_conclusao >= 85 ? '✓ Meta atingida' : '⚠ Abaixo da meta'}
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Corridas Canceladas */}
-          <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-red-600 rounded-xl">
-                <XCircle className="w-5 h-5 text-white" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.1 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
-              <h3 className="text-lg font-semibold text-red-800">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Corridas Canceladas
               </h3>
             </div>
             <div className="text-center">
-              <p className="text-4xl font-bold text-red-700 mb-2">
+              <p className="text-4xl font-bold text-red-600 dark:text-red-400 mb-2">
                 {metrics ? formatNumber(metrics.corridas_canceladas) : '0'}
               </p>
-              <p className="text-red-600 font-medium mb-4">
+              <p className="text-gray-600 dark:text-gray-400 font-medium mb-4">
                 {metrics ? formatPercentage(metrics.taxa_cancelamento) : '0%'} do total
               </p>
-              <div className="bg-white/60 backdrop-blur-sm rounded-xl p-3 border border-red-200">
-                <p className="text-sm font-medium text-red-700">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 border border-gray-200 dark:border-gray-600">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Meta ideal: &lt; 10%
                 </p>
-                <p className="text-xs text-red-600 mt-1 font-medium">
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
                   {metrics && metrics.taxa_cancelamento <= 10 ? '✓ Meta atingida' : '⚠ Acima da meta'}
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Corridas Perdidas */}
-          <div className="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-amber-600 rounded-xl">
-                <AlertTriangle className="w-5 h-5 text-white" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="text-lg font-semibold text-amber-800">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Corridas Perdidas
               </h3>
             </div>
             <div className="text-center">
-              <p className="text-4xl font-bold text-amber-700 mb-2">
+              <p className="text-4xl font-bold text-orange-600 dark:text-orange-400 mb-2">
                 {metrics ? formatNumber(metrics.corridas_perdidas) : '0'}
               </p>
-              <p className="text-amber-600 font-medium mb-4">
+              <p className="text-gray-600 dark:text-gray-400 font-medium mb-4">
                 {metrics ? formatPercentage(metrics.taxa_perda) : '0%'} do total
               </p>
-              <div className="bg-white/60 backdrop-blur-sm rounded-xl p-3 border border-amber-200">
-                <p className="text-sm font-medium text-amber-700">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 border border-gray-200 dark:border-gray-600">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Meta ideal: &lt; 5%
                 </p>
-                <p className="text-xs text-amber-600 mt-1 font-medium">
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
                   {metrics && metrics.taxa_perda <= 5 ? '✓ Meta atingida' : '⚠ Acima da meta - Falta de motoristas'}
                 </p>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* Mapa de Calor de Problemas */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 1.3 }}
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
         >
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-orange-600 rounded-xl">
-                <BarChart3 className="w-5 h-5 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-orange-800">
-                Mapa de Calor de Problemas
-              </h3>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+              <BarChart3 className="w-5 h-5 text-orange-600 dark:text-orange-400" />
             </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-orange-200">
-              <MapaCalorProblemas
-                key={`mapa-${filters.periodo}-${filters.cidade}-${Date.now()}`}
-                periodo={filters.periodo}
-                cidade={filters.cidade}
-              />
-            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              Mapa de Calor de Problemas
+            </h3>
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+            <MapaCalorProblemas
+              key={`mapa-${filters.periodo}-${filters.cidade}-${Date.now()}`}
+              periodo={filters.periodo}
+              cidade={filters.cidade}
+            />
           </div>
         </motion.div>
-        {/* Insights e Recomendações (placeholder) */}
+
+        {/* Insights e Recomendações */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 1.4 }}
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
         >
-          <div className="bg-gradient-to-br from-purple-50 to-indigo-100 border border-purple-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-purple-600 rounded-xl">
-                <BarChart3 className="w-5 h-5 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-purple-800">
-                Insights e Recomendações Operacionais
-              </h3>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+              <BarChart3 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
-              {data ? (
-                <div className="space-y-4">
-                  {/* Insights baseados nos dados reais */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              Insights e Recomendações Operacionais
+            </h3>
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+            {data ? (
+              <div className="space-y-4">
+                {/* Insights baseados nos dados reais */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     
                     {/* Insight de Performance */}
                     <div className="bg-white rounded-lg p-4 border border-purple-100">
@@ -892,20 +919,19 @@ export default function AnaliseCorreidas() {
                         }
 
                         return recomendacoes.map((rec, idx) => (
-                          <div key={idx} className="text-purple-700">{rec}</div>
+                          <div key={idx} className="text-gray-700 dark:text-gray-300">{rec}</div>
                         ));
                       })()}
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center text-purple-600 font-medium">
+                <div className="text-center text-gray-600 dark:text-gray-400 font-medium">
                   Carregando insights...
                 </div>
               )}
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
       </div>
     </div>
   )
