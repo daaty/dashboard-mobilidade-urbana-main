@@ -3,7 +3,7 @@ import React from "react"
 import MapaCalorProblemas from "./MapaCalorProblemas"
 import { motion } from "framer-motion"
 import { Select, SelectOption } from '@/components/ui/select'
-import { TrendingUp, CheckCircle, XCircle, AlertTriangle, Clock, BarChart3, Activity, Filter } from 'lucide-react'
+import { TrendingUp, CheckCircle, XCircle, AlertTriangle, Clock, BarChart3, Activity, Filter, Calendar } from 'lucide-react'
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 const COLORS = {
@@ -37,6 +37,9 @@ export default function AnaliseCorreidas() {
     diaSemana: '',
     horario: ''
   })
+  
+  // Estado para controlar as abas dos gráficos
+  const [activeTab, setActiveTab] = React.useState('horario') // 'horario' ou 'periodo'
 
   const handleFilterChange = (key, value) => {
     console.log('🔄 AnaliseCorreidas - Filtro mudando:', key, 'de', filters[key], 'para', value);
@@ -102,6 +105,8 @@ export default function AnaliseCorreidas() {
     }
     fetchData()
   }, [filters.periodo, filters.cidade])
+
+
 
   const formatNumber = (num) => {
     return new Intl.NumberFormat('pt-BR').format(num)
@@ -357,233 +362,487 @@ export default function AnaliseCorreidas() {
           </motion.div>
         </div>
 
-        {/* Gráfico de Tendências */}
+        {/* Sistema de Abas para Gráficos */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
         >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+          {/* Abas */}
+          <div className="flex border-b border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => setActiveTab('horario')}
+              className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
+                activeTab === 'horario'
+                  ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Clock className="w-4 h-4" />
+                Por Horário
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Evolução das Taxas de Performance por Horário
-              </h3>
-            </div>
-            <div className="text-xs text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900 px-3 py-1 rounded-lg">
-              Performance ao longo do dia
-            </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('periodo')}
+              className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
+                activeTab === 'periodo'
+                  ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Por Data/Período
+              </div>
+            </button>
           </div>
-          <div className="h-64 sm:h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-2 sm:p-4">
-            {evolucaoData && evolucaoData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart 
-                  data={evolucaoData} 
-                  margin={{ 
-                    top: 10, 
-                    right: window.innerWidth < 640 ? 5 : 30, 
-                    left: window.innerWidth < 640 ? 5 : 20, 
-                    bottom: window.innerWidth < 640 ? 30 : 5 
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="data" 
-                    tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
-                    label={window.innerWidth >= 640 ? { value: 'Horário', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } } : undefined}
-                    interval={window.innerWidth < 640 ? 'preserveStartEnd' : 0}
-                  />
-                  <YAxis 
-                    tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
-                    label={window.innerWidth >= 640 ? { value: 'Taxa (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } } : undefined}
-                    domain={[0, 100]}
-                    width={window.innerWidth < 640 ? 30 : 50}
-                  />
-                  <Tooltip 
-                    formatter={(value, name) => [`${value.toFixed(1)}%`, name]}
-                    labelFormatter={(hora) => `Horário: ${hora}`}
-                    contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: window.innerWidth < 640 ? '11px' : '13px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                      maxWidth: window.innerWidth < 640 ? '200px' : '300px'
-                    }}
-                  />
-                  {window.innerWidth >= 640 && (
-                    <Legend 
-                      verticalAlign="top" 
-                      height={36}
-                      iconType="line"
-                      wrapperStyle={{ fontSize: '12px' }}
-                    />
-                  )}
-                  <Line 
-                    type="monotone" 
-                    dataKey="taxa_conclusao" 
-                    stroke={COLORS.concluidas} 
-                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
-                    name="Taxa de Conclusão"
-                    dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
-                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="taxa_cancelamento" 
-                    stroke={COLORS.canceladas} 
-                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
-                    name="Taxa de Cancelamento"
-                    dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
-                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="taxa_perda" 
-                    stroke={COLORS.perdidas} 
-                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
-                    name="Taxa de Perda"
-                    dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
-                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <div className="text-gray-600 dark:text-gray-400 text-lg font-medium">Sem dados de performance</div>
-                  <div className="text-gray-500 dark:text-gray-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
+
+          {/* Conteúdo das Abas */}
+          <div className="p-6">
+            {activeTab === 'horario' && (
+              <div className="space-y-6">
+                {/* Gráfico de Performance por Horário */}
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                        <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                        Evolução das Taxas de Performance por Horário
+                      </h3>
+                    </div>
+                    <div className="text-xs text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900 px-3 py-1 rounded-lg">
+                      Performance ao longo do dia
+                    </div>
+                  </div>
+                  <div className="h-64 sm:h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-2 sm:p-4">
+                    {evolucaoData && evolucaoData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart 
+                          data={evolucaoData} 
+                          margin={{ 
+                            top: 10, 
+                            right: window.innerWidth < 640 ? 5 : 30, 
+                            left: window.innerWidth < 640 ? 5 : 20, 
+                            bottom: window.innerWidth < 640 ? 30 : 5 
+                          }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                          <XAxis 
+                            dataKey="data" 
+                            tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
+                            label={window.innerWidth >= 640 ? { value: 'Horário', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } } : undefined}
+                            interval={window.innerWidth < 640 ? 'preserveStartEnd' : 0}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
+                            label={window.innerWidth >= 640 ? { value: 'Taxa (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } } : undefined}
+                            domain={[0, 100]}
+                            width={window.innerWidth < 640 ? 30 : 50}
+                          />
+                          <Tooltip 
+                            formatter={(value, name) => [`${value.toFixed(1)}%`, name]}
+                            labelFormatter={(hora) => `Horário: ${hora}`}
+                            contentStyle={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              fontSize: window.innerWidth < 640 ? '11px' : '13px',
+                              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                              maxWidth: window.innerWidth < 640 ? '200px' : '300px'
+                            }}
+                          />
+                          {window.innerWidth >= 640 && (
+                            <Legend 
+                              verticalAlign="top" 
+                              height={36}
+                              iconType="line"
+                              wrapperStyle={{ fontSize: '12px' }}
+                            />
+                          )}
+                          <Line 
+                            type="monotone" 
+                            dataKey="taxa_conclusao" 
+                            stroke={COLORS.concluidas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Taxa de Conclusão"
+                            dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="taxa_cancelamento" 
+                            stroke={COLORS.canceladas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Taxa de Cancelamento"
+                            dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="taxa_perda" 
+                            stroke={COLORS.perdidas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Taxa de Perda"
+                            dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-center">
+                          <div className="text-gray-600 dark:text-gray-400 text-lg font-medium">Sem dados de performance</div>
+                          <div className="text-gray-500 dark:text-gray-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Gráfico de Demanda por Horário */}
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                        <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                        Distribuição de Demanda por Horário
+                      </h3>
+                    </div>
+                    {data?.tempos_operacionais && (
+                      <div className="flex gap-4 text-xs">
+                        {data.tempos_operacionais.tempo_medio_espera && (
+                          <div className="bg-orange-100 dark:bg-orange-900 px-3 py-1 rounded-lg">
+                            <span className="text-orange-700 dark:text-orange-300">Espera: </span>
+                            <span className="font-semibold text-gray-900 dark:text-white">{data.tempos_operacionais.tempo_medio_espera}min</span>
+                          </div>
+                        )}
+                        {data.tempos_operacionais.tempo_medio_chegada && (
+                          <div className="bg-orange-100 dark:bg-orange-900 px-3 py-1 rounded-lg">
+                            <span className="text-orange-700 dark:text-orange-300">Chegada: </span>
+                            <span className="font-semibold text-gray-900 dark:text-white">{data.tempos_operacionais.tempo_medio_chegada}min</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="h-64 sm:h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-2 sm:p-4">
+                    {data?.comparativo_horarios && data.comparativo_horarios.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart 
+                          data={data.comparativo_horarios}
+                          margin={{ 
+                            top: 10, 
+                            right: window.innerWidth < 640 ? 5 : 30, 
+                            left: window.innerWidth < 640 ? 5 : 20, 
+                            bottom: window.innerWidth < 640 ? 30 : 5 
+                          }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                          <XAxis 
+                            dataKey="hora" 
+                            tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
+                            label={window.innerWidth >= 640 ? { value: 'Horário (24h)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } } : undefined}
+                            interval={window.innerWidth < 640 ? 2 : 0}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
+                            label={window.innerWidth >= 640 ? { value: 'Volume de Corridas', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } } : undefined}
+                            width={window.innerWidth < 640 ? 35 : 50}
+                          />
+                          <Tooltip 
+                            formatter={(value, name) => [value, name]}
+                            labelFormatter={(hora) => `${hora}:00`}
+                            contentStyle={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              fontSize: window.innerWidth < 640 ? '11px' : '13px',
+                              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                              maxWidth: window.innerWidth < 640 ? '220px' : '300px'
+                            }}
+                          />
+                          {window.innerWidth >= 640 && (
+                            <Legend 
+                              verticalAlign="top" 
+                              height={36}
+                              iconType="line"
+                              wrapperStyle={{ fontSize: '12px' }}
+                            />
+                          )}
+                          <Line 
+                            type="monotone" 
+                            dataKey="concluidas" 
+                            stroke={COLORS.concluidas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Concluídas"
+                            dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="canceladas" 
+                            stroke={COLORS.canceladas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Canceladas"
+                            dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="perdidas" 
+                            stroke={COLORS.perdidas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Perdidas"
+                            dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-center">
+                          <div className="text-gray-600 dark:text-gray-400 text-lg font-medium">Sem dados de demanda</div>
+                          <div className="text-gray-500 dark:text-gray-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'periodo' && (
+              <div className="space-y-6">
+                {/* Gráfico de Performance por Período */}
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                        <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                        Evolução das Taxas de Performance por {filters.periodo === 'hoje' ? 'Horário' : 'Dia'}
+                      </h3>
+                    </div>
+                    <div className="text-xs text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900 px-3 py-1 rounded-lg">
+                      {filters.periodo === 'hoje' ? 'Performance por hora' : 'Performance diária'}
+                    </div>
+                  </div>
+                  <div className="h-64 sm:h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-2 sm:p-4">
+                    {data?.evolucao && data.evolucao.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart 
+                          data={data.evolucao} 
+                          margin={{ 
+                            top: 10, 
+                            right: window.innerWidth < 640 ? 5 : 30, 
+                            left: window.innerWidth < 640 ? 5 : 20, 
+                            bottom: window.innerWidth < 640 ? 30 : 5 
+                          }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                          <XAxis 
+                            dataKey="data" 
+                            tick={false}
+                            label={window.innerWidth >= 640 ? { 
+                              value: filters.periodo === 'hoje' ? 'Horário' : 'Data', 
+                              position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } 
+                            } : undefined}
+                            interval={window.innerWidth < 640 ? 'preserveStartEnd' : 0}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
+                            label={window.innerWidth >= 640 ? { value: 'Taxa (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } } : undefined}
+                            domain={[0, 100]}
+                            width={window.innerWidth < 640 ? 30 : 50}
+                          />
+                          <Tooltip 
+                            formatter={(value, name) => [`${value.toFixed(1)}%`, name]}
+                            labelFormatter={(data) => {
+                              if (filters.periodo === 'hoje') {
+                                return `Horário: ${data}`;
+                              } else {
+                                const date = new Date(data);
+                                return `Data: ${date.toLocaleDateString('pt-BR')}`;
+                              }
+                            }}
+                            contentStyle={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              fontSize: window.innerWidth < 640 ? '11px' : '13px',
+                              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                              maxWidth: window.innerWidth < 640 ? '200px' : '300px'
+                            }}
+                          />
+                          {window.innerWidth >= 640 && (
+                            <Legend 
+                              verticalAlign="top" 
+                              height={36}
+                              iconType="line"
+                              wrapperStyle={{ fontSize: '12px' }}
+                            />
+                          )}
+                          <Line 
+                            type="monotone" 
+                            dataKey="taxa_conclusao" 
+                            stroke={COLORS.concluidas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Taxa de Conclusão"
+                            dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="taxa_cancelamento" 
+                            stroke={COLORS.canceladas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Taxa de Cancelamento"
+                            dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="taxa_perda" 
+                            stroke={COLORS.perdidas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Taxa de Perda"
+                            dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-center">
+                          <div className="text-gray-600 dark:text-gray-400 text-lg font-medium">Sem dados de performance</div>
+                          <div className="text-gray-500 dark:text-gray-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Gráfico de Demanda por Período */}
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                        <Calendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                        Distribuição de Demanda por {filters.periodo === 'hoje' ? 'Horário' : 'Dia'}
+                      </h3>
+                    </div>
+                    <div className="text-xs text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900 px-3 py-1 rounded-lg">
+                      Total: {data?.evolucao ? data.evolucao.reduce((sum, item) => sum + item.concluidas + item.canceladas + item.perdidas, 0) : 0} corridas
+                    </div>
+                  </div>
+                  <div className="h-64 sm:h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-2 sm:p-4">
+                    {data?.evolucao && data.evolucao.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart 
+                          data={data.evolucao}
+                          margin={{ 
+                            top: 10, 
+                            right: window.innerWidth < 640 ? 5 : 30, 
+                            left: window.innerWidth < 640 ? 5 : 20, 
+                            bottom: window.innerWidth < 640 ? 30 : 5 
+                          }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                          <XAxis 
+                            dataKey="data" 
+                            tick={false}
+                            label={window.innerWidth >= 640 ? { 
+                              value: filters.periodo === 'hoje' ? 'Horário' : 'Data', 
+                              position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } 
+                            } : undefined}
+                            interval={window.innerWidth < 640 ? 'preserveStartEnd' : 0}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
+                            label={window.innerWidth >= 640 ? { value: 'Volume de Corridas', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } } : undefined}
+                            width={window.innerWidth < 640 ? 35 : 50}
+                          />
+                          <Tooltip 
+                            formatter={(value, name) => [value, name]}
+                            labelFormatter={(data) => {
+                              if (filters.periodo === 'hoje') {
+                                return `Horário: ${data}`;
+                              } else {
+                                const date = new Date(data);
+                                return `Data: ${date.toLocaleDateString('pt-BR')}`;
+                              }
+                            }}
+                            contentStyle={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              fontSize: window.innerWidth < 640 ? '11px' : '13px',
+                              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                              maxWidth: window.innerWidth < 640 ? '220px' : '300px'
+                            }}
+                          />
+                          {window.innerWidth >= 640 && (
+                            <Legend 
+                              verticalAlign="top" 
+                              height={36}
+                              iconType="line"
+                              wrapperStyle={{ fontSize: '12px' }}
+                            />
+                          )}
+                          <Line 
+                            type="monotone" 
+                            dataKey="concluidas" 
+                            stroke={COLORS.concluidas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Concluídas"
+                            dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="canceladas" 
+                            stroke={COLORS.canceladas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Canceladas"
+                            dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="perdidas" 
+                            stroke={COLORS.perdidas} 
+                            strokeWidth={window.innerWidth < 640 ? 2 : 3}
+                            name="Perdidas"
+                            dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                            activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-center">
+                          <div className="text-gray-600 dark:text-gray-400 text-lg font-medium">Sem dados de demanda</div>
+                          <div className="text-gray-500 dark:text-gray-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
           </div>
         </motion.div>
 
-        {/* Análise de Tempos */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-                <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Distribuição de Demanda por Horário
-              </h3>
-            </div>
-            {data?.tempos_operacionais && (
-              <div className="flex gap-4 text-xs">
-                {data.tempos_operacionais.tempo_medio_espera && (
-                  <div className="bg-orange-100 dark:bg-orange-900 px-3 py-1 rounded-lg">
-                    <span className="text-orange-700 dark:text-orange-300">Espera: </span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{data.tempos_operacionais.tempo_medio_espera}min</span>
-                  </div>
-                )}
-                {data.tempos_operacionais.tempo_medio_chegada && (
-                  <div className="bg-orange-100 dark:bg-orange-900 px-3 py-1 rounded-lg">
-                    <span className="text-orange-700 dark:text-orange-300">Chegada: </span>
-                    <span className="font-semibold text-gray-900 dark:text-white">{data.tempos_operacionais.tempo_medio_chegada}min</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          <div className="h-64 sm:h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-2 sm:p-4">
-            {data?.comparativo_horarios && data.comparativo_horarios.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart 
-                  data={data.comparativo_horarios}
-                  margin={{ 
-                    top: 10, 
-                    right: window.innerWidth < 640 ? 5 : 30, 
-                    left: window.innerWidth < 640 ? 5 : 20, 
-                    bottom: window.innerWidth < 640 ? 30 : 5 
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="hora" 
-                    tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
-                    label={window.innerWidth >= 640 ? { value: 'Horário (24h)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } } : undefined}
-                    interval={window.innerWidth < 640 ? 2 : 0}
-                  />
-                  <YAxis 
-                    tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
-                    label={window.innerWidth >= 640 ? { value: 'Volume de Corridas', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } } : undefined}
-                    width={window.innerWidth < 640 ? 35 : 50}
-                  />
-                  <Tooltip 
-                    formatter={(value, name) => [
-                      `${value} corridas`, 
-                      name === 'concluidas' ? 'Concluídas' : 
-                      name === 'canceladas' ? 'Canceladas' : 'Perdidas'
-                    ]}
-                    labelFormatter={(hora) => `${hora}:00 - ${hora}:59`}
-                    contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: window.innerWidth < 640 ? '11px' : '13px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                      maxWidth: window.innerWidth < 640 ? '200px' : '300px'
-                    }}
-                  />
-                  {window.innerWidth >= 640 && (
-                    <Legend 
-                      verticalAlign="top" 
-                      height={36}
-                      iconType="line"
-                      wrapperStyle={{ fontSize: '12px' }}
-                    />
-                  )}
-                  <Line 
-                    type="monotone" 
-                    dataKey="concluidas" 
-                    stroke={COLORS.concluidas} 
-                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
-                    name="Concluídas"
-                    dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
-                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="canceladas" 
-                    stroke={COLORS.canceladas} 
-                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
-                    name="Canceladas"
-                    dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
-                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="perdidas" 
-                    stroke={COLORS.perdidas} 
-                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
-                    name="Perdidas"
-                    dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
-                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <div className="text-gray-600 dark:text-gray-400 text-lg font-medium">Sem dados de horários</div>
-                  <div className="text-gray-500 dark:text-gray-500 text-sm mt-1">Nenhum dado encontrado no período selecionado</div>
-                </div>
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Row 3: Distribuição de Status e Análise de Cancelamentos - Lado a Lado */}
+        {/* Cards de Estatísticas Rápidas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Gráfico de Pizza - Distribuição de Status */}
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[320px] sm:h-96">

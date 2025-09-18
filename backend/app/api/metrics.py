@@ -871,3 +871,201 @@ async def get_metrics_overview(
         "filtros_disponiveis": filtros_disponiveis,
         "atividade_recente": atividade_recente
     }
+
+def get_periodo_key(dt_corrida, periodo):
+    """Retorna a chave de agrupamento baseada no período selecionado"""
+    if not dt_corrida:
+        return None
+
+    if periodo == "hoje":
+        # Agrupar por hora: "08:00", "09:00", etc.
+        return dt_corrida.strftime("%H:00")
+    elif periodo in ["7d", "30d"]:
+        # Agrupar por data: "2024-01-15"
+        return dt_corrida.date().isoformat()
+    elif periodo in ["3m", "6m", "12m"]:
+        # Agrupar por semana: "2024-01-15" (segunda-feira da semana)
+        # Calcular o início da semana (segunda-feira)
+        days_since_monday = dt_corrida.weekday()  # 0=segunda, 6=domingo
+        monday = dt_corrida - timedelta(days=days_since_monday)
+        return monday.date().isoformat()
+    return None
+
+@router.get("/overview-by-period")
+async def get_metrics_overview_by_period(
+    db: AsyncSession = Depends(get_db),
+    periodo: str = Query("30d", enum=["hoje", "7d", "30d", "3m", "6m", "12m"], description="Período do filtro: hoje, 7d, 30d, 3m, 6m, 12m"),
+    cidade: Optional[str] = Query(None, description="Filtrar por cidade específica")
+):
+    """Endpoint para dados agrupados por período (hora/dia/semana) para gráficos por período"""
+
+    # Buscar todos os registros da tabela rides_data
+    result = await db.execute(select(RidesData))
+    rides = result.scalars().all()
+
+    # Inicializar contadores por período
+    periodos_data = {}
+
+    # Definir datas de filtro
+    now = datetime.now()
+    if periodo == "hoje":
+        dt_ini = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        dt_fim = now
+    elif periodo == "7d":
+        dt_ini = now - timedelta(days=7)
+        dt_fim = now
+    elif periodo == "30d":
+        dt_ini = now - timedelta(days=30)
+        dt_fim = now
+    elif periodo == "3m":
+        dt_ini = now - timedelta(days=90)
+        dt_fim = now
+    elif periodo == "6m":
+        dt_ini = now - timedelta(days=180)
+        dt_fim = now
+    else:  # "12m"
+        dt_ini = now - timedelta(days=365)
+        dt_fim = now
+
+    # Processar os dados
+    for r in rides:
+        ride_data = r.ride_data
+        if isinstance(ride_data, str):
+            try:
+                ride_data = json.loads(ride_data)
+            except Exception:
+                continue
+
+        table_name = ride_data.get("tableName", "")
+        new_records = ride_data.get("newRecords", [])
+
+        # Processar corridas concluídas
+        if table_name in ["Completed Rides", "corridas_concluidas"]:
+            for rec in new_records:
+                # Extrair data/hora
+                dt_corrida = None
+                if r.source == "monitoring-service-adapted":
+                    # Dados do scraper
+                    hora = rec[8] if len(rec) > 8 else rec[7] if len(rec) > 7 else None
+                else:
+                    # Dados do Excel
+                    hora = rec[7] if len(rec) > 7 else rec[6] if len(rec) > 6 else None
+
+                if hora:
+                    dt_str = extract_datetime_from_record([hora], 0)
+                    if dt_str:
+                        try:
+                            dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                        except Exception:
+                            continue
+
+                if not dt_corrida or not (dt_ini <= dt_corrida <= dt_fim):
+                    continue
+
+                # Verificar filtro de cidade
+                cidade_detectada = extract_city_from_record(rec)
+                if not matches_city_filter(cidade_detectada, cidade):
+                    continue
+
+                # Agrupar por período
+                periodo_key = get_periodo_key(dt_corrida, periodo)
+                if periodo_key:
+                    if periodo_key not in periodos_data:
+                        periodos_data[periodo_key] = {"concluidas": 0, "canceladas": 0, "perdidas": 0}
+                    periodos_data[periodo_key]["concluidas"] += 1
+
+        # Processar corridas canceladas
+        elif table_name in ["Cancelled Rides", "corridas_canceladas"]:
+            for rec in new_records:
+                dt_corrida = None  # Inicializar variável
+                
+                # Extrair data/hora
+                hora = None
+                for idx in (12, 11, 8, 7):
+                    if len(rec) > idx and rec[idx]:
+                        hora = rec[idx]
+                        break
+
+                if hora:
+                    dt_str = extract_datetime_from_record([hora], 0)
+                    if dt_str:
+                        try:
+                            dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                        except Exception:
+                            continue
+
+                if not dt_corrida or not (dt_ini <= dt_corrida <= dt_fim):
+                    continue
+
+                # Verificar filtro de cidade
+                cidade_detectada = extract_city_from_record(rec)
+                if not matches_city_filter(cidade_detectada, cidade):
+                    continue
+
+                # Agrupar por período
+                periodo_key = get_periodo_key(dt_corrida, periodo)
+                if periodo_key:
+                    if periodo_key not in periodos_data:
+                        periodos_data[periodo_key] = {"concluidas": 0, "canceladas": 0, "perdidas": 0}
+                    periodos_data[periodo_key]["canceladas"] += 1
+
+        # Processar corridas perdidas
+        elif table_name in ["Missed Rides", "corridas_perdidas"]:
+            for rec in new_records:
+                dt_corrida = None  # Inicializar variável
+                
+                # Extrair data/hora
+                hora = rec[6] if len(rec) > 6 else None
+
+                if hora:
+                    dt_str = extract_datetime_from_record([hora], 0)
+                    if dt_str:
+                        try:
+                            dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                        except Exception:
+                            continue
+
+                if not dt_corrida or not (dt_ini <= dt_corrida <= dt_fim):
+                    continue
+
+                # Verificar filtro de cidade
+                cidade_detectada = extract_city_from_record(rec)
+                if not matches_city_filter(cidade_detectada, cidade):
+                    continue
+
+                # Agrupar por período
+                periodo_key = get_periodo_key(dt_corrida, periodo)
+                if periodo_key:
+                    if periodo_key not in periodos_data:
+                        periodos_data[periodo_key] = {"concluidas": 0, "canceladas": 0, "perdidas": 0}
+                    periodos_data[periodo_key]["perdidas"] += 1
+
+    # Converter para lista ordenada
+    comparativo_periodos = []
+    for periodo_key in sorted(periodos_data.keys()):
+        data = periodos_data[periodo_key]
+        total = data["concluidas"] + data["canceladas"] + data["perdidas"]
+
+        comparativo_periodos.append({
+            "periodo": periodo_key,
+            "concluidas": data["concluidas"],
+            "canceladas": data["canceladas"],
+            "perdidas": data["perdidas"],
+            "taxa_conclusao": (data["concluidas"] / total * 100) if total > 0 else 0,
+            "taxa_cancelamento": (data["canceladas"] / total * 100) if total > 0 else 0,
+            "taxa_perda": (data["perdidas"] / total * 100) if total > 0 else 0
+        })
+
+    # Calcular totais
+    total_concluidas = sum(p["concluidas"] for p in comparativo_periodos)
+    total_canceladas = sum(p["canceladas"] for p in comparativo_periodos)
+    total_perdidas = sum(p["perdidas"] for p in comparativo_periodos)
+
+    return {
+        "comparativo_periodos": comparativo_periodos,
+        "total_concluidas": total_concluidas,
+        "total_canceladas": total_canceladas,
+        "total_perdidas": total_perdidas,
+        "periodo_filtro": periodo,
+        "cidade_filtro": cidade
+    }
