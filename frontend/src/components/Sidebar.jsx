@@ -35,7 +35,11 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
   ]
 
   return (
-    <div className={`bg-white dark:bg-gray-900 h-screen shadow-2xl border-r border-gray-200 dark:border-gray-800 relative flex flex-col ${isOpen ? 'w-64' : 'w-16'} transition-all duration-300`}>
+    <div className={`bg-white dark:bg-gray-900 h-screen shadow-2xl border-r border-gray-200 dark:border-gray-800 relative flex flex-col ${
+      isOpen 
+        ? 'w-64 fixed md:relative z-40 md:z-auto' 
+        : 'w-16 hidden md:flex'
+    } transition-all duration-300`}>
       {/* Header Moderno */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
         {isOpen && (
@@ -54,11 +58,25 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
             </div>
           </motion.div>
         )}
+        
+        {/* Mobile Close Button */}
+        {isOpen && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggle}
+            className="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[44px] min-w-[44px] touch-manipulation"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
+        
+        {/* Desktop Toggle Button */}
         <Button
           variant="ghost"
           size="sm"
           onClick={onToggle}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="hidden md:block p-2 hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[44px] min-w-[44px]"
         >
           {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
         </Button>
@@ -82,7 +100,7 @@ export function Sidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
               )}
               <button
                 className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 relative overflow-hidden
-                  group
+                  group min-h-[48px] touch-manipulation
                   ${isActive ? 'bg-black text-white shadow-lg' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}
                 `}
                 style={{ borderLeft: isActive ? '5px solid #111' : '5px solid transparent' }}

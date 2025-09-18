@@ -293,74 +293,74 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
         </motion.div>
       ) : (
         <>
-          {/* KPI Cards - Executive Style */}
+          {/* KPI Cards - Mobile Optimized */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8"
           >
             {/* Total de Gastos */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Gastos</p>
-                  <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 min-h-[120px] sm:min-h-[140px]">
+              <div className="flex items-center justify-between h-full">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Total de Gastos</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600 dark:text-green-400 mt-1 truncate">
                     {formatCurrency(financeiroData.total_gastos)}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{financeiroData.total_despesas} despesas registradas</p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 truncate">{financeiroData.total_despesas} despesas</p>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-green-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center ml-2 flex-shrink-0">
+                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
                 </div>
               </div>
             </div>
 
             {/* Média por Dia */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Média por Dia</p>
-                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 min-h-[120px] sm:min-h-[140px]">
+              <div className="flex items-center justify-between h-full">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Média por Dia</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 truncate">
                     {formatCurrency(financeiroData.media_gastos_dia)}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Gasto médio diário</p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 truncate">Gasto médio diário</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Calendar className="w-6 h-6 text-blue-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center ml-2 flex-shrink-0">
+                  <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
             </div>
 
             {/* Taxa de Documentação */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Taxa de Documentação</p>
-                  <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 min-h-[120px] sm:min-h-[140px]">
+              <div className="flex items-center justify-between h-full">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Taxa de Documentação</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1 truncate">
                     {formatPercentage(financeiroData.taxa_documentacao)}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{financeiroData.resumo_kpis.gastos_com_nf} com nota fiscal</p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 truncate">{financeiroData.resumo_kpis.gastos_com_nf} com NF</p>
                 </div>
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-orange-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center ml-2 flex-shrink-0">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
                 </div>
               </div>
             </div>
 
             {/* Variação do Período */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Variação</p>
-                  <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 min-h-[120px] sm:min-h-[140px]">
+              <div className="flex items-center justify-between h-full">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Variação</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1 truncate">
                     {financeiroData.variacao_percentual > 0 ? '+' : ''}{formatPercentage(financeiroData.variacao_percentual)}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">vs período anterior</p>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 truncate">vs período anterior</p>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center ml-2 flex-shrink-0">
                   {financeiroData.variacao_percentual > 0 ? 
-                    <TrendingUp className="w-6 h-6 text-purple-600" /> : 
-                    <TrendingDown className="w-6 h-6 text-purple-600" />
+                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" /> : 
+                    <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
                   }
                 </div>
               </div>
@@ -368,94 +368,104 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
           </motion.div>
 
           {/* Seção de análises detalhadas */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
             {/* Top Gastos */}
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:shadow-xl transition-all duration-300">
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-red-600 rounded-xl">
-                  <Receipt className="w-5 h-5 text-white" />
+                  <Receipt className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200">
                   Maiores Gastos
                 </h3>
               </div>
-              <div className="space-y-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 max-h-96 overflow-y-auto">
+              <div className="space-y-3 sm:space-y-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-2 sm:p-4 max-h-80 sm:max-h-96 overflow-y-auto">
                 {financeiroData.top_gastos?.length > 0 ? financeiroData.top_gastos.map((gasto, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg">
-                          {index + 1}
+                  <div key={index} className="p-3 sm:p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+                    {/* Mobile: Layout Stacked, Desktop: Layout Side by Side */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                      <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div className="relative flex-shrink-0">
+                          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-sm sm:text-lg font-bold shadow-lg">
+                            {index + 1}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-bold text-gray-900 text-sm">
-                          {gasto.descricao_item || 'Despesa'}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          {gasto.fornecedor || 'Não informado'} • {gasto.data_despesa}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
-                            gasto.possui_nota_fiscal 
-                              ? 'bg-green-100 text-green-800 border border-green-300' 
-                              : 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-                          }`}>
-                            {gasto.possui_nota_fiscal ? '✓ Com NF' : '⚠ Sem NF'}
-                          </span>
-                          {/* Mostrar múltiplos documentos */}
-                          {gasto.documentos && gasto.documentos.length > 0 ? (
-                            gasto.documentos.map((doc, docIndex) => (
-                              doc.url && (
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-gray-900 dark:text-white text-sm sm:text-base truncate">
+                            {gasto.descricao_item || 'Despesa'}
+                          </p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                            {gasto.fornecedor || 'Não informado'} • {gasto.data_despesa}
+                          </p>
+                          {/* Mobile: Stack badges and buttons vertically */}
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1 sm:mt-2">
+                            <span className={`text-xs px-2 py-1 rounded-full font-semibold whitespace-nowrap ${
+                              gasto.possui_nota_fiscal 
+                                ? 'bg-green-100 text-green-800 border border-green-300' 
+                                : 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                            }`}>
+                              {gasto.possui_nota_fiscal ? '✓ Com NF' : '⚠ Sem NF'}
+                            </span>
+                            {/* Mostrar múltiplos documentos */}
+                            {gasto.documentos && gasto.documentos.length > 0 ? (
+                              gasto.documentos.map((doc, docIndex) => (
+                                doc.url && (
+                                  <button
+                                    key={docIndex}
+                                    onClick={() => window.open(doc.url, '_blank')}
+                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200 border border-blue-300 whitespace-nowrap"
+                                    title={`Ver ${doc.tipo}`}
+                                  >
+                                    <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                                    <span className="hidden sm:inline">{doc.tipo === 'Nota Fiscal' ? 'NF' : doc.tipo === 'Comprovante de Pagamento' ? 'Comprovante' : doc.tipo}</span>
+                                    <span className="sm:hidden">{doc.tipo === 'Nota Fiscal' ? 'NF' : 'Doc'}</span>
+                                  </button>
+                                )
+                              ))
+                            ) : (
+                              // Fallback para estrutura antiga
+                              gasto.documento_url && (
                                 <button
-                                  key={docIndex}
-                                  onClick={() => window.open(doc.url, '_blank')}
-                                  className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200 border border-blue-300"
-                                  title={`Ver ${doc.tipo}`}
+                                  onClick={() => window.open(gasto.documento_url, '_blank')}
+                                  className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200 border border-blue-300 whitespace-nowrap"
+                                  title="Ver documento"
                                 >
-                                  <ExternalLink className="h-3 w-3" />
-                                  <span>{doc.tipo === 'Nota Fiscal' ? 'NF' : doc.tipo === 'Comprovante de Pagamento' ? 'Comprovante' : doc.tipo}</span>
+                                  <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                                  <span className="hidden sm:inline">Ver Documento</span>
+                                  <span className="sm:hidden">Doc</span>
                                 </button>
                               )
-                            ))
-                          ) : (
-                            // Fallback para estrutura antiga
-                            gasto.documento_url && (
-                              <button
-                                onClick={() => window.open(gasto.documento_url, '_blank')}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200 border border-blue-300"
-                                title="Ver documento"
-                              >
-                                <ExternalLink className="h-3 w-3" />
-                                <span>Ver Documento</span>
-                              </button>
-                            )
-                          )}
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right ml-4">
-                      <div className="text-xl font-bold text-red-600">
-                        {formatCurrency(gasto.valor_total)}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {gasto.tipo_documento}
-                      </div>
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={() => handleEditGasto(gasto)}
-                          className="p-1 text-blue-600 hover:text-blue-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                          title="Editar gasto"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteGasto(gasto.id)}
-                          className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
-                          title="Deletar gasto"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                      
+                      {/* Mobile: Move to separate row, Desktop: Keep on right */}
+                      <div className="flex items-center justify-between sm:flex-col sm:text-right sm:ml-4 sm:min-w-0">
+                        <div>
+                          <div className="text-lg sm:text-xl font-bold text-red-600 dark:text-red-400">
+                            {formatCurrency(gasto.valor_total)}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0 sm:mt-1">
+                            {gasto.tipo_documento}
+                          </div>
+                        </div>
+                        <div className="flex gap-1 sm:gap-2 sm:mt-2">
+                          <button
+                            onClick={() => handleEditGasto(gasto)}
+                            className="p-2 text-blue-600 hover:text-blue-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors touch-manipulation"
+                            title="Editar gasto"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteGasto(gasto.id)}
+                            className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900 rounded transition-colors touch-manipulation"
+                            title="Deletar gasto"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

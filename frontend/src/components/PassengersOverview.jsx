@@ -101,131 +101,119 @@ const PassengersOverview = () => {
         </div>
       </div>
 
-      {/* KPIs Cards */}
+      {/* KPIs Cards - Mobile Optimized */}
       {kpisData && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6"
+        >
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
+            whileHover={{ scale: 1.02 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Passageiros</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+            <div className="flex items-center justify-between h-full">
+              <div className="flex-1 min-w-0">
+                <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Total de Passageiros</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 sm:mt-2 truncate">
                   {kpisData.total_passengers.toLocaleString()}
                 </p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">{kpisData.cities_count} cidades</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="bg-blue-100 dark:bg-blue-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
               </div>
-            </div>
-            <div className="mt-4 flex items-center text-green-600">
-              <TrendingUp className="w-4 h-4 mr-1" />
-              <span className="text-sm">{kpisData.cities_count} cidades</span>
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.02 }}
             transition={{ delay: 0.1 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Passageiros Ativos</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+            <div className="flex items-center justify-between h-full">
+              <div className="flex-1 min-w-0">
+                <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Passageiros Ativos</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600 dark:text-green-400 mt-1 sm:mt-2 truncate">
                   {kpisData.active_passengers.toLocaleString()}
                 </p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">
+                  {kpisData.total_passengers > 0 
+                    ? ((kpisData.active_passengers / kpisData.total_passengers) * 100).toFixed(1)
+                    : 0}% do total
+                </p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <UserCheck className="w-6 h-6 text-green-600" />
+              <div className="bg-green-100 dark:bg-green-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                <UserCheck className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
               </div>
-            </div>
-            <div className="mt-4 flex items-center text-gray-600">
-              <span className="text-sm">
-                {kpisData.total_passengers > 0 
-                  ? ((kpisData.active_passengers / kpisData.total_passengers) * 100).toFixed(1)
-                  : 0}% do total
-              </span>
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.02 }}
             transition={{ delay: 0.2 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Corridas</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+            <div className="flex items-center justify-between h-full">
+              <div className="flex-1 min-w-0">
+                <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Total Corridas</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1 sm:mt-2 truncate">
                   {kpisData.total_rides.toLocaleString()}
                 </p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">{kpisData.avg_rides_per_passenger.toFixed(1)} por passageiro</p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <MapPin className="w-6 h-6 text-purple-600" />
+              <div className="bg-purple-100 dark:bg-purple-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
               </div>
-            </div>
-            <div className="mt-4 flex items-center text-purple-600">
-              <span className="text-sm">{kpisData.avg_rides_per_passenger.toFixed(1)} por passageiro</span>
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.02 }}
             transition={{ delay: 0.3 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Receita Total</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+            <div className="flex items-center justify-between h-full">
+              <div className="flex-1 min-w-0">
+                <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Receita Total</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-600 dark:text-amber-400 mt-1 sm:mt-2 truncate">
                   R$ {kpisData.total_revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
+                <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">R$ {kpisData.avg_revenue_per_passenger.toFixed(2)} por passageiro</p>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-yellow-600" />
+              <div className="bg-amber-100 dark:bg-amber-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-400" />
               </div>
-            </div>
-            <div className="mt-4 flex items-center text-yellow-600">
-              <span className="text-sm">R$ {kpisData.avg_revenue_per_passenger.toFixed(2)} por passageiro</span>
             </div>
           </motion.div>
 
           {/* Novo card: Novos Passageiros */}
           {cityData && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ scale: 1.02 }}
               transition={{ delay: 0.4 }}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Novos Passageiros</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+              <div className="flex items-center justify-between h-full">
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Novos Passageiros</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 sm:mt-2 truncate">
                     {cityData.reduce((total, city) => total + city.new_passengers_count, 0).toLocaleString()}
                   </p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">
+                    {cityData.length > 0 && kpisData.total_passengers > 0
+                      ? ((cityData.reduce((total, city) => total + city.new_passengers_count, 0) / kpisData.total_passengers) * 100).toFixed(1)
+                      : 0}% do total
+                  </p>
                 </div>
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <Calendar className="w-6 h-6 text-emerald-600" />
+                <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                  <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400" />
                 </div>
-              </div>
-              <div className="mt-4 flex items-center text-emerald-600">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <span className="text-sm">
-                  {cityData.length > 0 && kpisData.total_passengers > 0
-                    ? ((cityData.reduce((total, city) => total + city.new_passengers_count, 0) / kpisData.total_passengers) * 100).toFixed(1)
-                    : 0}% do total
-                </span>
               </div>
             </motion.div>
           )}
-        </div>
+        </motion.div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

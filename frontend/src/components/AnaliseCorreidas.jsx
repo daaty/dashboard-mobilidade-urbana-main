@@ -377,20 +377,30 @@ export default function AnaliseCorreidas() {
               Performance ao longo do dia
             </div>
           </div>
-          <div className="h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+          <div className="h-64 sm:h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-2 sm:p-4">
             {evolucaoData && evolucaoData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={evolucaoData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <LineChart 
+                  data={evolucaoData} 
+                  margin={{ 
+                    top: 10, 
+                    right: window.innerWidth < 640 ? 5 : 30, 
+                    left: window.innerWidth < 640 ? 5 : 20, 
+                    bottom: window.innerWidth < 640 ? 30 : 5 
+                  }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis 
                     dataKey="data" 
-                    tick={{ fontSize: 12, fill: '#666' }}
-                    label={{ value: 'Horário', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } }}
+                    tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
+                    label={window.innerWidth >= 640 ? { value: 'Horário', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } } : undefined}
+                    interval={window.innerWidth < 640 ? 'preserveStartEnd' : 0}
                   />
                   <YAxis 
-                    tick={{ fontSize: 12, fill: '#666' }}
-                    label={{ value: 'Taxa (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
+                    tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
+                    label={window.innerWidth >= 640 ? { value: 'Taxa (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } } : undefined}
                     domain={[0, 100]}
+                    width={window.innerWidth < 640 ? 30 : 50}
                   />
                   <Tooltip 
                     formatter={(value, name) => [`${value.toFixed(1)}%`, name]}
@@ -399,41 +409,45 @@ export default function AnaliseCorreidas() {
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       border: '1px solid #e5e7eb',
                       borderRadius: '8px',
-                      fontSize: '13px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      fontSize: window.innerWidth < 640 ? '11px' : '13px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      maxWidth: window.innerWidth < 640 ? '200px' : '300px'
                     }}
                   />
-                  <Legend 
-                    verticalAlign="top" 
-                    height={36}
-                    iconType="line"
-                  />
+                  {window.innerWidth >= 640 && (
+                    <Legend 
+                      verticalAlign="top" 
+                      height={36}
+                      iconType="line"
+                      wrapperStyle={{ fontSize: '12px' }}
+                    />
+                  )}
                   <Line 
                     type="monotone" 
                     dataKey="taxa_conclusao" 
                     stroke={COLORS.concluidas} 
-                    strokeWidth={3}
+                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
                     name="Taxa de Conclusão"
-                    dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
+                    dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="taxa_cancelamento" 
                     stroke={COLORS.canceladas} 
-                    strokeWidth={3}
+                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
                     name="Taxa de Cancelamento"
-                    dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
+                    dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="taxa_perda" 
                     stroke={COLORS.perdidas} 
-                    strokeWidth={3}
+                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
                     name="Taxa de Perda"
-                    dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
+                    dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -481,19 +495,29 @@ export default function AnaliseCorreidas() {
               </div>
             )}
           </div>
-          <div className="h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+          <div className="h-64 sm:h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-2 sm:p-4">
             {data?.comparativo_horarios && data.comparativo_horarios.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data.comparativo_horarios}>
+                <LineChart 
+                  data={data.comparativo_horarios}
+                  margin={{ 
+                    top: 10, 
+                    right: window.innerWidth < 640 ? 5 : 30, 
+                    left: window.innerWidth < 640 ? 5 : 20, 
+                    bottom: window.innerWidth < 640 ? 30 : 5 
+                  }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis 
                     dataKey="hora" 
-                    tick={{ fontSize: 12, fill: '#666' }}
-                    label={{ value: 'Horário (24h)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } }}
+                    tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
+                    label={window.innerWidth >= 640 ? { value: 'Horário (24h)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle' } } : undefined}
+                    interval={window.innerWidth < 640 ? 2 : 0}
                   />
                   <YAxis 
-                    tick={{ fontSize: 12, fill: '#666' }}
-                    label={{ value: 'Volume de Corridas', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
+                    tick={{ fontSize: window.innerWidth < 640 ? 10 : 12, fill: '#666' }}
+                    label={window.innerWidth >= 640 ? { value: 'Volume de Corridas', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } } : undefined}
+                    width={window.innerWidth < 640 ? 35 : 50}
                   />
                   <Tooltip 
                     formatter={(value, name) => [
@@ -506,41 +530,45 @@ export default function AnaliseCorreidas() {
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       border: '1px solid #e5e7eb',
                       borderRadius: '8px',
-                      fontSize: '13px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      fontSize: window.innerWidth < 640 ? '11px' : '13px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      maxWidth: window.innerWidth < 640 ? '200px' : '300px'
                     }}
                   />
-                  <Legend 
-                    verticalAlign="top" 
-                    height={36}
-                    iconType="line"
-                  />
+                  {window.innerWidth >= 640 && (
+                    <Legend 
+                      verticalAlign="top" 
+                      height={36}
+                      iconType="line"
+                      wrapperStyle={{ fontSize: '12px' }}
+                    />
+                  )}
                   <Line 
                     type="monotone" 
                     dataKey="concluidas" 
                     stroke={COLORS.concluidas} 
-                    strokeWidth={3}
+                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
                     name="Concluídas"
-                    dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
+                    dot={{ fill: COLORS.concluidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.concluidas, strokeWidth: 2 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="canceladas" 
                     stroke={COLORS.canceladas} 
-                    strokeWidth={3}
+                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
                     name="Canceladas"
-                    dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
+                    dot={{ fill: COLORS.canceladas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.canceladas, strokeWidth: 2 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="perdidas" 
                     stroke={COLORS.perdidas} 
-                    strokeWidth={3}
+                    strokeWidth={window.innerWidth < 640 ? 2 : 3}
                     name="Perdidas"
-                    dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
+                    dot={{ fill: COLORS.perdidas, strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
+                    activeDot={{ r: window.innerWidth < 640 ? 5 : 6, stroke: COLORS.perdidas, strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -558,16 +586,16 @@ export default function AnaliseCorreidas() {
         {/* Row 3: Distribuição de Status e Análise de Cancelamentos - Lado a Lado */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Gráfico de Pizza - Distribuição de Status */}
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 h-96">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[320px] sm:h-96">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-blue-600 rounded-xl">
-                <BarChart3 className="w-5 h-5 text-white" />
+                <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-200">
                 Distribuição por Status das Corridas
               </h3>
             </div>
-            <div className="h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+            <div className="h-64 sm:h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-2 sm:p-4">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -576,8 +604,8 @@ export default function AnaliseCorreidas() {
                     nameKey="status"
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={window.innerWidth < 640 ? 60 : 80}
+                    label={window.innerWidth >= 640 ? ({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%` : false}
                     labelLine={false}
                   >
                     {statusData.map((entry, idx) => (
@@ -608,17 +636,17 @@ export default function AnaliseCorreidas() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.9 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 min-h-[320px]"
           >
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
               <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-                <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white">
                 Análise de Causa Raiz - Cancelamentos
               </h3>
             </div>
-            <div className="h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+            <div className="h-64 sm:h-80 bg-gray-50 dark:bg-gray-700 rounded-xl p-2 sm:p-4">
               {data?.motivos_cancelamento && data.motivos_cancelamento.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -626,10 +654,11 @@ export default function AnaliseCorreidas() {
                       data={data.motivos_cancelamento}
                       cx="50%"
                       cy="50%"
-                      outerRadius={100}
+                      outerRadius={window.innerWidth < 640 ? 70 : 100}
                       fill="#8884d8"
                       dataKey="quantidade"
                       nameKey="motivo"
+                      label={window.innerWidth >= 640 ? true : false}
                     >
                       {data.motivos_cancelamento.map((entry, index) => (
                         <Cell 
@@ -639,13 +668,14 @@ export default function AnaliseCorreidas() {
                       ))}
                     </Pie>
                     <Tooltip 
-                      formatter={(value, name) => [`${value} cancelamentos`, name]} 
+                      formatter={(value, name) => [`${value} cancelamentos`, name]}
                       labelFormatter={(motivo) => `Motivo: ${motivo}`}
                       contentStyle={{
                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
                         border: '1px solid #e5e7eb',
                         borderRadius: '8px',
-                        fontSize: '14px'
+                        fontSize: window.innerWidth < 640 ? '11px' : '14px',
+                        maxWidth: window.innerWidth < 640 ? '200px' : '300px'
                       }}
                     />
                   </PieChart>

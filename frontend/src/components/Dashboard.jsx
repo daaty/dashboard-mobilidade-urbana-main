@@ -34,6 +34,8 @@ function Dashboard() {
   const [loadingFinanceiro, setLoadingFinanceiro] = useState(true)
   const [loadingPerformance, setLoadingPerformance] = useState(true)
   const [loadingAlertas, setLoadingAlertas] = useState(true)
+  const [autoRefresh, setAutoRefresh] = useState(true) // Sempre ativo - atualização automática
+  const [refreshInterval, setRefreshInterval] = useState(30) // Intervalo em segundos
 
   useEffect(() => {
     fetchMetricsData()
@@ -41,6 +43,84 @@ function Dashboard() {
     fetchPerformanceData()
     fetchAlertasData()
   }, [])
+
+  // Atualizar dados automaticamente ao trocar de aba
+  useEffect(() => {
+    switch (activeTab) {
+      case 'overview':
+        fetchMetricsData()
+        break
+      case 'financeiro':
+        fetchFinanceiroData()
+        break
+      case 'drivers':
+        // Os dados dos motoristas são carregados internamente no componente DriversOverview
+        // Podemos adicionar uma prop key para forçar re-render
+        break
+      case 'analises':
+        // Os dados das análises são carregados internamente no componente AnaliseCorreidas
+        break
+      case 'performance':
+        fetchPerformanceData()
+        break
+      case 'alertas':
+        fetchAlertasData()
+        break
+      default:
+        break
+    }
+  }, [activeTab])
+
+  // Sistema de atualização automática (polling)
+  useEffect(() => {
+    if (!autoRefresh) return
+
+    const intervalId = setInterval(() => {
+      console.log('🔄 Atualizando dados automaticamente...')
+      
+      // Atualizar dados baseado na aba ativa
+      switch (activeTab) {
+        case 'overview':
+          fetchMetricsData()
+          break
+        case 'financeiro':
+          fetchFinanceiroData()
+          break
+        case 'performance':
+          fetchPerformanceData()
+          break
+        case 'alertas':
+          fetchAlertasData()
+          break
+        default:
+          // Para abas que carregam dados internamente, atualizamos todas as principais
+          fetchMetricsData()
+          break
+      }
+    }, refreshInterval * 1000) // Converter segundos para millisegundos
+
+    return () => {
+      clearInterval(intervalId)
+    }
+  }, [activeTab, autoRefresh, refreshInterval])
+
+  // Atualização quando a aba do navegador volta ao foco (usuário volta para a página)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && autoRefresh) {
+        console.log('👁️ Página voltou ao foco, atualizando dados...')
+        fetchMetricsData()
+        fetchFinanceiroData()
+        fetchPerformanceData()
+        fetchAlertasData()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [autoRefresh])
 
   const fetchMetricsData = async () => {
     try {
@@ -134,37 +214,37 @@ function Dashboard() {
       case 'metas':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <MetasCidades />
+            <MetasCidades key={`metas-${Date.now()}`} />
           </motion.div>
         )
       case 'config':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <ConfiguracaoSheets />
+            <ConfiguracaoSheets key={`config-${Date.now()}`} />
           </motion.div>
         )
       case 'executivo':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <DashboardExecutivoIntegrado />
+            <DashboardExecutivoIntegrado key={`executivo-${Date.now()}`} />
           </motion.div>
         )
       case 'analises':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <AnaliseCorreidas />
+            <AnaliseCorreidas key={`analises-${Date.now()}`} />
           </motion.div>
         )
       case 'drivers':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <DriversOverview />
+            <DriversOverview key={`drivers-${Date.now()}`} />
           </motion.div>
         )
       case 'comparativo':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <ComparativoTemporal />
+            <ComparativoTemporal key={`comparativo-${Date.now()}`} />
           </motion.div>
         )
       case 'performance':
@@ -225,19 +305,30 @@ function Dashboard() {
         </motion.div>
 
         {/* Main Content */}
-        <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+        <div className={`flex-1 transition-all duration-300 ${
+          sidebarOpen 
+            ? 'md:ml-64 ml-0' // Em mobile, não aplica margin-left quando sidebar está aberta (overlay)
+            : 'ml-0 md:ml-16'
+        }`}>
           {/* Header */}
-          <Header 
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-            onRefresh={fetchMetricsData}
-          />
-
-          {/* Content */}
-          <main className="p-6">
+        <Header 
+          sidebarOpen={sidebarOpen} 
+          setSidebarOpen={setSidebarOpen}
+          refreshInterval={refreshInterval}
+          setRefreshInterval={setRefreshInterval}
+        />          {/* Content */}
+          <main className="p-3 sm:p-6">
             {renderContent()}
           </main>
         </div>
+
+        {/* Mobile Overlay quando sidebar está aberta */}
+        {sidebarOpen && (
+          <div 
+            className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
         {/* Chat Flutuante Global */}
         <FloatingChat />

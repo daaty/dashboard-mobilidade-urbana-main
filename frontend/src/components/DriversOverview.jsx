@@ -581,153 +581,153 @@ export default function DriversOverview({ onPeriodChange }) {
           </div>
         ) : (
           <div className="space-y-8">
-            {/* KPIs Principais - Estilo Executivo */}
+            {/* KPIs Principais - Mobile Optimized */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }} 
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
             >
                 {/* Total de Motoristas */}
                 <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
                 >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Total de Motoristas</p>
-                            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{dashboardData.total_drivers || 0}</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">{dashboardData.active_drivers || 0} com atividade registrada</p>
+                    <div className="flex items-center justify-between h-full">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Total de Motoristas</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 sm:mt-2 truncate">{dashboardData.total_drivers || 0}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">{dashboardData.active_drivers || 0} ativos</p>
                         </div>
-                        <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
-                          <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                        <div className="bg-blue-100 dark:bg-blue-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                         </div>
                     </div>
                 </motion.div>
 
                 {/* Corridas Canceladas pelos Motoristas */}
                 <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
                 >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Corridas Canceladas</p>
-                            <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">{dashboardData.cancelled_rides || 0}</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Total por todos os motoristas</p>
+                    <div className="flex items-center justify-between h-full">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Corridas Canceladas</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-red-600 dark:text-red-400 mt-1 sm:mt-2 truncate">{dashboardData.cancelled_rides || 0}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Total por motoristas</p>
                         </div>
-                        <div className="bg-red-100 dark:bg-red-900 p-3 rounded-lg">
-                          <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                        <div className="bg-red-100 dark:bg-red-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                          <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
                         </div>
                     </div>
                 </motion.div>
 
                 {/* Média Horas por Motorista */}
                 <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
                 >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Média por Motorista</p>
-                            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">{Number(dashboardData.avg_hours_online || 0).toFixed(1)}h</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Horas online médias</p>
+                    <div className="flex items-center justify-between h-full">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Média por Motorista</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1 sm:mt-2 truncate">{Number(dashboardData.avg_hours_online || 0).toFixed(1)}h</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Horas online médias</p>
                         </div>
-                        <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-lg">
-                          <Activity className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                        <div className="bg-purple-100 dark:bg-purple-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                          <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
                         </div>
                     </div>
                 </motion.div>
 
                 {/* Rating Médio dos Motoristas */}
                 <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
                 >
-                    <div className="flex items-center justify-between">
-                         <div>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Rating Médio</p>
-                            <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">{Number(dashboardData.avg_rating || 0).toFixed(1)}</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Avaliação média dos motoristas</p>
+                    <div className="flex items-center justify-between h-full">
+                         <div className="flex-1 min-w-0">
+                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Rating Médio</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-600 dark:text-amber-400 mt-1 sm:mt-2 truncate">{Number(dashboardData.avg_rating || 0).toFixed(1)}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Avaliação média</p>
                         </div>
-                        <div className="bg-amber-100 dark:bg-amber-900 p-3 rounded-lg">
-                          <Target className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                        <div className="bg-amber-100 dark:bg-amber-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                          <Target className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-400" />
                         </div>
                     </div>
                 </motion.div>
             </motion.div>
 
-            {/* KPIs Financeiros - Nova Linha */}
+            {/* KPIs Financeiros - Mobile Optimized */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }} 
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
             >
                 {/* Receita Total */}
                 <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
                 >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Receita Total</p>
-                            <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">R$ {Number(dashboardData.total_revenue || 0).toFixed(2)}</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Últimos {dashboardData.periodo_dias} dias</p>
+                    <div className="flex items-center justify-between h-full">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Receita Total</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 sm:mt-2 truncate">R$ {Number(dashboardData.total_revenue || 0).toFixed(2)}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Últimos {dashboardData.periodo_dias} dias</p>
                         </div>
-                        <div className="bg-emerald-100 dark:bg-emerald-900 p-3 rounded-lg">
-                          <DollarSign className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                        <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                          <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400" />
                         </div>
                     </div>
                 </motion.div>
 
                 {/* Taxa de Aceitação */}
                 <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
                 >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Taxa de Aceitação</p>
-                            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{Number(dashboardData.acceptance_rate || 0).toFixed(1)}%</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Média geral</p>
+                    <div className="flex items-center justify-between h-full">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Taxa de Aceitação</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 sm:mt-2 truncate">{Number(dashboardData.acceptance_rate || 0).toFixed(1)}%</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Média geral</p>
                         </div>
-                        <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
-                          <CheckCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                        <div className="bg-blue-100 dark:bg-blue-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                          <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                         </div>
                     </div>
                 </motion.div>
 
                 {/* Receita por Hora */}
                 <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
                 >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Receita por Hora</p>
-                            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-2">R$ {Number(dashboardData.revenue_per_hour || 0).toFixed(2)}</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Produtividade média</p>
+                    <div className="flex items-center justify-between h-full">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Receita por Hora</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-1 sm:mt-2 truncate">R$ {Number(dashboardData.revenue_per_hour || 0).toFixed(2)}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Produtividade média</p>
                         </div>
-                        <div className="bg-indigo-100 dark:bg-indigo-900 p-3 rounded-lg">
-                          <TrendingUp className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                        <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                          <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 dark:text-indigo-400" />
                         </div>
                     </div>
                 </motion.div>
 
                 {/* Distância Total */}
                 <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
                 >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide uppercase">Distância Total</p>
-                            <p className="text-3xl font-bold text-teal-600 dark:text-teal-400 mt-2">{Number(dashboardData.total_distance || 0).toFixed(1)} km</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Quilometragem acumulada</p>
+                    <div className="flex items-center justify-between h-full">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Distância Total</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-teal-600 dark:text-teal-400 mt-1 sm:mt-2 truncate">{Number(dashboardData.total_distance || 0).toFixed(1)} km</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Quilometragem acumulada</p>
                         </div>
-                        <div className="bg-teal-100 dark:bg-teal-900 p-3 rounded-lg">
-                          <MapPin className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                        <div className="bg-teal-100 dark:bg-teal-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                          <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 dark:text-teal-400" />
                         </div>
                     </div>
                 </motion.div>
