@@ -679,7 +679,7 @@ async def get_passenger_details(
     passenger_id: str,
     db: Session = Depends(get_db)
 ):
-    """Retorna detalhes completos de um passageiro específico"""
+    """Retorna detalhes completos de um passageiro específico com dados detalhados das corridas"""
     try:
         query = text("""
             SELECT *
@@ -692,15 +692,94 @@ async def get_passenger_details(
         if not result:
             raise HTTPException(status_code=404, detail="Passageiro não encontrado")
         
-        personal_info = extract_personal_data_info(result.personal_data or {})
-        rides_data = process_rides_history(result.rides_history or [])
+        # Extrair informações pessoais
+        personal_data = result.personal_data or {}
+        if isinstance(personal_data, str):
+            try:
+                personal_data = json.loads(personal_data)
+            except json.JSONDecodeError:
+                personal_data = {}
+        
+        # Processar histórico de corridas detalhado
+        rides_history = result.rides_history or []
+        if isinstance(rides_history, str):
+            try:
+                rides_history = json.loads(rides_history)
+            except json.JSONDecodeError:
+                rides_history = []
+        
+        # Processar cada corrida para garantir tipos corretos
+        processed_rides = []
+        for ride in rides_history:
+            try:
+                processed_ride = {
+                    "date": ride.get("date", ""),
+                    "s_no": ride.get("s.no", ""),
+                    "driver_id": ride.get("driver_id", ""),
+                    "driver_name": ride.get("driver_name", ""),
+                    "ride_time": ride.get("ride_time", "0"),
+                    "user_fare": float(str(ride.get("user_fare", "0")).replace(",", ".")),
+                    "user_rating": ride.get("user_rating", "--"),
+                    "coupon_title": ride.get("coupon_title", "NA"),
+                    "engagement_id": ride.get("engagement_id", ""),
+                    "ride_distance": float(str(ride.get("ride_distance", "0")).replace(",", ".")),
+                    "preferred_mode": ride.get("preferred_mode", ""),
+                    "paid_using_cash": float(str(ride.get("paid_using_cash", "0")).replace(",", ".")),
+                    "paid_using_wallet": float(str(ride.get("paid_using_wallet", "0")).replace(",", ".")),
+                    "start_end_case_issue_reported": ride.get("start_end_case_issue_reported", "NO")
+                }
+                processed_rides.append(processed_ride)
+            except Exception as e:
+                # Se houver erro em uma corrida, continue com as outras
+                print(f"Erro ao processar corrida {ride}: {e}")
+                continue
+        
+        # Calcular resumo das corridas
+        total_rides = len(processed_rides)
+        total_revenue = sum(ride["user_fare"] for ride in processed_rides)
+        total_distance = sum(ride["ride_distance"] for ride in processed_rides)
+        
+        # Calcular média de avaliação
+        ratings = []
+        for ride in processed_rides:
+            rating_str = ride["user_rating"]
+            if rating_str != "--" and "/" in str(rating_str):
+                try:
+                    rating = float(str(rating_str).split("/")[0])
+                    ratings.append(rating)
+                except:
+                    pass
+        avg_rating = sum(ratings) / len(ratings) if ratings else 0.0
+        
+        # Separar corridas por forma de pagamento
+        cash_rides = [r for r in processed_rides if r["paid_using_cash"] > 0]
+        wallet_rides = [r for r in processed_rides if r["paid_using_wallet"] > 0]
+        
+        rides_summary = {
+            "total_rides": total_rides,
+            "total_revenue": total_revenue,
+            "total_distance": total_distance,
+            "avg_rating": round(avg_rating, 2),
+            "avg_fare": round(total_revenue / total_rides, 2) if total_rides > 0 else 0,
+            "avg_distance": round(total_distance / total_rides, 2) if total_rides > 0 else 0,
+            "cash_rides_count": len(cash_rides),
+            "wallet_rides_count": len(wallet_rides),
+            "total_cash_value": sum(r["paid_using_cash"] for r in cash_rides),
+            "total_wallet_value": sum(r["paid_using_wallet"] for r in wallet_rides)
+        }
         
         return {
             "passenger_id": result.passenger_id,
-            "personal_info": personal_info,
+            "personal_info": {
+                "user_name": personal_data.get("user_name", "Não informado"),
+                "user_phone": personal_data.get("user_phone", "Não informado"),
+                "user_email": personal_data.get("user_email", "Não informado"),
+                "date_registered": personal_data.get("date_registered"),
+                "blocked": personal_data.get("blocked", "No")
+            },
             "city": result.city,
-            "rides_summary": rides_data,
-            "rides_history": result.rides_history or [],
+            "rides_summary": rides_summary,
+            "rides_details": processed_rides,
             "registration_info": {
                 "extracted_at": result.extracted_at.isoformat() if result.extracted_at else None,
                 "updated_at": result.updated_at.isoformat() if result.updated_at else None,

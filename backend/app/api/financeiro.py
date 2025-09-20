@@ -60,7 +60,7 @@ def agrupar_documentos_relacionados(gastos_lista):
                 "descricao_item": gasto.descricao_item or "",
                 "fornecedor": gasto.fornecedor or "",
                 "tipo_documento": gasto.tipo_documento,
-                "natureza_do_gasto": gasto.natureza_do_gasto or "",
+                "natureza_do_gasto": gasto.natureza_do_gasto or "Não categorizado",
                 "possui_nota_fiscal": True,
                 "numero_nota_fiscal": gasto.numero_nota_fiscal or "",
                 "documentos": [
@@ -89,7 +89,7 @@ def agrupar_documentos_relacionados(gastos_lista):
                     "descricao_item": gasto.descricao_item or "",
                     "fornecedor": gasto.fornecedor or "",
                     "tipo_documento": gasto.tipo_documento,
-                    "natureza_do_gasto": gasto.natureza_do_gasto or "",
+                    "natureza_do_gasto": gasto.natureza_do_gasto or "Não categorizado",
                     "possui_nota_fiscal": False,
                     "numero_nota_fiscal": "",
                     "documentos": [
@@ -110,7 +110,7 @@ def agrupar_documentos_relacionados(gastos_lista):
                 "descricao_item": gasto.descricao_item or "",
                 "fornecedor": gasto.fornecedor or "",
                 "tipo_documento": gasto.tipo_documento or "Outros",
-                "natureza_do_gasto": gasto.natureza_do_gasto or "",
+                "natureza_do_gasto": gasto.natureza_do_gasto or "Não categorizado",
                 "possui_nota_fiscal": bool(gasto.possui_nota_fiscal),
                 "numero_nota_fiscal": gasto.numero_nota_fiscal or "",
                 "documentos": [
@@ -180,7 +180,7 @@ async def get_financial_overview(
         # Agrupar por categoria (usando dados agrupados)
         gastos_por_categoria = defaultdict(float)
         for gasto in gastos_agrupados_para_metricas:
-            categoria = gasto["natureza_do_gasto"] or "Outros"
+            categoria = gasto["natureza_do_gasto"] or "Não categorizado"
             gastos_por_categoria[categoria] += gasto["valor_total"]
         
         # Agrupar por fornecedor (usando dados agrupados)

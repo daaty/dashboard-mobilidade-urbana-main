@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { DollarSign, TrendingUp, TrendingDown, FileText, Building, Receipt, CreditCard, PieChart, Calendar, AlertTriangle, ExternalLink, Filter, Edit, Trash2 } from 'lucide-react'
+import { DollarSign, TrendingUp, TrendingDown, FileText, Building, Receipt, CreditCard, PieChart, Calendar, AlertTriangle, ExternalLink, Filter, Edit, Trash2, X, Save, Loader, CheckCircle, User, Phone, Mail, MapPin, Tag } from 'lucide-react'
 
 // Configuração da API
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -65,6 +65,8 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
   });
   const [editingGasto, setEditingGasto] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Função para lidar com mudanças de filtro
   const handleFilterChange = (filterType, value) => {
@@ -149,6 +151,9 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
 
   const handleSaveEdit = async (updatedGasto) => {
     try {
+      setSaving(true);
+      setSuccessMessage('');
+      
       // Preparar apenas os campos que serão atualizados
       const updateData = {
         descricao_item: updatedGasto.descricao_item,
@@ -157,6 +162,7 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
         data_despesa: updatedGasto.data_despesa,
         possui_nota_fiscal: updatedGasto.possui_nota_fiscal, // Já é boolean
         tipo_documento: updatedGasto.tipo_documento,
+        natureza_do_gasto: updatedGasto.natureza_do_gasto,
       };
 
       const response = await fetch(`${API_URL}/api/financeiro/gastos/${updatedGasto.id}`, {
@@ -167,10 +173,14 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
         body: JSON.stringify(updateData),
       });
       if (response.ok) {
-        setIsModalOpen(false);
-        setEditingGasto(null);
-        alert('Gasto atualizado com sucesso!');
-        // Recarregar dados
+        setSuccessMessage('Gasto atualizado com sucesso!');
+        setTimeout(() => {
+          setIsModalOpen(false);
+          setEditingGasto(null);
+          setSuccessMessage('');
+          // Recarregar dados
+          window.location.reload();
+        }, 1500);
       } else {
         const errorData = await response.json();
         console.error('Erro na resposta:', errorData);
@@ -179,6 +189,8 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
     } catch (error) {
       console.error('Erro:', error);
       alert('Erro ao atualizar gasto');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -400,6 +412,10 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
                           <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
                             {gasto.fornecedor || 'Não informado'} • {gasto.data_despesa}
                           </p>
+                          {/* Mostrar natureza do gasto (categoria) */}
+                          <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                            📂 {gasto.natureza_do_gasto || 'Não categorizado'}
+                          </p>
                           {/* Mobile: Stack badges and buttons vertically */}
                           <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1 sm:mt-2">
                             <span className={`text-xs px-2 py-1 rounded-full font-semibold whitespace-nowrap ${
@@ -573,99 +589,199 @@ export function FinanceiroOverview({ data, loading = false, onPeriodChange }) {
 
       {/* Modal de Edição */}
       {isModalOpen && editingGasto && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
-            <h3 className="text-xl font-bold mb-4">Editar Gasto</h3>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.target);
-              const updatedGasto = {
-                id: editingGasto.id,
-                descricao_item: formData.get('descricao'),
-                fornecedor: formData.get('fornecedor'),
-                valor_total: parseFloat(formData.get('valor')),
-                data_despesa: formData.get('data'),
-                possui_nota_fiscal: formData.get('notaFiscal') === 'true',
-                tipo_documento: formData.get('tipoDocumento'),
-              };
-              handleSaveEdit(updatedGasto);
-            }}>
-              <div className="space-y-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 duration-300">
+            
+            {/* Notificação de sucesso */}
+            {successMessage && (
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-t-xl flex items-center animate-in slide-in-from-top-2 duration-300">
+                <CheckCircle className="w-5 h-5 mr-2" />
+                <span>{successMessage}</span>
+              </div>
+            )}
+            
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-3">
+                <Receipt className="w-8 h-8 text-green-600" />
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Descrição</label>
-                  <input
-                    name="descricao"
-                    defaultValue={editingGasto.descricao_item}
-                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                    required
-                  />
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    Editar Gasto
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Edite os dados do gasto selecionado
+                  </p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Fornecedor</label>
-                  <input
-                    name="fornecedor"
-                    defaultValue={editingGasto.fornecedor}
-                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                    required
-                  />
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const updatedGasto = {
+                  id: editingGasto.id,
+                  descricao_item: formData.get('descricao'),
+                  fornecedor: formData.get('fornecedor'),
+                  valor_total: parseFloat(formData.get('valor')),
+                  data_despesa: formData.get('data'),
+                  possui_nota_fiscal: formData.get('notaFiscal') === 'true',
+                  tipo_documento: formData.get('tipoDocumento'),
+                  natureza_do_gasto: formData.get('naturezaGasto'),
+                };
+                handleSaveEdit(updatedGasto);
+              }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
+                  {/* Descrição */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 flex items-center">
+                      <FileText className="w-4 h-4 mr-2 text-blue-500" />
+                      Descrição
+                    </label>
+                    <input
+                      name="descricao"
+                      defaultValue={editingGasto.descricao_item}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                      required
+                    />
+                  </div>
+
+                  {/* Fornecedor */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 flex items-center">
+                      <Building className="w-4 h-4 mr-2 text-purple-500" />
+                      Fornecedor
+                    </label>
+                    <input
+                      name="fornecedor"
+                      defaultValue={editingGasto.fornecedor}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                      required
+                    />
+                  </div>
+
+                  {/* Valor */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 flex items-center">
+                      <DollarSign className="w-4 h-4 mr-2 text-green-500" />
+                      Valor
+                    </label>
+                    <input
+                      name="valor"
+                      type="number"
+                      step="0.01"
+                      defaultValue={editingGasto.valor_total}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                      required
+                    />
+                  </div>
+
+                  {/* Data */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 flex items-center">
+                      <Calendar className="w-4 h-4 mr-2 text-orange-500" />
+                      Data
+                    </label>
+                    <input
+                      name="data"
+                      type="date"
+                      defaultValue={editingGasto.data_despesa}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                      required
+                    />
+                  </div>
+
+                  {/* Nota Fiscal */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 flex items-center">
+                      <Receipt className="w-4 h-4 mr-2 text-red-500" />
+                      Possui Nota Fiscal
+                    </label>
+                    <select
+                      name="notaFiscal"
+                      defaultValue={editingGasto.possui_nota_fiscal ? 'true' : 'false'}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                    >
+                      <option value="true">Sim</option>
+                      <option value="false">Não</option>
+                    </select>
+                  </div>
+
+                  {/* Tipo de Documento */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 flex items-center">
+                      <FileText className="w-4 h-4 mr-2 text-indigo-500" />
+                      Tipo de Documento
+                    </label>
+                    <input
+                      name="tipoDocumento"
+                      defaultValue={editingGasto.tipo_documento}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                    />
+                  </div>
+
+                  {/* Natureza do Gasto */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 flex items-center">
+                      <Tag className="w-4 h-4 mr-2 text-yellow-500" />
+                      Categoria
+                    </label>
+                    <select
+                      name="naturezaGasto"
+                      defaultValue={editingGasto.natureza_do_gasto || "Não categorizado"}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                    >
+                      <option value="Não categorizado">Não categorizado</option>
+                      <option value="Alimentação">Alimentação</option>
+                      <option value="Transporte">Transporte</option>
+                      <option value="Combustível">Combustível</option>
+                      <option value="Manutenção">Manutenção</option>
+                      <option value="Marketing">Marketing</option>
+                      <option value="Tecnologia">Tecnologia</option>
+                      <option value="Administrativo">Administrativo</option>
+                      <option value="RH">Recursos Humanos</option>
+                      <option value="Jurídico">Jurídico</option>
+                      <option value="Contabilidade">Contabilidade</option>
+                      <option value="Segurança">Segurança</option>
+                      <option value="Limpeza">Limpeza</option>
+                      <option value="Material de Escritório">Material de Escritório</option>
+                      <option value="Outros">Outros</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Valor</label>
-                  <input
-                    name="valor"
-                    type="number"
-                    step="0.01"
-                    defaultValue={editingGasto.valor_total}
-                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Data</label>
-                  <input
-                    name="data"
-                    type="date"
-                    defaultValue={editingGasto.data_despesa}
-                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Possui Nota Fiscal</label>
-                  <select
-                    name="notaFiscal"
-                    defaultValue={editingGasto.possui_nota_fiscal ? 'true' : 'false'}
-                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+
+                {/* Footer com botões */}
+                <div className="flex space-x-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-6 py-3 border border-gray-300 text-gray-700 dark:text-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex-1 font-medium"
                   >
-                    <option value="true">Sim</option>
-                    <option value="false">Não</option>
-                  </select>
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed transition-colors flex-1 font-medium"
+                  >
+                    {saving ? (
+                      <Loader className="w-5 h-5 mr-2 animate-spin" />
+                    ) : (
+                      <Save className="w-5 h-5 mr-2" />
+                    )}
+                    {saving ? 'Salvando...' : 'Salvar'}
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Documento</label>
-                  <input
-                    name="tipoDocumento"
-                    defaultValue={editingGasto.tipo_documento}
-                    className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-4 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Salvar
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}

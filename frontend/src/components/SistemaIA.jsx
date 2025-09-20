@@ -244,19 +244,20 @@ const SistemaIA = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-              <Brain className="h-7 w-7 text-blue-600" />
-              <span>IA & Insights</span>
-            </h2>
-            <p className="text-gray-600 mt-2">
-              Análises inteligentes geradas pelo agente AGNO com raciocínio avançado
-            </p>
-          </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+                <Brain className="h-7 w-7 text-blue-600" />
+                <span>IA & Insights</span>
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
+                Análises inteligentes geradas pelo agente AGNO com raciocínio avançado
+              </p>
+            </div>
         
           <div className="flex space-x-2">
             <button
@@ -279,250 +280,251 @@ const SistemaIA = () => {
         </div>
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-2">
-          <AlertCircle className="h-5 w-5 text-red-600" />
-          <span className="text-red-800">{error}</span>
-        </div>
-      )}
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-center space-x-2">
+            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+            <span className="text-red-800 dark:text-red-200">{error}</span>
+          </div>
+        )}
 
-      {/* Seletor de Tipo de Análise */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Tipos de Análise</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {analysisTypes.map((type) => {
-            const Icon = type.icon;
-            const isActive = analysisType === type.id;
-            return (
-              <button
-                key={type.id}
-                onClick={() => {
-                  setAnalysisType(type.id);
-                  fetchAnalysis(type.id);
-                }}
-                disabled={loading.insights}
-                className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all ${
-                  isActive
-                    ? `border-${type.color}-500 bg-${type.color}-50 text-${type.color}-700`
-                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="text-sm font-medium">{type.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Grid com 2 colunas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Insights Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center space-x-2">
-              <Lightbulb className="h-5 w-5 text-yellow-500" />
-              <h3 className="text-lg font-semibold text-gray-900">Análise Atual</h3>
-            </div>
-            <p className="text-sm text-gray-600 mt-1">
-              {analysisTypes.find(t => t.id === analysisType)?.name || 'Análise Personalizada'}
-            </p>
-          </div>
-          
-          <div className="p-6">
-            {loading.insights ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600">Analisando dados...</span>
-                </div>
-              </div>
-            ) : insights ? (
-              <div className="prose prose-sm max-w-none">
-                {formatContent(insights.result)}
-                <p className="text-xs text-gray-500 mt-4 border-t pt-2">
-                  Análise gerada em: {new Date(insights.timestamp).toLocaleString()}
-                </p>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Lightbulb className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">Selecione um tipo de análise acima</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Relatório Executivo Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center space-x-2">
-              <BarChart3 className="h-5 w-5 text-blue-500" />
-              <h3 className="text-lg font-semibold text-gray-900">Relatório Executivo</h3>
-            </div>
-            <p className="text-sm text-gray-600 mt-1">Resumo completo para tomada de decisão</p>
-          </div>
-          
-          <div className="p-6">
-            {loading.reports ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600">Gerando relatório executivo...</span>
-                </div>
-              </div>
-            ) : reports ? (
-              <div className="prose prose-sm max-w-none">
-                {formatContent(reports.result)}
-                <p className="text-xs text-gray-500 mt-4 border-t pt-2">
-                  Relatório gerado em: {new Date(reports.timestamp).toLocaleString()}
-                </p>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <BarChart3 className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">Clique em "Relatório Executivo" para gerar análise completa</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Status do Agente */}
-      <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 border border-purple-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <TrendingUp className="h-5 w-5 text-purple-600 mr-2" />
-          Status do Agente AGNO
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">🧠</div>
-            <div className="text-sm font-medium text-gray-700">Framework AGNO</div>
-            <div className="text-xs text-gray-500">Reasoning Avançado</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">🤖</div>
-            <div className="text-sm font-medium text-gray-700">OpenAI GPT-4</div>
-            <div className="text-xs text-gray-500">Modelo de Linguagem</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">🗄️</div>
-            <div className="text-sm font-medium text-gray-700">Memória PostgreSQL</div>
-            <div className="text-xs text-gray-500">Aprendizado Contínuo</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">⚡</div>
-            <div className="text-sm font-medium text-gray-700">API Dedicada</div>
-            <div className="text-xs text-gray-500">Análises em Tempo Real</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal de Chat */}
-      {chatOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
-          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setChatOpen(false)}></div>
-          
-          <div className={`absolute right-4 top-4 bottom-4 w-[600px] bg-white rounded-lg shadow-2xl flex flex-col transition-transform ${
-            chatMinimized ? 'transform translate-y-full' : ''
-          }`}>
-            {/* Header do Chat */}
-            <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg">
-              <div className="flex items-center space-x-3">
-                <Brain className="h-6 w-6" />
-                <span className="font-semibold text-lg">Chat</span>
-              </div>
-              <div className="flex space-x-2">
+        {/* Seletor de Tipo de Análise */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tipos de Análise</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {analysisTypes.map((type) => {
+              const Icon = type.icon;
+              const isActive = analysisType === type.id;
+              return (
                 <button
-                  onClick={() => setChatMinimized(!chatMinimized)}
-                  className="p-2 hover:bg-white hover:bg-opacity-20 rounded transition-colors"
+                  key={type.id}
+                  onClick={() => {
+                    setAnalysisType(type.id);
+                    fetchAnalysis(type.id);
+                  }}
+                  disabled={loading.insights}
+                  className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all duration-200 ${
+                    isActive
+                      ? `border-${type.color}-500 bg-${type.color}-50 dark:bg-${type.color}-900/20 text-${type.color}-700 dark:text-${type.color}-300`
+                      : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-600'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  <Minimize2 className="h-5 w-5" />
+                  <Icon className="h-4 w-4" />
+                  <span className="text-sm font-medium">{type.name}</span>
                 </button>
-                <button
-                  onClick={() => setChatOpen(false)}
-                  className="p-2 hover:bg-white hover:bg-opacity-20 rounded transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Grid com 2 colunas */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Insights Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-2">
+                <Lightbulb className="h-5 w-5 text-yellow-500" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Análise Atual</h3>
               </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                {analysisTypes.find(t => t.id === analysisType)?.name || 'Análise Personalizada'}
+              </p>
             </div>
-
-            {!chatMinimized && (
-              <>
-                {/* Mensagens do Chat */}
-                <div 
-                  ref={chatMessagesRef}
-                  className="flex-1 overflow-y-auto p-5 space-y-4"
-                >
-                  {chatMessages.map((msg, index) => (
-                    <div
-                      key={index}
-                      className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-lg px-4 py-3 rounded-lg ${
-                          msg.type === 'user'
-                            ? 'bg-blue-600 text-white'
-                            : msg.type === 'error'
-                            ? 'bg-red-100 text-red-800 border border-red-200'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        <div className="text-sm whitespace-pre-wrap">{msg.message}</div>
-                        <div className="text-xs opacity-70 mt-1">
-                          {msg.timestamp.toLocaleTimeString()}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {chatLoading && (
-                    <div className="flex justify-start">
-                      <div className="bg-gray-100 text-gray-800 max-w-lg px-4 py-3 rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
-                          <span className="text-sm">Agente pensando...</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Input do Chat */}
-                <div className="p-5 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-                  <div className="flex space-x-3">
-                    <input
-                      type="text"
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendChatMessage()}
-                      placeholder="Digite sua pergunta..."
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-                      disabled={chatLoading}
-                    />
-                    <button
-                      onClick={sendChatMessage}
-                      disabled={chatLoading || !chatInput.trim()}
-                      className="px-5 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
-                    >
-                      <Send className="h-5 w-5" />
-                    </button>
+            
+            <div className="p-6">
+              {loading.insights ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span className="text-gray-600 dark:text-gray-400">Analisando dados...</span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Pressione Enter para enviar, Shift+Enter para quebra de linha
+                </div>
+              ) : insights ? (
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  {formatContent(insights.result)}
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 border-t border-gray-200 dark:border-gray-700 pt-2">
+                    Análise gerada em: {new Date(insights.timestamp).toLocaleString()}
                   </p>
                 </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Lightbulb className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-500 dark:text-gray-400">Selecione um tipo de análise acima</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Relatório Executivo Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-2">
+                <BarChart3 className="h-5 w-5 text-blue-500" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Relatório Executivo</h3>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Resumo completo para tomada de decisão</p>
+            </div>
+            
+            <div className="p-6">
+              {loading.reports ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span className="text-gray-600 dark:text-gray-400">Gerando relatório executivo...</span>
+                  </div>
+                </div>
+              ) : reports ? (
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  {formatContent(reports.result)}
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 border-t border-gray-200 dark:border-gray-700 pt-2">
+                    Relatório gerado em: {new Date(reports.timestamp).toLocaleString()}
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <BarChart3 className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-500 dark:text-gray-400">Clique em "Relatório Executivo" para gerar análise completa</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Status do Agente */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <TrendingUp className="h-5 w-5 text-purple-600 mr-2" />
+            Status do Agente AGNO
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">🧠</div>
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Framework AGNO</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Reasoning Avançado</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">🤖</div>
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">OpenAI GPT-4</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Modelo de Linguagem</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">🗄️</div>
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Memória PostgreSQL</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Aprendizado Contínuo</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">⚡</div>
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">API Dedicada</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Análises em Tempo Real</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal de Chat */}
+        {chatOpen && (
+          <div className="fixed inset-0 z-50 overflow-hidden">
+            <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setChatOpen(false)}></div>
+            
+            <div className={`absolute right-4 top-4 bottom-4 w-[600px] bg-white dark:bg-gray-800 rounded-xl shadow-2xl flex flex-col transition-transform ${
+              chatMinimized ? 'transform translate-y-full' : ''
+            }`}>
+              {/* Header do Chat */}
+              <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-xl">
+                <div className="flex items-center space-x-3">
+                  <Brain className="h-6 w-6" />
+                  <span className="font-semibold text-lg">Chat com Agente AGNO</span>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setChatMinimized(!chatMinimized)}
+                    className="p-2 hover:bg-white hover:bg-opacity-20 rounded transition-colors"
+                  >
+                    <Minimize2 className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => setChatOpen(false)}
+                    className="p-2 hover:bg-white hover:bg-opacity-20 rounded transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              {!chatMinimized && (
+                <>
+                  {/* Mensagens do Chat */}
+                  <div 
+                    ref={chatMessagesRef}
+                    className="flex-1 overflow-y-auto p-5 space-y-4 bg-gray-50 dark:bg-gray-900"
+                  >
+                    {chatMessages.map((msg, index) => (
+                      <div
+                        key={index}
+                        className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-lg px-4 py-3 rounded-lg ${
+                          msg.type === 'user'
+                            ? 'bg-purple-600 text-white'
+                            : msg.type === 'error'
+                            ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
+                            : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
+                        }`}
+                        >
+                          <div className="text-sm whitespace-pre-wrap">{msg.message}</div>
+                          <div className="text-xs opacity-70 mt-1">
+                            {msg.timestamp.toLocaleTimeString()}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {chatLoading && (
+                      <div className="flex justify-start">
+                        <div className="bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 max-w-lg px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600">
+                          <div className="flex items-center space-x-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                            <span className="text-sm">Agente pensando...</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Input do Chat */}
+                  <div className="p-5 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-xl">
+                    <div className="flex space-x-3">
+                      <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendChatMessage()}
+                        placeholder="Digite sua pergunta..."
+                        className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                        disabled={chatLoading}
+                      />
+                      <button
+                        onClick={sendChatMessage}
+                        disabled={chatLoading || !chatInput.trim()}
+                        className="px-5 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <Send className="h-5 w-5" />
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      Pressione Enter para enviar, Shift+Enter para quebra de linha
+                    </p>
+                  </div>
               </>
             )}
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
