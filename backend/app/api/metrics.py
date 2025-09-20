@@ -1839,3 +1839,348 @@ async def get_comparative_data(
             status_code=500,
             content={"error": f"Erro interno: {str(e)}"}
         )
+
+@router.get("/comparative-hourly")
+async def get_comparative_hourly_data(
+    db: AsyncSession = Depends(get_db),
+    periodo: str = Query("6m", description="Período (ex: 7d, 30d, 3m, 6m, 12m)"),
+    cidade: Optional[str] = Query(None, description="Filtrar por cidade específica"),
+    tipo: str = Query("horario", description="Tipo de análise (sempre 'horario')")
+):
+    """
+    🕐 ENDPOINT PARA GRÁFICO COMPARATIVO HORÁRIO POR PERÍODO
+    Retorna dados estruturados para análise comparativa por horário:
+    - X-axis: Horas do dia (0-23)
+    - Y-axis: Quantidade de corridas
+    - Múltiplas linhas/barras: Comparação entre diferentes períodos
+    """
+    try:
+        # Buscar todos os registros
+        result = await db.execute(select(RidesData))
+        rides = result.scalars().all()
+        
+        # Definir períodos de análise baseado no filtro
+        now = datetime.now()
+        periods_analise = []
+        
+        if periodo == '7d':
+            # Comparar última semana vs semana anterior
+            end_current = now
+            start_current = now - timedelta(days=7)
+            end_previous = start_current
+            start_previous = start_current - timedelta(days=7)
+            
+            periods_analise = [
+                {
+                    "key": "semana_atual",
+                    "label": "Última Semana",
+                    "start": start_current,
+                    "end": end_current
+                },
+                {
+                    "key": "semana_anterior", 
+                    "label": "Semana Anterior",
+                    "start": start_previous,
+                    "end": end_previous
+                }
+            ]
+            
+        elif periodo == '30d':
+            # Comparar último mês vs mês anterior
+            end_current = now
+            start_current = now - timedelta(days=30)
+            end_previous = start_current
+            start_previous = start_current - timedelta(days=30)
+            
+            periods_analise = [
+                {
+                    "key": "mes_atual",
+                    "label": "Últimos 30 Dias",
+                    "start": start_current,
+                    "end": end_current
+                },
+                {
+                    "key": "mes_anterior",
+                    "label": "30 Dias Anteriores", 
+                    "start": start_previous,
+                    "end": end_previous
+                }
+            ]
+            
+        elif periodo in ['3m', '6m', '12m']:
+            # Comparar meses individuais
+            meses_quantidade = {"3m": 3, "6m": 6, "12m": 12}[periodo]
+            
+            for i in range(meses_quantidade):
+                mes_data = now.replace(day=1) - timedelta(days=i*30)
+                start_mes = mes_data.replace(day=1)
+                
+                # Calcular último dia do mês
+                if start_mes.month == 12:
+                    end_mes = start_mes.replace(year=start_mes.year+1, month=1) - timedelta(days=1)
+                else:
+                    end_mes = start_mes.replace(month=start_mes.month+1) - timedelta(days=1)
+                
+                periods_analise.insert(0, {
+                    "key": f"mes_{start_mes.strftime('%Y_%m')}",
+                    "label": start_mes.strftime("%b %Y"),
+                    "start": start_mes,
+                    "end": min(end_mes, now)  # Não ir além da data atual
+                })
+        
+        # Estrutura de dados: [período][hora] = {concluidas, canceladas, perdidas}
+        # Horas 0-23 para cada período
+        data_por_periodo = {}
+        for period in periods_analise:
+            data_por_periodo[period["key"]] = {}
+            for hora in range(24):  # Horas 0 a 23
+                data_por_periodo[period["key"]][hora] = {
+                    "concluidas": 0,
+                    "canceladas": 0, 
+                    "perdidas": 0,
+                    "total": 0
+                }
+        
+        # Controle de duplicatas - usar apenas o ID único da corrida
+        corridas_processadas = set()
+        
+        # Processar todos os registros de corridas
+        for r in rides:
+            ride_data = r.ride_data
+            if isinstance(ride_data, str):
+                try:
+                    ride_data = json.loads(ride_data)
+                except Exception:
+                    continue
+                    
+            table_name = ride_data.get("tableName", "")
+            new_records = ride_data.get("newRecords", [])
+            source = r.source
+            
+            # Processar corridas concluídas
+            if table_name in ["Completed Rides", "corridas_concluidas", "rides_data"]:
+                for rec in new_records:
+                    # ID da corrida sempre está no índice [0] em ambas as fontes
+                    ride_id = rec[0] if len(rec) > 0 else None
+                    if not ride_id:
+                        continue
+                    
+                    # Normalizar ID para string para comparação
+                    ride_id_str = str(ride_id)
+                    
+                    # Verificar se já processamos esta corrida
+                    if ride_id_str in corridas_processadas:
+                        continue  # Pular duplicata
+                    
+                    # Extrair data e status baseado na fonte
+                    if source == "import_excel":
+                        hora = rec[6] if len(rec) > 6 else None
+                        status = rec[9] if len(rec) > 9 else None
+                        cidade_rec = rec[3] if len(rec) > 3 else None
+                    else:  # monitoring-service-adapted
+                        hora = rec[7] if len(rec) > 7 else None
+                        status = rec[10] if len(rec) > 10 else None
+                        cidade_rec = rec[4] if len(rec) > 4 else None
+                        
+                    # Verificar se é realmente concluída
+                    if status and "Concluído" not in str(status) and "Completed" not in str(status):
+                        continue
+                    
+                    # Verificar filtro de cidade
+                    if cidade and not matches_city_filter(cidade_rec, cidade):
+                        continue
+                    
+                    # Marcar como processada
+                    corridas_processadas.add(ride_id_str)
+                        
+                    # Extrair e validar data/hora
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                                hora_corrida = dt_corrida.hour
+                                
+                                # Verificar em qual período esta corrida se encaixa
+                                for period in periods_analise:
+                                    if period["start"] <= dt_corrida <= period["end"]:
+                                        data_por_periodo[period["key"]][hora_corrida]["concluidas"] += 1
+                                        break
+                                        
+                            except Exception:
+                                continue
+            
+            # Processar corridas canceladas
+            elif table_name in ["Cancelled Rides", "corridas_canceladas"]:
+                for rec in new_records:
+                    # ID da corrida sempre está no índice [0] em ambas as fontes
+                    ride_id = rec[0] if len(rec) > 0 else None
+                    if not ride_id:
+                        continue
+                    
+                    # Normalizar ID para string para comparação
+                    ride_id_str = str(ride_id)
+                    
+                    # Verificar se já processamos esta corrida
+                    if ride_id_str in corridas_processadas:
+                        continue  # Pular duplicata
+                    
+                    # Extrair data e status baseado na fonte
+                    if source == "import_excel":
+                        hora = rec[11] if len(rec) > 11 else None
+                        status = rec[13] if len(rec) > 13 else None
+                        cidade_rec = rec[3] if len(rec) > 3 else None
+                    else:  # monitoring-service-adapted
+                        hora = rec[12] if len(rec) > 12 else None
+                        status = rec[14] if len(rec) > 14 else None
+                        cidade_rec = rec[4] if len(rec) > 4 else None
+                    
+                    # Verificar se é realmente cancelada
+                    if status and "Cancel" not in str(status) and "cancel" not in str(status):
+                        continue
+                    
+                    # Verificar filtro de cidade
+                    if cidade and not matches_city_filter(cidade_rec, cidade):
+                        continue
+                    
+                    # Marcar como processada
+                    corridas_processadas.add(ride_id_str)
+                            
+                    # Extrair e validar data/hora
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                                hora_corrida = dt_corrida.hour
+                                
+                                # Verificar em qual período esta corrida se encaixa
+                                for period in periods_analise:
+                                    if period["start"] <= dt_corrida <= period["end"]:
+                                        data_por_periodo[period["key"]][hora_corrida]["canceladas"] += 1
+                                        break
+                                        
+                            except Exception:
+                                continue
+            
+            # Processar corridas perdidas/missed
+            elif table_name in ["Missed Rides", "corridas_perdidas", "Scheduled Rides", "corridas_agendadas"]:
+                for rec in new_records:
+                    # ID da corrida sempre está no índice [0] em ambas as fontes
+                    ride_id = rec[0] if len(rec) > 0 else None
+                    if not ride_id:
+                        continue
+                    
+                    # Normalizar ID para string para comparação
+                    ride_id_str = str(ride_id)
+                    
+                    # Verificar se já processamos esta corrida
+                    if ride_id_str in corridas_processadas:
+                        continue  # Pular duplicata
+                    
+                    # Extrair data e status baseado na fonte
+                    if source == "import_excel":
+                        hora = rec[6] if len(rec) > 6 else None
+                        status = rec[5] if len(rec) > 5 else None
+                        cidade_rec = rec[3] if len(rec) > 3 else None
+                    else:  # monitoring-service-adapted
+                        if table_name in ["Scheduled Rides", "corridas_agendadas"]:
+                            hora = rec[10] if len(rec) > 10 else None
+                            status = rec[14] if len(rec) > 14 else None
+                            cidade_rec = rec[4] if len(rec) > 4 else None
+                        else:
+                            hora = rec[6] if len(rec) > 6 else None
+                            status = rec[5] if len(rec) > 5 else None
+                            cidade_rec = rec[3] if len(rec) > 3 else None
+                    
+                    # Verificar se é realmente perdida/missed/timeout
+                    if status and not any(word in str(status) for word in ["Timeout", "Missed", "Process", "perdida"]):
+                        continue
+                    
+                    # Verificar filtro de cidade
+                    if cidade and not matches_city_filter(cidade_rec, cidade):
+                        continue
+                    
+                    # Marcar como processada
+                    corridas_processadas.add(ride_id_str)
+                        
+                    # Extrair e validar data/hora
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                                hora_corrida = dt_corrida.hour
+                                
+                                # Verificar em qual período esta corrida se encaixa
+                                for period in periods_analise:
+                                    if period["start"] <= dt_corrida <= period["end"]:
+                                        data_por_periodo[period["key"]][hora_corrida]["perdidas"] += 1
+                                        break
+                                        
+                            except Exception:
+                                continue
+        
+        # CALCULAR TOTAL CORRETAMENTE (apenas uma vez por hora/período)
+        for period_key in data_por_periodo:
+            for hora in data_por_periodo[period_key]:
+                # Total = concluídas + canceladas + perdidas (cada corrida conta só uma vez)
+                data_por_periodo[period_key][hora]["total"] = (
+                    data_por_periodo[period_key][hora]["concluidas"] + 
+                    data_por_periodo[period_key][hora]["canceladas"] + 
+                    data_por_periodo[period_key][hora]["perdidas"]
+                )
+        
+        # Estruturar resposta para o gráfico comparativo por horário
+        # X-axis: Horas 0-23
+        # Multiple lines: Uma linha para cada período
+        
+        hourly_data = []
+        for hora in range(24):  # Horas 0 a 23
+            hora_entry = {
+                "hour": hora,  # Para X-axis do gráfico
+                "hourFormatted": f"{hora:02d}:00"  # Formato visual
+            }
+            
+            # Adicionar dados de cada período como linhas separadas
+            for period in periods_analise:
+                period_key = period["key"]
+                
+                hora_entry[f"{period_key}_concluidas"] = data_por_periodo[period_key][hora]["concluidas"]
+                hora_entry[f"{period_key}_canceladas"] = data_por_periodo[period_key][hora]["canceladas"] 
+                hora_entry[f"{period_key}_perdidas"] = data_por_periodo[period_key][hora]["perdidas"]
+                hora_entry[f"{period_key}_total"] = data_por_periodo[period_key][hora]["total"]
+                
+            hourly_data.append(hora_entry)
+        
+        # Preparar metadados dos períodos para o frontend
+        periods_metadata = []
+        for period in periods_analise:
+            period_key = period["key"]
+            periods_metadata.append({
+                "key": period_key,
+                "label": period["label"],
+                "start_date": period["start"].strftime("%Y-%m-%d"),
+                "end_date": period["end"].strftime("%Y-%m-%d"),
+                "total_concluidas": sum(data_por_periodo[period_key][hora]["concluidas"] for hora in range(24)),
+                "total_canceladas": sum(data_por_periodo[period_key][hora]["canceladas"] for hora in range(24)),
+                "total_perdidas": sum(data_por_periodo[period_key][hora]["perdidas"] for hora in range(24)),
+                "total_geral": sum(data_por_periodo[period_key][hora]["total"] for hora in range(24))
+            })
+        
+        return {
+            "success": True,
+            "periodo": periodo,
+            "cidade": cidade,
+            "tipo": tipo,
+            "hourly_data": hourly_data,  # Dados hora por hora (0-23) com todas as linhas dos períodos
+            "periods_metadata": periods_metadata,  # Metadados dos períodos para legendas e cores
+            "total_records": len(hourly_data),
+            "periods_analisados": [p["key"] for p in periods_analise]
+        }
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erro interno: {str(e)}"}
+        )
