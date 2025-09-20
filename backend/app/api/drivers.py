@@ -149,21 +149,10 @@ def get_drivers_kpis(
     Retorna KPIs dos motoristas com filtros
     """
     try:
+        print(f"🔥 DEBUG ENDPOINT: /api/drivers/kpis chamado - period={period}, city={city}")
         start_date, end_date = calculate_date_range(period)
         
-        # Query para buscar TODOS os registros de performance para contar cancelamentos corretamente
-        # Mas manter lógica de priorização para dados básicos dos drivers
-        
-        # PRIMEIRA QUERY: Buscar TODOS os registros de Driver Performance para cancelamentos
-        cancellation_query = """
-        SELECT additional_data::text, driver_id, name
-        FROM drivers_data dd
-        WHERE additional_data IS NOT NULL
-        AND page_source = 'Driver Performance'
-        ORDER BY driver_id
-        """
-        
-        # SEGUNDA QUERY: Buscar motoristas únicos para outros dados
+        # Query para buscar motoristas únicos para dados básicos
         base_query = """
         WITH ranked_drivers AS (
             SELECT 
@@ -208,14 +197,68 @@ def get_drivers_kpis(
             conditions.append("AND (dpd_city = :city OR additional_data->>'City' = :city)")
             params['city'] = city
             
-        # PRIMEIRA: Buscar TODOS os registros de Driver Performance para cancelamentos
-        cancellation_final_query = cancellation_query
-        if city != "all" and city != "":
-            # Para cancelamentos, não temos city nos dados, então vamos buscar tudo e filtrar depois
-            pass
-            
-        cancellation_result = db.execute(text(cancellation_final_query))
+        # LÓGICA EXATA DO SCRIPT QUE FUNCIONA (analise_cancelamentos_detalhada.py)
+        print("🔥 DEBUG: Buscando cancelamentos com LÓGICA EXATA DO SCRIPT QUE FUNCIONA")
+        
+        # Query EXATA do script que funciona
+        cancellation_query = """
+        SELECT driver_id, rides_cancelled
+        FROM driver_personal_details 
+        WHERE rides_cancelled IS NOT NULL 
+        AND rides_cancelled::text LIKE '%cancelled_rides%'
+        AND rides_cancelled::text != 'null'
+        """
+        
+        cancellation_result = db.execute(text(cancellation_query))
         cancellation_records = cancellation_result.fetchall()
+        
+        print(f"🔥 DEBUG: Encontrados {len(cancellation_records)} drivers com dados de cancelamento")
+        
+        # Processar EXATAMENTE como no script que funciona
+        total_cancelled_rides = 0
+        
+        for driver_id, rides_cancelled_raw in cancellation_records:
+            try:
+                # LÓGICA EXATA DO SCRIPT QUE FUNCIONA
+                if isinstance(rides_cancelled_raw, dict):
+                    rides_cancelled_data = rides_cancelled_raw
+                else:
+                    rides_cancelled_data = json.loads(rides_cancelled_raw)
+                
+                if not rides_cancelled_data.get('cancelled_rides'):
+                    continue
+                    
+                cancelled_rides_list = rides_cancelled_data['cancelled_rides']
+                driver_cancelled_in_period = 0
+                
+                # Filtrar por período EXATAMENTE como no script
+                for ride in cancelled_rides_list:
+                    cancelled_date_str = ride.get('cancelled_on')
+                    if not cancelled_date_str:
+                        continue
+                        
+                    try:
+                        cancelled_date = datetime.strptime(cancelled_date_str, '%Y-%m-%d %H:%M:%S')
+                        
+                        if start_date <= cancelled_date.date() <= end_date:
+                            total_cancelled_rides += 1
+                            driver_cancelled_in_period += 1
+                            
+                    except (ValueError, TypeError):
+                        continue
+                
+                if driver_cancelled_in_period > 0:
+                    print(f"🔥 DEBUG: Driver {driver_id} - {driver_cancelled_in_period} corridas no período")
+                        
+            except (json.JSONDecodeError, ValueError, TypeError):
+                continue
+        
+        print(f"🔥 RESULTADO FINAL: {total_cancelled_rides} cancelamentos encontrados no período de {period}")
+        
+        if total_cancelled_rides == 22:
+            print("✅ SUCESSO! Encontramos os 22 cancelamentos esperados!")
+        else:
+            print(f"⚠️ ATENÇÃO: Esperávamos 22, mas encontramos {total_cancelled_rides}")
         
         # SEGUNDA: Buscar dados de horas especificamente do Driver Performance
         hours_query = """
@@ -266,53 +309,6 @@ def get_drivers_kpis(
         
         result = db.execute(text(query), params)
         drivers_data = result.fetchall()
-        
-        # Processar dados de cancelamento PRIMEIRO
-        cancelled_rides = 0
-        
-        print(f"DEBUG: Processando {len(cancellation_records)} registros para buscar cancelamentos")
-        
-        for record in cancellation_records:
-            additional_data_str = record[0]  # additional_data
-            driver_id = record[1] if len(record) > 1 else "Unknown"
-            driver_name = record[2] if len(record) > 2 else "Unknown"
-            
-            if not additional_data_str:
-                continue
-                
-            try:
-                additional_data = json.loads(additional_data_str)
-                
-                # Extrair cancelamentos usando mesma lógica do script
-                driver_cancelled = 0
-                user_cancelled = 0
-                
-                # Formato 1: "driver_cancelled_rides" (sem espaços)
-                driver_cancelled = int(additional_data.get('driver_cancelled_rides', 0))
-                user_cancelled = int(additional_data.get('user_cancelled_rides', 0))
-                
-                # Formato 2: "Driver Cancelled Rides" (com espaços)
-                if driver_cancelled == 0:
-                    driver_cancelled = int(additional_data.get('Driver Cancelled Rides', 0))
-                if user_cancelled == 0:
-                    user_cancelled = int(additional_data.get('User Cancelled Rides', 0))
-            
-                # Somar cancelamentos reais
-                total_cancellations = driver_cancelled + user_cancelled
-                
-                if total_cancellations > 0:
-                    print(f"DEBUG: Driver {driver_id} ({driver_name}): {driver_cancelled} + {user_cancelled} = {total_cancellations} cancelamentos")
-                    cancelled_rides += total_cancellations
-                    driver_name = additional_data.get('Driver Name', additional_data.get('driver_name', 'N/A'))
-                    print(f"DEBUG: {driver_name} - Driver: {driver_cancelled}, User: {user_cancelled}")
-                
-            except (json.JSONDecodeError, ValueError, TypeError):
-                continue
-        
-        print(f"DEBUG: Total de corridas canceladas encontradas: {cancelled_rides}")
-        
-        # GUARDAR o valor de cancelled_rides antes de processar drivers
-        total_cancelled_rides = cancelled_rides
         
         # Processar dados dos drivers únicos
         total_drivers = len(drivers_data)
@@ -590,6 +586,349 @@ def get_drivers_kpis(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar KPIs: {str(e)}")
+
+@router.get("/cancelled-rides")
+def get_cancelled_rides(
+    period: str = Query("30_days", description="Período de análise (7_days, 30_days, 6_months)"),
+    city: str = Query("all", description="Filtro por cidade"),
+    db: Session = Depends(get_db)
+):
+    """
+    NOVO ENDPOINT para buscar corridas canceladas com a query EXATA que funciona
+    """
+    try:
+        # Calcular período
+        today = datetime.now().date()
+        if period == "7_days":
+            start_date = today - timedelta(days=7)
+        elif period == "30_days":
+            start_date = today - timedelta(days=30)
+        elif period == "6_months":
+            start_date = today - timedelta(days=180)
+        else:
+            start_date = today - timedelta(days=30)  # Default
+            
+        end_date = today
+        
+        print(f"🔥 NOVO ENDPOINT /cancelled-rides - period={period}, city={city}")
+        print(f"🔥 Período: {start_date} até {end_date}")
+        
+        # QUERY EXATA DO SCRIPT QUE FUNCIONA
+        base_query = """
+        SELECT driver_id, city, rides_cancelled::text
+        FROM driver_personal_details 
+        WHERE rides_cancelled IS NOT NULL
+        AND rides_cancelled::text != '{}'
+        AND rides_cancelled::text != ''
+        AND rides_cancelled::text LIKE '%cancelled_rides%'
+        """
+        
+        # Adicionar filtro de cidade se especificado
+        params = {}
+        if city != "all" and city != "":
+            base_query += " AND city = :city"
+            params['city'] = city
+        
+        result = db.execute(text(base_query), params)
+        records = result.fetchall()
+        
+        print(f"🔥 Encontrados {len(records)} drivers com dados de cancelamento")
+        
+        # Processar EXATAMENTE como no script que funciona
+        total_cancelled_rides = 0
+        cancelled_details = []
+        drivers_with_cancelled = 0
+        
+        for driver_id, driver_city, rides_cancelled_str in records:
+            try:
+                # Parse JSON
+                rides_cancelled_data = json.loads(rides_cancelled_str)
+                
+                if not rides_cancelled_data.get('cancelled_rides'):
+                    continue
+                    
+                cancelled_rides_list = rides_cancelled_data['cancelled_rides']
+                driver_cancelled_in_period = 0
+                
+                # Filtrar por período
+                for ride in cancelled_rides_list:
+                    cancelled_date_str = ride.get('cancelled_on')
+                    if not cancelled_date_str:
+                        continue
+                        
+                    try:
+                        cancelled_date = datetime.strptime(cancelled_date_str, '%Y-%m-%d %H:%M:%S')
+                        
+                        if start_date <= cancelled_date.date() <= end_date:
+                            total_cancelled_rides += 1
+                            driver_cancelled_in_period += 1
+                            cancelled_details.append({
+                                'driver_id': driver_id,
+                                'city': driver_city,
+                                'cancelled_by': ride.get('cancelled_by'),
+                                'reason': ride.get('reason'),
+                                'cancelled_date': cancelled_date_str,
+                                'engagement_id': ride.get('engagement_id')
+                            })
+                            
+                    except (ValueError, TypeError):
+                        continue
+                
+                if driver_cancelled_in_period > 0:
+                    drivers_with_cancelled += 1
+                    print(f"🔥 Driver {driver_id} ({driver_city}): {driver_cancelled_in_period} canceladas")
+                        
+            except (json.JSONDecodeError, ValueError, TypeError) as e:
+                print(f"❌ Erro ao processar driver {driver_id}: {e}")
+                continue
+        
+        print(f"🔥 RESULTADO FINAL: {total_cancelled_rides} cancelamentos no período {period}")
+        
+        return {
+            "success": True,
+            "data": {
+                "period": period,
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "city_filter": city,
+                "total_cancelled_rides": total_cancelled_rides,
+                "drivers_with_cancelled": drivers_with_cancelled,
+                "cancelled_rides_details": cancelled_details,
+                "summary": f"{total_cancelled_rides} corridas canceladas de {drivers_with_cancelled} motoristas no período de {period}"
+            }
+        }
+        
+    except Exception as e:
+        print(f"❌ ERRO no endpoint cancelled-rides: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar corridas canceladas: {str(e)}")
+
+@router.get("/acceptance-rate")
+def get_acceptance_rate(
+    period: str = Query("30_days", description="Período de análise (30_days, 3_months, 6_months, all)"),
+    city: str = Query("all", description="Filtro por cidade"),
+    db: Session = Depends(get_db)
+):
+    """
+    Calcula a taxa de aceitação real usando dados detalhados de:
+    - driver_personal_details.rides_history (corridas completadas)  
+    - drivers_data.additional_data (requests sent/received, success/rejected rides)
+    """
+    try:
+        # Calcular período de datas
+        end_date = datetime.now()
+        if period == "30_days":
+            start_date = end_date - timedelta(days=30)
+        elif period == "3_months":
+            start_date = end_date - timedelta(days=90)
+        elif period == "6_months":
+            start_date = end_date - timedelta(days=180)
+        else:  # all
+            start_date = datetime(2020, 1, 1)
+        
+        print(f"🔄 Buscando dados de aceitação - Período: {start_date.date()} a {end_date.date()}")
+        
+        # Query para buscar dados combinados das duas tabelas (DISTINCT para evitar duplicações)
+        # Filtrar especificamente por page_source = 'Driver Performance' para pegar os dados corretos
+        query = text("""
+        SELECT DISTINCT ON (dpd.driver_id)
+            dpd.driver_id,
+            dpd.city,
+            dpd.rides_history::text as rides_history,
+            dd.additional_data::text as additional_data
+        FROM driver_personal_details dpd
+        LEFT JOIN drivers_data dd ON dpd.driver_id = dd.driver_id 
+            AND dd.page_source = 'Driver Performance'
+        WHERE dpd.driver_id IS NOT NULL
+        AND dpd.rides_history IS NOT NULL
+        AND dd.additional_data IS NOT NULL
+        ORDER BY dpd.driver_id
+        """)
+        
+        # Adicionar filtro de cidade se especificado
+        if city and city != "all":
+            query = text(f"""
+            SELECT DISTINCT ON (dpd.driver_id)
+                dpd.driver_id,
+                dpd.city,
+                dpd.rides_history::text as rides_history,
+                dd.additional_data::text as additional_data
+            FROM driver_personal_details dpd
+            LEFT JOIN drivers_data dd ON dpd.driver_id = dd.driver_id 
+                AND dd.page_source = 'Driver Performance'
+            WHERE dpd.driver_id IS NOT NULL
+            AND dpd.rides_history IS NOT NULL
+            AND dd.additional_data IS NOT NULL
+            AND LOWER(dpd.city) LIKE LOWER('%{city}%')
+            ORDER BY dpd.driver_id
+            """)
+        
+        result = db.execute(query)
+        rows = result.fetchall()
+        
+        print(f"📊 Encontrados {len(rows)} motoristas com dados completos")
+        
+        total_requests = 0
+        total_success = 0
+        total_rejected = 0
+        total_completed_rides = 0
+        drivers_data = []
+        city_stats = {}
+        
+        for row in rows:
+            driver_id, driver_city, rides_history_str, additional_data_str = row
+            
+            try:
+                # Parse rides_history (corridas completadas)
+                rides_history = []
+                if rides_history_str and rides_history_str.strip() != 'null':
+                    rides_history = json.loads(rides_history_str)
+                
+                # Parse additional_data (estatísticas de requests/success/rejected)
+                additional_data = {}
+                if additional_data_str and additional_data_str.strip() != 'null':
+                    additional_data = json.loads(additional_data_str)
+                
+                # Filtrar rides_history por período
+                completed_rides_in_period = 0
+                if isinstance(rides_history, list):
+                    for ride in rides_history:
+                        if isinstance(ride, dict) and 'drop_time' in ride:
+                            try:
+                                # Parse drop_time format: "03/07/2025 : 1:51 pm"
+                                drop_time_str = ride['drop_time']
+                                # Remover espaços extras e normalizar
+                                drop_time_str = ' '.join(drop_time_str.split())
+                                drop_time = datetime.strptime(drop_time_str, "%d/%m/%Y : %I:%M %p")
+                                
+                                if start_date <= drop_time <= end_date:
+                                    completed_rides_in_period += 1
+                            except Exception as date_error:
+                                continue
+                
+                # Extrair TODOS os dados relevantes do additional_data
+                requests_sent = int(additional_data.get('Request Sent', '0') or '0')
+                requests_received = int(additional_data.get('Requests Received', '0') or '0')
+                success_rides = int(additional_data.get('Success Rides', '0') or '0')
+                rejected_rides = int(additional_data.get('Rejected Rides', '0') or '0')
+                
+                # NOVOS: Todos os tipos de cancelamento e falhas
+                missed_rides = int(additional_data.get('Missed Rides', '0') or '0')
+                driver_cancelled_rides = int(additional_data.get('Driver Cancelled Rides', '0') or '0')
+                driver_cancelled_cash = int(additional_data.get('Driver Cancelled Ride (cash)', '0') or '0')
+                driver_cancelled_wallet = int(additional_data.get('Driver Cancelled Ride (wallet)', '0') or '0')
+                user_cancelled_rides = int(additional_data.get('User Cancelled Rides', '0') or '0')
+                user_cancelled_cash = int(additional_data.get('User Cancelled Ride (cash)', '0') or '0')
+                user_cancelled_wallet = int(additional_data.get('User Cancelled Ride (wallet)', '0') or '0')
+                
+                # Calcular taxa de aceitação CORRETA
+                total_requests_driver = max(requests_sent, requests_received)
+                
+                # Calcular falhas explícitas registradas
+                explicit_failures = (
+                    rejected_rides + 
+                    missed_rides + 
+                    driver_cancelled_rides + 
+                    driver_cancelled_cash + 
+                    driver_cancelled_wallet + 
+                    user_cancelled_rides + 
+                    user_cancelled_cash + 
+                    user_cancelled_wallet
+                )
+                
+                # CORREÇÃO: Total de falhas = Total Requests - Success Rides
+                # Isso garante que Success + Failures = Total Requests
+                total_failures = total_requests_driver - success_rides
+                
+                acceptance_rate_driver = 0.0
+                if total_requests_driver > 0:
+                    # Taxa baseada em SUCCESS RIDES (é a única métrica confiável)
+                    acceptance_rate_driver = (success_rides / total_requests_driver) * 100
+                
+                driver_data = {
+                    "driver_id": driver_id,
+                    "city": driver_city,
+                    "completed_rides_period": completed_rides_in_period,
+                    "total_completed_rides": len(rides_history) if isinstance(rides_history, list) else 0,
+                    "requests_sent": requests_sent,
+                    "requests_received": requests_received,
+                    "success_rides": success_rides,
+                    "rejected_rides": rejected_rides,
+                    "missed_rides": missed_rides,
+                    "driver_cancelled_total": driver_cancelled_rides + driver_cancelled_cash + driver_cancelled_wallet,
+                    "user_cancelled_total": user_cancelled_rides + user_cancelled_cash + user_cancelled_wallet,
+                    "explicit_failures": explicit_failures,  # Falhas registradas explicitamente
+                    "total_failures": total_failures,        # Total de falhas (calculado)
+                    "total_requests": total_requests_driver,
+                    "acceptance_rate": round(acceptance_rate_driver, 2)
+                }
+                
+                drivers_data.append(driver_data)
+                
+                # Somar totais (agora com todos os tipos de falhas)
+                total_requests += total_requests_driver
+                total_success += success_rides
+                total_rejected += total_failures  # Agora inclui TODAS as falhas
+                total_completed_rides += completed_rides_in_period
+                
+                # Stats por cidade (também atualizado)
+                if driver_city not in city_stats:
+                    city_stats[driver_city] = {
+                        "drivers_count": 0,
+                        "total_requests": 0,
+                        "total_success": 0,
+                        "total_failures": 0,
+                        "completed_rides": 0,
+                        "acceptance_rate": 0.0
+                    }
+                
+                city_stats[driver_city]["drivers_count"] += 1
+                city_stats[driver_city]["total_requests"] += total_requests_driver
+                city_stats[driver_city]["total_success"] += success_rides
+                city_stats[driver_city]["total_failures"] += total_failures
+                city_stats[driver_city]["total_rejected"] += rejected_rides
+                city_stats[driver_city]["completed_rides"] += completed_rides_in_period
+                
+            except Exception as parse_error:
+                print(f"⚠️ Erro ao processar motorista {driver_id}: {parse_error}")
+                continue
+        
+        # Calcular taxa de aceitação geral (CORRIGIDA - baseada em Success Rides)
+        overall_acceptance_rate = 0.0
+        if total_requests > 0:
+            overall_acceptance_rate = (total_success / total_requests) * 100
+        
+        # Calcular taxa por cidade (CORRIGIDA - baseada em Success Rides)
+        for city_name in city_stats:
+            city_data = city_stats[city_name]
+            if city_data["total_requests"] > 0:
+                city_data["acceptance_rate"] = round((city_data["total_success"] / city_data["total_requests"]) * 100, 2)
+        
+        response = {
+            "success": True,
+            "data": {
+                "period": period,
+                "start_date": start_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d"),
+                "city_filter": city,
+                "overall_acceptance_rate": round(overall_acceptance_rate, 2),
+                "total_drivers": len(drivers_data),
+                "total_requests": total_requests,
+                "total_success_rides": total_success,
+                "total_failures": total_rejected,  # Agora representa TODAS as falhas
+                "total_accepted": total_success,   # Baseado em Success Rides
+                "completed_rides_in_period": total_completed_rides,
+                "city_breakdown": city_stats,
+                "drivers_details": drivers_data
+            },
+            "summary": f"Taxa de aceitação REAL: {round(overall_acceptance_rate, 2)}% ({total_success} sucessos de {total_requests} requests) - {len(drivers_data)} motoristas no período {period}"
+        }
+        
+        print(f"✅ Taxa de aceitação calculada: {overall_acceptance_rate:.2f}%")
+        return response
+        
+    except Exception as e:
+        print(f"❌ ERRO no endpoint acceptance-rate: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro ao calcular taxa de aceitação: {str(e)}")
 
 @router.get("/list")
 def get_drivers_list(
@@ -1024,3 +1363,109 @@ def get_drivers_analytics(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar analytics: {str(e)}")
+
+
+@router.get("/status-kpi")
+async def get_drivers_status_kpi(city: str = "all", db: Session = Depends(get_db)):
+    """
+    Endpoint para retornar KPI de motoristas Online/Offline por cidade
+    Acessa os dados da tabela drivers_data, coluna additional_data índice 5 com Status
+    """
+    try:
+        # Query para buscar motoristas APENAS da aba Active Drivers que têm Status definido
+        query = """
+        SELECT 
+            dd.driver_id,
+            dd.name,
+            dd.additional_data,
+            dd.page_source,
+            dd.additional_data->>'Status' as status,
+            dd.additional_data->>'City' as driver_city
+        FROM drivers_data dd
+        WHERE dd.additional_data IS NOT NULL
+        AND dd.page_source = 'Active Drivers'
+        AND dd.additional_data->>'Status' IS NOT NULL
+        """
+        
+        # Adicionar filtro por cidade se especificado
+        params = {}
+        if city != "all" and city != "":
+            query += " AND dd.additional_data->>'City' = :city"
+            params['city'] = city
+        
+        query += " ORDER BY dd.driver_id, dd.scraped_at DESC"
+        
+        result = db.execute(text(query), params)
+        drivers_data = result.fetchall()
+        
+        print(f"DEBUG: Encontrados {len(drivers_data)} registros de motoristas")
+        
+        # Processar dados e contar por status
+        status_counts = {}
+        city_counts = {}
+        drivers_processed = set()  # Para evitar duplicatas
+        
+        for row in drivers_data:
+            driver_id, name, additional_data, page_source, status, driver_city = row
+            
+            # Evitar duplicatas - usar apenas o primeiro registro por motorista
+            if driver_id in drivers_processed:
+                continue
+            drivers_processed.add(driver_id)
+            
+            print(f"DEBUG: Driver {driver_id} - Status: {status}, City: {driver_city}")
+            
+            # Normalizar status
+            status_normalized = status.lower() if status else 'unknown'
+            if status_normalized in ['online', 'busy', 'active']:
+                status_category = 'Online'
+            elif status_normalized in ['offline', 'inactive']:
+                status_category = 'Offline'
+            else:
+                status_category = 'Unknown'
+            
+            # Contar por status geral
+            if status_category not in status_counts:
+                status_counts[status_category] = 0
+            status_counts[status_category] += 1
+            
+            # Contar por cidade
+            if driver_city not in city_counts:
+                city_counts[driver_city] = {'Online': 0, 'Offline': 0, 'Unknown': 0}
+            city_counts[driver_city][status_category] += 1
+        
+        # Preparar resposta
+        total_drivers = len(drivers_processed)
+        online_count = status_counts.get('Online', 0)
+        offline_count = status_counts.get('Offline', 0)
+        unknown_count = status_counts.get('Unknown', 0)
+        
+        # Calcular percentuais
+        online_percentage = (online_count / total_drivers * 100) if total_drivers > 0 else 0
+        offline_percentage = (offline_count / total_drivers * 100) if total_drivers > 0 else 0
+        
+        response_data = {
+            "status": "success",
+            "data": {
+                "summary": {
+                    "total_drivers": total_drivers,
+                    "online_drivers": online_count,
+                    "offline_drivers": offline_count,
+                    "unknown_drivers": unknown_count,
+                    "online_percentage": round(online_percentage, 1),
+                    "offline_percentage": round(offline_percentage, 1)
+                },
+                "by_city": city_counts,
+                "filter": {
+                    "city": city if city != "all" else "Todas as cidades"
+                }
+            }
+        }
+        
+        print(f"DEBUG: Resposta final - Online: {online_count}, Offline: {offline_count}, Total: {total_drivers}")
+        
+        return response_data
+        
+    except Exception as e:
+        print(f"ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar status KPI: {str(e)}")

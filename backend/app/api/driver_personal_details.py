@@ -802,3 +802,185 @@ async def get_drivers_summary(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
+
+
+@router.get("/credits-analysis")
+async def get_credits_analysis(
+    city: Optional[str] = Query(None, description="Filtrar por cidade"),
+    period_days: Optional[int] = Query(30, description="Período em dias para análise de transações"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Endpoint para análise completa de créditos dos motoristas
+    Analisa credit_wallet_balance e wallet_transactions
+    """
+    try:
+        print(f"🔍 Iniciando análise de créditos - cidade: {city}, período: {period_days} dias")
+        
+        # Buscar todos os dados pessoais dos motoristas
+        query = select(DriverPersonalDetails)
+        result = await db.execute(query)
+        drivers_data = result.scalars().all()
+        
+        print(f"📊 Encontrados {len(drivers_data)} registros de motoristas")
+        
+        # Variáveis para estatísticas gerais
+        total_drivers = 0
+        total_credits_balance = 0
+        total_credits_charged = 0  # Total de créditos carregados (tipo "C")
+        total_credits_spent = 0    # Total de créditos gastos (tipo "D")
+        drivers_with_credits = 0
+        drivers_by_city = {}
+        transactions_by_type = {}
+        transactions_by_period = {}
+        
+        # Data de corte para análise de período
+        cutoff_date = datetime.now() - timedelta(days=period_days)
+        
+        for driver in drivers_data:
+            try:
+                # Parse dos dados pessoais
+                personal_data = None
+                if driver.personal_data:
+                    if isinstance(driver.personal_data, str):
+                        personal_data = json.loads(driver.personal_data)
+                    else:
+                        personal_data = driver.personal_data
+                
+                if not personal_data or not isinstance(personal_data, dict):
+                    continue
+                
+                # Extrair cidade do driver
+                driver_city = personal_data.get('city', 'Unknown')
+                
+                # Aplicar filtro de cidade se especificado (ignorar quando city for "all" ou None)
+                if city and city.lower() != 'all' and driver_city.lower() != city.lower():
+                    continue
+                
+                total_drivers += 1
+                
+                # Inicializar dados da cidade se não existir
+                if driver_city not in drivers_by_city:
+                    drivers_by_city[driver_city] = {
+                        'drivers_count': 0,
+                        'total_balance': 0,
+                        'total_charged': 0,
+                        'total_spent': 0,
+                        'avg_balance': 0
+                    }
+                
+                drivers_by_city[driver_city]['drivers_count'] += 1
+                
+                # Extrair saldo atual de créditos
+                credit_balance = 0
+                if 'credit_wallet_balance' in personal_data:
+                    try:
+                        credit_balance = float(personal_data['credit_wallet_balance'])
+                    except (ValueError, TypeError):
+                        credit_balance = 0
+                
+                if credit_balance > 0:
+                    drivers_with_credits += 1
+                
+                total_credits_balance += credit_balance
+                drivers_by_city[driver_city]['total_balance'] += credit_balance
+                
+                # Analisar transações de wallet
+                wallet_transactions = []
+                if driver.wallet_transactions:
+                    if isinstance(driver.wallet_transactions, str):
+                        wallet_transactions = json.loads(driver.wallet_transactions)
+                    else:
+                        wallet_transactions = driver.wallet_transactions
+                
+                if isinstance(wallet_transactions, list):
+                    for transaction in wallet_transactions:
+                        if not isinstance(transaction, dict):
+                            continue
+                        
+                        transaction_type = transaction.get('type', 'Unknown')
+                        amount = 0
+                        transaction_time_str = transaction.get('transaction_time', '')
+                        
+                        try:
+                            amount = float(transaction.get('amount', 0))
+                        except (ValueError, TypeError):
+                            amount = 0
+                        
+                        # Verificar se a transação está no período especificado
+                        transaction_date = None
+                        if transaction_time_str:
+                            try:
+                                # Formato esperado: "2025-07-29 18:00:13"
+                                transaction_date = datetime.strptime(transaction_time_str, "%Y-%m-%d %H:%M:%S")
+                            except ValueError:
+                                # Tentar outros formatos se necessário
+                                pass
+                        
+                        # Contar todas as transações para estatísticas gerais
+                        if transaction_type not in transactions_by_type:
+                            transactions_by_type[transaction_type] = {'count': 0, 'total_amount': 0}
+                        
+                        transactions_by_type[transaction_type]['count'] += 1
+                        transactions_by_type[transaction_type]['total_amount'] += amount
+                        
+                        # Separar por tipo para totais gerais
+                        if transaction_type == 'C':  # Crédito (carregamento)
+                            total_credits_charged += amount
+                            drivers_by_city[driver_city]['total_charged'] += amount
+                        elif transaction_type == 'D':  # Débito (gasto)
+                            total_credits_spent += amount
+                            drivers_by_city[driver_city]['total_spent'] += amount
+                        
+                        # Análise por período (apenas transações no período especificado)
+                        if transaction_date and transaction_date >= cutoff_date:
+                            month_key = transaction_date.strftime('%Y-%m')
+                            if month_key not in transactions_by_period:
+                                transactions_by_period[month_key] = {'C': 0, 'D': 0}
+                            transactions_by_period[month_key][transaction_type] = transactions_by_period[month_key].get(transaction_type, 0) + amount
+                
+            except Exception as e:
+                print(f"⚠️ Erro ao processar driver {driver.driver_id}: {e}")
+                continue
+        
+        # Calcular médias por cidade
+        for city_name, city_data in drivers_by_city.items():
+            if city_data['drivers_count'] > 0:
+                city_data['avg_balance'] = round(city_data['total_balance'] / city_data['drivers_count'], 2)
+        
+        # Calcular estatísticas finais
+        avg_credits_per_driver = round(total_credits_balance / total_drivers, 2) if total_drivers > 0 else 0
+        credits_utilization_rate = round((drivers_with_credits / total_drivers * 100), 2) if total_drivers > 0 else 0
+        net_credits_flow = total_credits_charged - total_credits_spent
+        
+        print(f"✅ Análise concluída - {total_drivers} motoristas processados")
+        
+        return {
+            "status": "success",
+            "data": {
+                "summary": {
+                    "total_drivers": total_drivers,
+                    "total_credits_in_circulation": round(total_credits_balance, 2),
+                    "total_credits_charged": round(total_credits_charged, 2),
+                    "total_credits_spent": round(total_credits_spent, 2),
+                    "net_credits_flow": round(net_credits_flow, 2),
+                    "drivers_with_credits": drivers_with_credits,
+                    "avg_credits_per_driver": avg_credits_per_driver,
+                    "credits_utilization_rate": credits_utilization_rate
+                },
+                "by_city": drivers_by_city,
+                "transactions_analysis": {
+                    "by_type": transactions_by_type,
+                    "by_period": transactions_by_period,
+                    "period_days": period_days
+                },
+                "filter": {
+                    "city": city if city else "Todas as cidades",
+                    "period_days": period_days
+                }
+            }
+        }
+        
+    except Exception as e:
+        print(f"❌ Erro na análise de créditos: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao analisar créditos: {str(e)}")

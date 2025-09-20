@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Star, TrendingUp, UserCheck, Activity, Award, AlertTriangle, Clock, BarChart3, Wifi, Filter, Target, DollarSign, MapPin, Car, AlertCircle, CheckCircle, XCircle, TrendingDown, Calendar, Lightbulb, RefreshCw, Eye } from 'lucide-react';
+import { Users, Star, TrendingUp, UserCheck, Activity, Award, AlertTriangle, Clock, BarChart3, Wifi, Filter, Target, DollarSign, MapPin, Car, AlertCircle, CheckCircle, XCircle, TrendingDown, Calendar, Lightbulb, RefreshCw, Eye, WifiOff, CreditCard } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
 import DriverDetailsModal from './DriverDetailsModal';
 import { useDriverModal } from '../hooks/useDriverModal';
@@ -78,6 +78,43 @@ export default function DriversOverview({ onPeriodChange }) {
     const [error, setError] = useState(null);
     const [kpisData, setKpisData] = useState({});
     const [citiesData, setCitiesData] = useState([]);
+    const [statusData, setStatusData] = useState({
+      summary: { total_drivers: 0, online_drivers: 0, offline_drivers: 0, online_percentage: 0, offline_percentage: 0 },
+      by_city: {}
+    });
+    
+    const [creditsData, setCreditsData] = useState({
+      summary: { 
+        total_drivers: 0, 
+        total_credits_in_circulation: 0, 
+        drivers_with_credits: 0, 
+        credits_utilization_rate: 0,
+        avg_credits_per_driver: 0 
+      },
+      by_city: {}
+    });
+    
+    // Estado para dados de corridas canceladas
+    const [cancelledRidesData, setCancelledRidesData] = useState({
+      total_cancelled_rides: 0,
+      drivers_with_cancelled: 0,
+      cancelled_rides_details: [],
+      period: '30_days'
+    });
+
+    // Estado para dados de taxa de aceitação
+    const [acceptanceRateData, setAcceptanceRateData] = useState({
+      overall_acceptance_rate: 0,
+      total_drivers: 0,
+      total_requests: 0,
+      total_rejected: 0,
+      total_accepted: 0,
+      city_breakdown: {},
+      drivers_details: []
+    });
+
+    // Estado para controlar tooltip de taxa de aceitação
+    const [showAcceptanceTooltip, setShowAcceptanceTooltip] = useState(false);
 
     // Configuração da API
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -100,6 +137,48 @@ export default function DriversOverview({ onPeriodChange }) {
         return null;
       } catch (err) {
         console.error('Erro ao buscar KPIs:', err);
+        return null;
+      }
+    };
+
+    // Função para buscar dados de corridas canceladas do novo endpoint
+    const fetchCancelledRides = async () => {
+      try {
+        console.log('🔥 Buscando corridas canceladas com parâmetros:', { 
+          period: filters.period, 
+          city: filters.city 
+        });
+        const response = await fetch(`${API_URL}/api/drivers/cancelled-rides?period=${filters.period}&city=${filters.city}`);
+        const result = await response.json();
+        console.log('🔥 Resposta da API de corridas canceladas:', result);
+        if (result.success) {
+          setCancelledRidesData(result.data);
+          return result.data;
+        }
+        return null;
+      } catch (err) {
+        console.error('❌ Erro ao buscar corridas canceladas:', err);
+        return null;
+      }
+    };
+
+    // Função para buscar dados de taxa de aceitação do novo endpoint
+    const fetchAcceptanceRate = async () => {
+      try {
+        console.log('📊 Buscando taxa de aceitação com parâmetros:', { 
+          period: filters.period, 
+          city: filters.city 
+        });
+        const response = await fetch(`${API_URL}/api/drivers/acceptance-rate?period=${filters.period}&city=${filters.city}`);
+        const result = await response.json();
+        console.log('📊 Resposta da API de taxa de aceitação:', result);
+        if (result.success) {
+          setAcceptanceRateData(result.data);
+          return result.data;
+        }
+        return null;
+      } catch (err) {
+        console.error('❌ Erro ao buscar taxa de aceitação:', err);
         return null;
       }
     };
@@ -138,6 +217,42 @@ export default function DriversOverview({ onPeriodChange }) {
       }
     };
 
+    // Função para buscar dados de status dos motoristas
+    const fetchStatusData = async () => {
+      try {
+        console.log('Buscando status dos motoristas com parâmetros:', { city: filters.city });
+        const response = await fetch(`${API_URL}/api/drivers/status-kpi?city=${filters.city}`);
+        const result = await response.json();
+        console.log('Resposta da API de status:', result);
+        if (result.status === 'success') {
+          setStatusData(result.data);
+          return result.data;
+        }
+        return null;
+      } catch (err) {
+        console.error('Erro ao buscar status dos motoristas:', err);
+        return null;
+      }
+    };
+
+    // Função para buscar dados de créditos dos motoristas
+    const fetchCreditsData = async () => {
+      try {
+        console.log('Buscando dados de créditos com parâmetros:', { city: filters.city });
+        const response = await fetch(`${API_URL}/api/drivers/credits-analysis?city=${filters.city}`);
+        const result = await response.json();
+        console.log('Resposta da API de créditos:', result);
+        if (result.status === 'success') {
+          setCreditsData(result.data);
+          return result.data;
+        }
+        return null;
+      } catch (err) {
+        console.error('Erro ao buscar dados de créditos:', err);
+        return null;
+      }
+    };
+
     // Função para buscar cidades da nossa API
     const fetchCities = async () => {
       try {
@@ -166,8 +281,12 @@ export default function DriversOverview({ onPeriodChange }) {
         try {
           await Promise.all([
             fetchKpis(),
+            fetchCancelledRides(),
+            fetchAcceptanceRate(),
             fetchDrivers(),
-            fetchCities()
+            fetchCities(),
+            fetchStatusData(),
+            fetchCreditsData()
           ]);
         } catch (err) {
           setError('Erro ao carregar dados dos motoristas');
@@ -608,17 +727,104 @@ export default function DriversOverview({ onPeriodChange }) {
                 {/* Corridas Canceladas pelos Motoristas */}
                 <motion.div 
                   whileHover={{ scale: 1.02 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px] group relative"
+                  title="Hover para ver detalhes das corridas canceladas"
                 >
                     <div className="flex items-center justify-between h-full">
                         <div className="flex-1 min-w-0">
                             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Corridas Canceladas</p>
-                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-red-600 dark:text-red-400 mt-1 sm:mt-2 truncate">{dashboardData.cancelled_rides || 0}</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Total por motoristas</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-red-600 dark:text-red-400 mt-1 sm:mt-2 truncate">{cancelledRidesData.total_cancelled_rides || 0}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">
+                              {cancelledRidesData.drivers_with_cancelled || 0} motoristas • {cancelledRidesData.period || '30 dias'}
+                            </p>
                         </div>
                         <div className="bg-red-100 dark:bg-red-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
-                          <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
+                          <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
                         </div>
+                    </div>
+                    
+                    {/* Tooltip com detalhes dos cancelamentos por cidade */}
+                    <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block z-50 w-64 p-3 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700">
+                      <h4 className="font-medium mb-2 text-red-400">Cancelamentos por Cidade</h4>
+                      <div className="text-sm mb-2">
+                        <div className="flex justify-between py-1">
+                          <span>Total de corridas canceladas:</span>
+                          <span className="text-red-400 font-medium">{cancelledRidesData.total_cancelled_rides || 0}</span>
+                        </div>
+                        <div className="flex justify-between py-1">
+                          <span>Motoristas envolvidos:</span>
+                          <span className="text-blue-400 font-medium">{cancelledRidesData.drivers_with_cancelled || 0}</span>
+                        </div>
+                      </div>
+                      
+                      {cancelledRidesData.cancelled_rides_details && cancelledRidesData.cancelled_rides_details.length > 0 && (
+                        <>
+                          <div className="border-t border-gray-600 mt-2 pt-2">
+                            <h5 className="text-xs font-medium text-gray-300 mb-1">Detalhes por cidade:</h5>
+                            {(() => {
+                              // Agrupar dados por cidade
+                              const cityData = {};
+                              cancelledRidesData.cancelled_rides_details.forEach(ride => {
+                                const city = ride.city || 'Não especificado';
+                                if (!cityData[city]) {
+                                  cityData[city] = {
+                                    cancelledRides: 0,
+                                    drivers: new Set()
+                                  };
+                                }
+                                cityData[city].cancelledRides += 1;
+                                cityData[city].drivers.add(ride.driver_id);
+                              });
+                              
+                              // Converter Set para tamanho e ordenar por quantidade de cancelamentos
+                              return Object.entries(cityData)
+                                .map(([city, data]) => ({
+                                  city,
+                                  cancelledRides: data.cancelledRides,
+                                  driversCount: data.drivers.size
+                                }))
+                                .sort((a, b) => b.cancelledRides - a.cancelledRides)
+                                .map(({ city, cancelledRides, driversCount }) => (
+                                  <div key={city} className="flex justify-between items-center py-1 text-sm">
+                                    <span className="truncate mr-2">{city}:</span>
+                                    <div className="text-right">
+                                      <div className="flex gap-2 justify-end">
+                                        <span className="text-red-400 font-medium">{cancelledRides}❌</span>
+                                        <span className="text-blue-400 font-medium">{driversCount}👤</span>
+                                      </div>
+                                      <div className="text-gray-400 text-xs">
+                                        {driversCount} motorista{driversCount !== 1 ? 's' : ''}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ));
+                            })()}
+                          </div>
+                          
+                          <div className="border-t border-gray-600 mt-2 pt-2">
+                            <h5 className="text-xs font-medium text-gray-300 mb-1">Por responsável:</h5>
+                            {(() => {
+                              // Agrupar por quem cancelou
+                              const cancelledByCounts = {};
+                              cancelledRidesData.cancelled_rides_details.forEach(ride => {
+                                const cancelledBy = ride.cancelled_by === 'driver' ? 'Motorista' : 'Usuário';
+                                cancelledByCounts[cancelledBy] = (cancelledByCounts[cancelledBy] || 0) + 1;
+                              });
+                              
+                              return Object.entries(cancelledByCounts).map(([who, count]) => (
+                                <div key={who} className="flex justify-between py-1 text-xs">
+                                  <span>{who}:</span>
+                                  <span className="text-yellow-400 font-medium">{count}x</span>
+                                </div>
+                              ));
+                            })()}
+                          </div>
+                        </>
+                      )}
+                      
+                      <div className="text-xs text-red-400 mt-2 pt-2 border-t border-gray-600">
+                        ❌ Canceladas • 👤 Motoristas
+                      </div>
                     </div>
                 </motion.div>
 
@@ -639,20 +845,45 @@ export default function DriversOverview({ onPeriodChange }) {
                     </div>
                 </motion.div>
 
-                {/* Rating Médio dos Motoristas */}
+                {/* Créditos em Circulação */}
                 <motion.div 
                   whileHover={{ scale: 1.02 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px] group relative"
+                  title="Hover para ver detalhes por cidade"
                 >
                     <div className="flex items-center justify-between h-full">
                          <div className="flex-1 min-w-0">
-                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Rating Médio</p>
-                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-600 dark:text-amber-400 mt-1 sm:mt-2 truncate">{Number(dashboardData.avg_rating || 0).toFixed(1)}</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Avaliação média</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Créditos Disponíveis</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600 dark:text-green-400 mt-1 sm:mt-2 truncate">
+                              {Number(creditsData.summary?.total_credits_in_circulation || 0).toLocaleString('pt-BR')} créditos
+                            </p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">
+                              {creditsData.summary?.drivers_with_credits || 0} motoristas ({Number(creditsData.summary?.credits_utilization_rate || 0).toFixed(1)}%)
+                            </p>
                         </div>
-                        <div className="bg-amber-100 dark:bg-amber-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
-                          <Target className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-400" />
+                        <div className="bg-green-100 dark:bg-green-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                          <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
                         </div>
+                    </div>
+
+                    {/* Tooltip com detalhes por cidade */}
+                    <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block z-50 w-64 p-3 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700">
+                      <h4 className="font-medium mb-2 text-green-400">Créditos por Cidade</h4>
+                      {Object.entries(creditsData.by_city || {}).map(([city, data]) => (
+                        <div key={city} className="flex justify-between items-center py-1 text-sm">
+                          <span className="truncate mr-2">{city}:</span>
+                          <div className="text-right">
+                            <div className="text-green-400 font-medium">{Number(data.total_balance || 0).toLocaleString('pt-BR')} créditos</div>
+                            <div className="text-gray-400 text-xs">{data.drivers_count || 0} motoristas</div>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="border-t border-gray-600 mt-2 pt-2 text-xs text-gray-400">
+                        Média: {Number(creditsData.summary?.avg_credits_per_driver || 0).toFixed(0)} créditos/motorista
+                      </div>
+                      <div className="text-xs text-blue-400 mt-1">
+                        💡 Cada crédito = 1 corrida disponível
+                      </div>
                     </div>
                 </motion.div>
             </motion.div>
@@ -684,34 +915,116 @@ export default function DriversOverview({ onPeriodChange }) {
                 {/* Taxa de Aceitação */}
                 <motion.div 
                   whileHover={{ scale: 1.02 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px] group relative"
+                  onMouseEnter={() => setShowAcceptanceTooltip(true)}
+                  onMouseLeave={() => setShowAcceptanceTooltip(false)}
                 >
                     <div className="flex items-center justify-between h-full">
                         <div className="flex-1 min-w-0">
                             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Taxa de Aceitação</p>
-                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 sm:mt-2 truncate">{Number(dashboardData.acceptance_rate || 0).toFixed(1)}%</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Média geral</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 sm:mt-2 truncate">
+                              {Number(acceptanceRateData.overall_acceptance_rate || 0).toFixed(1)}%
+                            </p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">
+                              {acceptanceRateData.total_drivers || 0} motoristas • {acceptanceRateData.total_requests || 0} requests
+                            </p>
                         </div>
                         <div className="bg-blue-100 dark:bg-blue-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
                           <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                         </div>
                     </div>
+                    
+                    {/* Tooltip interativo */}
+                    {showAcceptanceTooltip && (
+                      <div 
+                        className="absolute top-full left-0 mt-2 w-80 bg-gray-900 text-white p-4 rounded-lg shadow-xl z-50 transform transition-all duration-300"
+                        onMouseEnter={() => setShowAcceptanceTooltip(true)}
+                        onMouseLeave={() => setShowAcceptanceTooltip(false)}
+                      >
+                        <h4 className="font-semibold mb-3 text-blue-400">Taxa de Aceitação por Cidade</h4>
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          <div className="flex justify-between items-center py-1">
+                            <span className="text-blue-400 font-medium">📊 Total: {acceptanceRateData.overall_acceptance_rate?.toFixed(1)}%</span>
+                          </div>
+                          <div className="flex justify-between items-center py-1">
+                            <span className="text-green-400 font-medium">✅ Sucessos: {acceptanceRateData.total_success_rides || acceptanceRateData.total_accepted || 0}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-1">
+                            <span className="text-red-400 font-medium">❌ Falhas: {acceptanceRateData.total_failures || 0}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-1">
+                            <span className="text-gray-400 font-medium">📞 Requests: {acceptanceRateData.total_requests || 0}</span>
+                          </div>
+                          <hr className="border-gray-700 my-2" />
+                          {acceptanceRateData.city_breakdown && Object.keys(acceptanceRateData.city_breakdown).length > 0 && (
+                            <div>
+                              {Object.entries(acceptanceRateData.city_breakdown).map(([cityName, cityData]) => (
+                                <div key={cityName} className="flex justify-between items-center py-1 text-sm">
+                                  <span className="text-gray-300">🏙️ {cityName}:</span>
+                                  <div className="text-right">
+                                    <div className="text-blue-400 font-medium">{cityData.acceptance_rate?.toFixed(1)}%</div>
+                                    <div className="text-xs text-gray-400">
+                                      👤 {cityData.drivers_count} • 📞 {cityData.total_requests}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                 </motion.div>
 
-                {/* Receita por Hora */}
+                {/* Status dos Motoristas */}
                 <motion.div 
                   whileHover={{ scale: 1.02 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px] group relative"
+                  title="Hover para ver detalhes por cidade"
                 >
                     <div className="flex items-center justify-between h-full">
                         <div className="flex-1 min-w-0">
-                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Receita por Hora</p>
-                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-1 sm:mt-2 truncate">R$ {Number(dashboardData.revenue_per_hour || 0).toFixed(2)}</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">Produtividade média</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Status dos Motoristas</p>
+                            <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-2">
+                              <div className="flex items-center gap-1">
+                                <Wifi className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+                                <span className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 dark:text-green-400">{statusData.summary.online_drivers}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <WifiOff className="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
+                                <span className="text-lg sm:text-xl lg:text-2xl font-bold text-red-600 dark:text-red-400">{statusData.summary.offline_drivers}</span>
+                              </div>
+                            </div>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">
+                              Total: {statusData.summary.total_drivers} • {statusData.summary.online_percentage}% online
+                            </p>
                         </div>
-                        <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
-                          <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 dark:text-indigo-400" />
+                        <div className="bg-blue-100 dark:bg-blue-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
+                          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                         </div>
+                    </div>
+                    
+                    {/* Tooltip com detalhes por cidade */}
+                    <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block z-50 w-64 p-3 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700">
+                      <h4 className="font-medium mb-2 text-blue-400">Status por Cidade</h4>
+                      {Object.entries(statusData.by_city).map(([city, data]) => (
+                        <div key={city} className="flex justify-between items-center py-1 text-sm">
+                          <span className="truncate mr-2">{city}:</span>
+                          <div className="text-right">
+                            <div className="flex gap-2 justify-end">
+                              <span className="text-green-400 font-medium">{data.Online}📶</span>
+                              <span className="text-red-400 font-medium">{data.Offline}📵</span>
+                            </div>
+                            <div className="text-gray-400 text-xs">Total: {data.Online + data.Offline}</div>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="border-t border-gray-600 mt-2 pt-2 text-xs text-gray-400">
+                        Taxa Online: {statusData.summary.online_percentage}% geral
+                      </div>
+                      <div className="text-xs text-blue-400 mt-1">
+                        📶 Online • 📵 Offline
+                      </div>
                     </div>
                 </motion.div>
 
