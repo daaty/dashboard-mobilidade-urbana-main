@@ -8,6 +8,7 @@ from typing import Optional
 
 import json
 from datetime import datetime, timedelta
+from collections import defaultdict
 import os
 import sys
 import re
@@ -47,6 +48,24 @@ def matches_city_filter(cidade_item, cidade_filter):
 
     # Se a normalização falhar, usar o valor original em maiúsculo
     if not item_norm:
+        item_norm = str(cidade_item).strip().upper()
+    if not filter_norm:
+        filter_norm = str(cidade_filter).strip().upper()
+
+    return item_norm == filter_norm
+
+def extract_city_from_record(rec):
+    """Extrai cidade de um registro de forma robusta"""
+    try:
+        # Tentar diferentes índices onde a cidade pode estar
+        for idx in (17, 16, 15, 14, 13):
+            if len(rec) > idx and rec[idx]:
+                cidade = str(rec[idx]).strip()
+                if cidade and cidade not in ["", "null", "None"]:
+                    return extract_city_from_address(cidade)
+        return None
+    except Exception:
+        return None
         item_norm = str(cidade_item).strip().upper()
     if not filter_norm:
         filter_norm = str(cidade_filter).strip().upper()
@@ -1069,3 +1088,754 @@ async def get_metrics_overview_by_period(
         "periodo_filtro": periodo,
         "cidade_filtro": cidade
     }
+
+@router.get("/debug-missed-sample")
+async def debug_missed_sample(db: AsyncSession = Depends(get_db)):
+    """Debug endpoint para ver exemplos de corridas perdidas"""
+    try:
+        result = await db.execute(select(RidesData))
+        rides = result.scalars().all()
+        
+        missed_samples = []
+        
+        for r in rides:
+            ride_data = r.ride_data
+            if isinstance(ride_data, str):
+                try:
+                    ride_data = json.loads(ride_data)
+                except Exception:
+                    continue
+                    
+            table_name = ride_data.get("tableName", "")
+            if table_name == "Missed Rides":
+                new_records = ride_data.get("newRecords", [])
+                for idx, rec in enumerate(new_records[:3]):  # primeiros 3
+                    sample = {
+                        "source": r.source,
+                        "record_index": idx,
+                        "record_length": len(rec),
+                        "campos": {}
+                    }
+                    
+                    for i, campo in enumerate(rec):
+                        sample["campos"][f"campo_{i}"] = str(campo)[:100]  # limitar tamanho
+                        # Tentar extrair data de cada campo
+                        try:
+                            dt_str = extract_datetime_from_record([campo], 0)
+                            if dt_str:
+                                sample["campos"][f"campo_{i}_parsed"] = dt_str
+                        except:
+                            pass
+                    
+                    missed_samples.append(sample)
+                    
+                if len(missed_samples) >= 5:  # limitar a 5 exemplos
+                    break
+        
+        return {"missed_samples": missed_samples}
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erro interno: {str(e)}"}
+        )
+
+@router.get("/debug-cancelled-sample")
+async def debug_cancelled_sample(db: AsyncSession = Depends(get_db)):
+    """Debug endpoint para ver exemplos de corridas canceladas"""
+    try:
+        result = await db.execute(select(RidesData))
+        rides = result.scalars().all()
+        
+        cancelled_samples = []
+        
+        for r in rides:
+            ride_data = r.ride_data
+            if isinstance(ride_data, str):
+                try:
+                    ride_data = json.loads(ride_data)
+                except Exception:
+                    continue
+                    
+            table_name = ride_data.get("tableName", "")
+            if table_name == "Cancelled Rides":
+                new_records = ride_data.get("newRecords", [])
+                for idx, rec in enumerate(new_records[:3]):  # primeiros 3
+                    # Verificar todos os campos que podem conter data/hora
+                    sample = {
+                        "source": r.source,
+                        "record_index": idx,
+                        "record_length": len(rec),
+                        "campos": {}
+                    }
+                    
+                    for i, campo in enumerate(rec):
+                        sample["campos"][f"campo_{i}"] = str(campo)[:100]  # limitar tamanho
+                        # Tentar extrair data de cada campo
+                        try:
+                            dt_str = extract_datetime_from_record([campo], 0)
+                            if dt_str:
+                                sample["campos"][f"campo_{i}_parsed"] = dt_str
+                        except:
+                            pass
+                    
+                    cancelled_samples.append(sample)
+                    
+                if len(cancelled_samples) >= 5:  # limitar a 5 exemplos
+                    break
+        
+        return {"cancelled_samples": cancelled_samples}
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erro interno: {str(e)}"}
+        )
+
+@router.get("/debug-date")
+async def debug_date(
+    db: AsyncSession = Depends(get_db),
+    data_especifica: str = Query(..., description="Data específica no formato YYYY-MM-DD")
+):
+    """Debug endpoint para ver dados de uma data específica"""
+    try:
+        result = await db.execute(select(RidesData))
+        rides = result.scalars().all()
+        
+        # Converter string de data para datetime range
+        data_obj = datetime.strptime(data_especifica, "%Y-%m-%d")
+        dt_ini = data_obj.replace(hour=0, minute=0, second=0, microsecond=0)
+        dt_fim = data_obj.replace(hour=23, minute=59, second=59, microsecond=999999)
+        
+        debug_info = {
+            "data_procurada": data_especifica,
+            "range_inicio": dt_ini.isoformat(),
+            "range_fim": dt_fim.isoformat(),
+            "tables_encontradas": {},
+            "registros_processados": 0,
+            "registros_na_data": 0
+        }
+        
+        for r in rides:
+            debug_info["registros_processados"] += 1
+            ride_data = r.ride_data
+            if isinstance(ride_data, str):
+                try:
+                    ride_data = json.loads(ride_data)
+                except Exception:
+                    continue
+                    
+            table_name = ride_data.get("tableName", "")
+            new_records = ride_data.get("newRecords", [])
+            
+            if table_name not in debug_info["tables_encontradas"]:
+                debug_info["tables_encontradas"][table_name] = {
+                    "total_records": 0,
+                    "records_na_data": 0,
+                    "exemplo_record": None
+                }
+            
+            debug_info["tables_encontradas"][table_name]["total_records"] += len(new_records)
+            
+            for rec in new_records:
+                # Para corridas concluídas
+                if table_name == "Completed Rides":
+                    hora_solicitacao = None
+                    hora_conclusao = None
+                    
+                    if r.source == "monitoring-service-adapted":
+                        hora_solicitacao = rec[7] if len(rec) > 7 else None
+                        hora_conclusao = rec[8] if len(rec) > 8 else None
+                    else:
+                        hora_solicitacao = rec[6] if len(rec) > 6 else None
+                        hora_conclusao = rec[7] if len(rec) > 7 else None
+                    
+                    hora = hora_conclusao or hora_solicitacao
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                                if dt_ini <= dt_corrida <= dt_fim:
+                                    debug_info["tables_encontradas"][table_name]["records_na_data"] += 1
+                                    debug_info["registros_na_data"] += 1
+                                    if not debug_info["tables_encontradas"][table_name]["exemplo_record"]:
+                                        debug_info["tables_encontradas"][table_name]["exemplo_record"] = {
+                                            "record": rec[:5],  # primeiros 5 campos
+                                            "hora_extraida": dt_str,
+                                            "source": r.source
+                                        }
+                            except Exception:
+                                pass
+                                
+                # Para corridas canceladas
+                elif table_name == "Cancelled Rides":
+                    hora = rec[6] if len(rec) > 6 else None
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                                if dt_ini <= dt_corrida <= dt_fim:
+                                    debug_info["tables_encontradas"][table_name]["records_na_data"] += 1
+                                    debug_info["registros_na_data"] += 1
+                                    if not debug_info["tables_encontradas"][table_name]["exemplo_record"]:
+                                        debug_info["tables_encontradas"][table_name]["exemplo_record"] = {
+                                            "record": rec[:7],  # primeiros 7 campos
+                                            "hora_extraida": dt_str,
+                                            "source": r.source
+                                        }
+                            except Exception:
+                                pass
+                                
+                # Para corridas perdidas
+                elif table_name == "Missed Rides":
+                    hora = rec[4] if len(rec) > 4 else None
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                                if dt_ini <= dt_corrida <= dt_fim:
+                                    debug_info["tables_encontradas"][table_name]["records_na_data"] += 1
+                                    debug_info["registros_na_data"] += 1
+                                    if not debug_info["tables_encontradas"][table_name]["exemplo_record"]:
+                                        debug_info["tables_encontradas"][table_name]["exemplo_record"] = {
+                                            "record": rec[:5],  # primeiros 5 campos
+                                            "hora_extraida": dt_str,
+                                            "source": r.source
+                                        }
+                            except Exception:
+                                pass
+        
+        return debug_info
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erro interno: {str(e)}"}
+        )
+
+@router.get("/debug-tables")
+async def debug_tables(db: AsyncSession = Depends(get_db)):
+    """Debug endpoint para verificar tableNames"""
+    try:
+        result = await db.execute(select(RidesData))
+        rides = result.scalars().all()
+        
+        table_names = set()
+        for r in rides:
+            ride_data = r.ride_data
+            if isinstance(ride_data, str):
+                try:
+                    ride_data = json.loads(ride_data)
+                except Exception:
+                    continue
+                    
+            table_name = ride_data.get("tableName", "")
+            if table_name:
+                table_names.add(table_name)
+        
+        return {"table_names": list(table_names)}
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erro interno: {str(e)}"}
+        )
+
+@router.get("/daily-detail")
+async def get_daily_detail(
+    db: AsyncSession = Depends(get_db),
+    data_especifica: str = Query(..., description="Data específica no formato YYYY-MM-DD"),
+    cidade: Optional[str] = Query(None, description="Filtrar por cidade específica")
+):
+    """
+    Retorna dados de uma data específica detalhados por hora
+    
+    Args:
+        data_especifica: Data no formato YYYY-MM-DD (ex: 2025-09-15)
+        cidade: Cidade para filtrar (opcional)
+        
+    Returns:
+        {
+            "data": "2025-09-15",
+            "total_dia": {"concluidas": 13, "canceladas": 7, "perdidas": 18},
+            "horarios": [
+                {"hora": "15", "concluidas": 6, "canceladas": 1, "perdidas": 3},
+                ...
+            ]
+        }
+    """
+    try:
+        # Buscar todos os registros
+        result = await db.execute(select(RidesData))
+        rides = result.scalars().all()
+
+        # Converter string de data para datetime range
+        try:
+            data_obj = datetime.strptime(data_especifica, "%Y-%m-%d")
+            dt_ini = data_obj.replace(hour=0, minute=0, second=0, microsecond=0)
+            dt_fim = data_obj.replace(hour=23, minute=59, second=59, microsecond=999999)
+        except ValueError:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Data inválida. Use formato YYYY-MM-DD"}
+            )
+
+        concluidas, canceladas, perdidas = [], [], []
+        
+        # Processar dados (mesma lógica do endpoint overview, mas filtrado por data)
+        ids_concluidas = set()
+        ids_canceladas = set()
+        ids_perdidas = set()
+        
+        for r in rides:
+            ride_data = r.ride_data
+            if isinstance(ride_data, str):
+                try:
+                    ride_data = json.loads(ride_data)
+                except Exception:
+                    continue
+                    
+            table_name = ride_data.get("tableName", "")
+            new_records = ride_data.get("newRecords", [])
+            
+            # Processar corridas concluídas
+            if table_name in ["Completed Rides", "corridas_concluidas"]:
+                for rec in new_records:
+                    id_corrida = rec[0] if len(rec) > 0 else None
+                    if id_corrida in ids_concluidas:
+                        continue
+                        
+                    # Extrair data/hora
+                    hora_solicitacao = None
+                    hora_conclusao = None
+                    
+                    if r.source == "monitoring-service-adapted":
+                        hora_solicitacao = rec[7] if len(rec) > 7 else None
+                        hora_conclusao = rec[8] if len(rec) > 8 else None
+                    else:
+                        hora_solicitacao = rec[6] if len(rec) > 6 else None
+                        hora_conclusao = rec[7] if len(rec) > 7 else None
+                    
+                    hora = hora_conclusao or hora_solicitacao
+                    dt_corrida = None
+                    
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            except Exception:
+                                continue
+                                
+                    if not dt_corrida:
+                        continue
+                        
+                    # Detectar cidade
+                    cidade_detectada = extract_city_from_record(rec)
+                    if not matches_city_filter(cidade_detectada, cidade):
+                        continue
+                        
+                    # Verificar se a corrida está na data específica
+                    if dt_ini <= dt_corrida <= dt_fim:
+                        concluidas.append({"dt_corrida": dt_corrida})
+                        ids_concluidas.add(id_corrida)
+                        
+            # Processar corridas canceladas
+            elif table_name in ["Cancelled Rides", "corridas_canceladas"]:
+                for rec in new_records:
+                    id_corrida = rec[0] if len(rec) > 0 else None
+                    if id_corrida in ids_canceladas:
+                        continue
+                        
+                    # Extrair data/hora - índices corretos para canceladas
+                    hora = None
+                    if r.source == "import_excel":
+                        # Para import_excel, data está no campo 11
+                        hora = rec[11] if len(rec) > 11 else None
+                    elif r.source == "monitoring-service-adapted":
+                        # Para monitoring-service-adapted, data está no campo 12
+                        hora = rec[12] if len(rec) > 12 else None
+                    
+                    dt_corrida = None
+                    
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            except Exception:
+                                continue
+                                
+                    if not dt_corrida:
+                        continue
+                        
+                    # Detectar cidade
+                    cidade_detectada = extract_city_from_record(rec)
+                    if not matches_city_filter(cidade_detectada, cidade):
+                        continue
+                        
+                    if dt_ini <= dt_corrida <= dt_fim:
+                        canceladas.append({"dt_corrida": dt_corrida})
+                        ids_canceladas.add(id_corrida)
+                        
+            # Processar corridas perdidas
+            elif table_name in ["Missed Rides", "corridas_perdidas"]:
+                for rec in new_records:
+                    id_corrida = rec[0] if len(rec) > 0 else None
+                    if id_corrida in ids_perdidas:
+                        continue
+                        
+                    # Extrair data/hora - campo 6 para perdidas (tanto import_excel quanto monitoring-service-adapted)
+                    hora = rec[6] if len(rec) > 6 else None
+                    dt_corrida = None
+                    
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                            except Exception:
+                                continue
+                                
+                    if not dt_corrida:
+                        continue
+                        
+                    # Detectar cidade
+                    cidade_detectada = extract_city_from_record(rec)
+                    if not matches_city_filter(cidade_detectada, cidade):
+                        continue
+                        
+                    if dt_ini <= dt_corrida <= dt_fim:
+                        perdidas.append({"dt_corrida": dt_corrida})
+                        ids_perdidas.add(id_corrida)
+
+        # Agrupar por hora
+        horarios = defaultdict(lambda: {"concluidas": 0, "canceladas": 0, "perdidas": 0})
+        
+        for c in concluidas:
+            if c["dt_corrida"]:
+                h = c["dt_corrida"].strftime("%H")
+                horarios[h]["concluidas"] += 1
+                
+        for c in canceladas:
+            if c["dt_corrida"]:
+                h = c["dt_corrida"].strftime("%H")
+                horarios[h]["canceladas"] += 1
+                
+        for c in perdidas:
+            if c["dt_corrida"]:
+                h = c["dt_corrida"].strftime("%H")
+                horarios[h]["perdidas"] += 1
+
+        # Construir resposta
+        horarios_list = []
+        total_concluidas = len(concluidas)
+        total_canceladas = len(canceladas)
+        total_perdidas = len(perdidas)
+        
+        # Incluir todas as horas de 00-23 (mesmo que sejam 0)
+        for h in range(24):
+            h_str = f"{h:02d}"
+            concluidas_h = horarios[h_str]["concluidas"]
+            canceladas_h = horarios[h_str]["canceladas"] 
+            perdidas_h = horarios[h_str]["perdidas"]
+            total_h = concluidas_h + canceladas_h + perdidas_h
+            
+            if total_h > 0:  # Só incluir horas com dados
+                horarios_list.append({
+                    "hora": h_str,
+                    "concluidas": concluidas_h,
+                    "canceladas": canceladas_h,
+                    "perdidas": perdidas_h,
+                    "total": total_h,
+                    "taxa_conclusao": (concluidas_h / total_h * 100) if total_h > 0 else 0,
+                    "taxa_cancelamento": (canceladas_h / total_h * 100) if total_h > 0 else 0,
+                    "taxa_perda": (perdidas_h / total_h * 100) if total_h > 0 else 0
+                })
+
+        return {
+            "data": data_especifica,
+            "total_dia": {
+                "concluidas": total_concluidas,
+                "canceladas": total_canceladas,
+                "perdidas": total_perdidas,
+                "total": total_concluidas + total_canceladas + total_perdidas
+            },
+            "horarios": horarios_list,
+            "cidade_filtro": cidade
+        }
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erro interno: {str(e)}"}
+        )
+
+@router.get("/comparative")
+async def get_comparative_data(
+    db: AsyncSession = Depends(get_db),
+    periodo: str = Query("6", description="Período em meses (ex: 6 para últimos 6 meses)"),
+    cidade: Optional[str] = Query(None, description="Filtrar por cidade específica")
+):
+    """
+    � ENDPOINT PARA GRÁFICO COMPARATIVO DIA POR DIA POR MÊS
+    Retorna dados estruturados: 
+    - X-axis: Dias do mês (1-31)
+    - Y-axis: Quantidade de corridas
+    - Múltiplas linhas: Uma linha para cada mês com cor diferente
+    """
+    try:
+        # Buscar todos os registros
+        result = await db.execute(select(RidesData))
+        rides = result.scalars().all()
+        
+        # Definir período de análise (últimos N meses)
+        now = datetime.now()
+        periodo_meses = int(periodo)
+        
+        # Calcular meses para análise
+        meses_analise = []
+        for i in range(periodo_meses):
+            mes_data = now.replace(day=1) - timedelta(days=i*30)
+            mes_str = mes_data.strftime("%Y-%m")
+            meses_analise.insert(0, mes_str)  # Inserir no início para ordem cronológica
+        
+        # Estrutura de dados: [mês][dia] = {concluidas, canceladas, perdidas}
+        # Dias 1-31 para cada mês
+        data_por_mes = {}
+        for mes in meses_analise:
+            data_por_mes[mes] = {}
+            for dia in range(1, 32):  # Dias 1 a 31
+                data_por_mes[mes][dia] = {
+                    "concluidas": 0,
+                    "canceladas": 0, 
+                    "perdidas": 0,
+                    "total": 0
+                }
+        
+        # Controle de duplicatas - usar apenas o ID único da corrida
+        corridas_processadas = set()
+        
+        # Processar todos os registros de corridas
+        for r in rides:
+            ride_data = r.ride_data
+            if isinstance(ride_data, str):
+                try:
+                    ride_data = json.loads(ride_data)
+                except Exception:
+                    continue
+                    
+            table_name = ride_data.get("tableName", "")
+            new_records = ride_data.get("newRecords", [])
+            source = r.source
+            
+            # Processar corridas concluídas
+            if table_name in ["Completed Rides", "corridas_concluidas", "rides_data"]:
+                for rec in new_records:
+                    # ID da corrida sempre está no índice [0] em ambas as fontes
+                    ride_id = rec[0] if len(rec) > 0 else None
+                    if not ride_id:
+                        continue
+                    
+                    # Normalizar ID para string para comparação
+                    ride_id_str = str(ride_id)
+                    
+                    # Verificar se já processamos esta corrida
+                    if ride_id_str in corridas_processadas:
+                        continue  # Pular duplicata
+                    
+                    # Extrair data e status baseado na fonte
+                    if source == "import_excel":
+                        hora = rec[6] if len(rec) > 6 else None
+                        status = rec[9] if len(rec) > 9 else None
+                    else:  # monitoring-service-adapted
+                        hora = rec[7] if len(rec) > 7 else None
+                        status = rec[10] if len(rec) > 10 else None
+                        
+                    # Verificar se é realmente concluída
+                    if status and "Concluído" not in str(status) and "Completed" not in str(status):
+                        continue
+                    
+                    # Marcar como processada
+                    corridas_processadas.add(ride_id_str)
+                        
+                    # Extrair e validar data
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                                mes_corrida = dt_corrida.strftime("%Y-%m")
+                                dia_corrida = dt_corrida.day
+                                
+                                # Verificar se está no período de análise
+                                if mes_corrida in data_por_mes:
+                                    data_por_mes[mes_corrida][dia_corrida]["concluidas"] += 1
+                                        
+                            except Exception:
+                                continue
+            
+            # Processar corridas canceladas
+            elif table_name in ["Cancelled Rides", "corridas_canceladas"]:
+                for rec in new_records:
+                    # ID da corrida sempre está no índice [0] em ambas as fontes
+                    ride_id = rec[0] if len(rec) > 0 else None
+                    if not ride_id:
+                        continue
+                    
+                    # Normalizar ID para string para comparação
+                    ride_id_str = str(ride_id)
+                    
+                    # Verificar se já processamos esta corrida
+                    if ride_id_str in corridas_processadas:
+                        continue  # Pular duplicata
+                    
+                    # Extrair data e status baseado na fonte
+                    if source == "import_excel":
+                        hora = rec[11] if len(rec) > 11 else None
+                        status = rec[13] if len(rec) > 13 else None
+                    else:  # monitoring-service-adapted
+                        hora = rec[12] if len(rec) > 12 else None
+                        status = rec[14] if len(rec) > 14 else None
+                    
+                    # Verificar se é realmente cancelada
+                    if status and "Cancel" not in str(status) and "cancel" not in str(status):
+                        continue
+                    
+                    # Marcar como processada
+                    corridas_processadas.add(ride_id_str)
+                            
+                    # Extrair e validar data
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                                mes_corrida = dt_corrida.strftime("%Y-%m")
+                                dia_corrida = dt_corrida.day
+                                
+                                # Verificar se está no período de análise
+                                if mes_corrida in data_por_mes:
+                                    data_por_mes[mes_corrida][dia_corrida]["canceladas"] += 1
+                                        
+                            except Exception:
+                                continue
+            
+            # Processar corridas perdidas/missed
+            elif table_name in ["Missed Rides", "corridas_perdidas", "Scheduled Rides", "corridas_agendadas"]:
+                for rec in new_records:
+                    # ID da corrida sempre está no índice [0] em ambas as fontes
+                    ride_id = rec[0] if len(rec) > 0 else None
+                    if not ride_id:
+                        continue
+                    
+                    # Normalizar ID para string para comparação
+                    ride_id_str = str(ride_id)
+                    
+                    # Verificar se já processamos esta corrida
+                    if ride_id_str in corridas_processadas:
+                        continue  # Pular duplicata
+                    
+                    # Extrair data e status baseado na fonte
+                    if source == "import_excel":
+                        hora = rec[6] if len(rec) > 6 else None
+                        status = rec[5] if len(rec) > 5 else None
+                    else:  # monitoring-service-adapted
+                        if table_name in ["Scheduled Rides", "corridas_agendadas"]:
+                            hora = rec[10] if len(rec) > 10 else None
+                            status = rec[14] if len(rec) > 14 else None
+                        else:
+                            hora = rec[6] if len(rec) > 6 else None
+                            status = rec[5] if len(rec) > 5 else None
+                    
+                    # Verificar se é realmente perdida/missed/timeout
+                    if status and not any(word in str(status) for word in ["Timeout", "Missed", "Process", "perdida"]):
+                        continue
+                    
+                    # Marcar como processada
+                    corridas_processadas.add(ride_id_str)
+                        
+                    # Extrair e validar data
+                    if hora:
+                        dt_str = extract_datetime_from_record([hora], 0)
+                        if dt_str:
+                            try:
+                                dt_corrida = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                                mes_corrida = dt_corrida.strftime("%Y-%m")
+                                dia_corrida = dt_corrida.day
+                                
+                                # Verificar se está no período de análise
+                                if mes_corrida in data_por_mes:
+                                    data_por_mes[mes_corrida][dia_corrida]["perdidas"] += 1
+                                        
+                            except Exception:
+                                continue
+        
+        # CALCULAR TOTAL CORRETAMENTE (apenas uma vez por dia/mês)
+        for mes in data_por_mes:
+            for dia in data_por_mes[mes]:
+                # Total = concluídas + canceladas + perdidas (cada corrida conta só uma vez)
+                data_por_mes[mes][dia]["total"] = (
+                    data_por_mes[mes][dia]["concluidas"] + 
+                    data_por_mes[mes][dia]["canceladas"] + 
+                    data_por_mes[mes][dia]["perdidas"]
+                )
+        
+        # Estruturar resposta para o gráfico comparativo
+        # X-axis: Dias 1-31
+        # Multiple lines: Uma linha para cada mês
+        
+        daily_data = []
+        for dia in range(1, 32):  # Dias 1 a 31
+            dia_entry = {
+                "day": dia,  # Para X-axis do gráfico
+            }
+            
+            # Adicionar dados de cada mês como linhas separadas
+            for mes in meses_analise:
+                mes_nome = datetime.strptime(f"{mes}-01", "%Y-%m-%d").strftime("%b %Y")
+                mes_key = mes.replace("-", "_")  # 2025-04 -> 2025_04
+                
+                dia_entry[f"{mes_key}_concluidas"] = data_por_mes[mes][dia]["concluidas"]
+                dia_entry[f"{mes_key}_canceladas"] = data_por_mes[mes][dia]["canceladas"] 
+                dia_entry[f"{mes_key}_perdidas"] = data_por_mes[mes][dia]["perdidas"]
+                dia_entry[f"{mes_key}_total"] = data_por_mes[mes][dia]["total"]
+                dia_entry[f"{mes_key}_nome"] = mes_nome
+                
+            daily_data.append(dia_entry)
+        
+        # Preparar metadados dos meses para o frontend
+        months_metadata = []
+        for mes in meses_analise:
+            try:
+                mes_obj = datetime.strptime(f"{mes}-01", "%Y-%m-%d")
+                months_metadata.append({
+                    "key": mes.replace("-", "_"),  # 2025_04
+                    "label": mes_obj.strftime("%b %Y"),  # Abr 2025
+                    "value": mes,  # 2025-04
+                    "total_concluidas": sum(data_por_mes[mes][dia]["concluidas"] for dia in range(1, 32)),
+                    "total_canceladas": sum(data_por_mes[mes][dia]["canceladas"] for dia in range(1, 32)),
+                    "total_perdidas": sum(data_por_mes[mes][dia]["perdidas"] for dia in range(1, 32)),
+                    "total_geral": sum(data_por_mes[mes][dia]["total"] for dia in range(1, 32))
+                })
+            except:
+                continue
+        
+        return {
+            "success": True,
+            "periodo_meses": periodo_meses,
+            "cidade": cidade,
+            "daily_data": daily_data,  # Dados dia por dia (1-31) com todas as linhas dos meses
+            "months_metadata": months_metadata,  # Metadados dos meses para legendas e cores
+            "total_records": len(daily_data),
+            "meses_analisados": meses_analise
+        }
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erro interno: {str(e)}"}
+        )

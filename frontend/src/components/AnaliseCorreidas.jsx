@@ -1,6 +1,7 @@
 
 import React from "react"
 import MapaCalorProblemas from "./MapaCalorProblemas"
+import ComparativeChart from "./ComparativeChart"
 import { motion } from "framer-motion"
 import { Select, SelectOption } from '@/components/ui/select'
 import { TrendingUp, CheckCircle, XCircle, AlertTriangle, Clock, BarChart3, Activity, Filter, Calendar } from 'lucide-react'
@@ -39,7 +40,7 @@ export default function AnaliseCorreidas() {
   })
   
   // Estado para controlar as abas dos gráficos
-  const [activeTab, setActiveTab] = React.useState('horario') // 'horario' ou 'periodo'
+  const [activeTab, setActiveTab] = React.useState('horario') // 'horario', 'periodo' ou 'comparativo'
 
   const handleFilterChange = (key, value) => {
     console.log('🔄 AnaliseCorreidas - Filtro mudando:', key, 'de', filters[key], 'para', value);
@@ -395,6 +396,19 @@ export default function AnaliseCorreidas() {
               <div className="flex items-center justify-center gap-2">
                 <Calendar className="w-4 h-4" />
                 Por Data/Período
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('comparativo')}
+              className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
+                activeTab === 'comparativo'
+                  ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Análise Comparativa
               </div>
             </button>
           </div>
@@ -837,6 +851,12 @@ export default function AnaliseCorreidas() {
                     )}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'comparativo' && (
+              <div className="space-y-6">
+                <ComparativeChart filters={filters} />
               </div>
             )}
           </div>
