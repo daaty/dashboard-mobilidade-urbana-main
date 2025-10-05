@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Users, Star, TrendingUp, UserCheck, Activity, Award, AlertTriangle, Clock, BarChart3, Wifi, Filter, Target, DollarSign, MapPin, Car, AlertCircle, CheckCircle, XCircle, TrendingDown, Calendar, Lightbulb, RefreshCw, Eye, WifiOff, CreditCard } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
 import DriverDetailsModal from './DriverDetailsModal';
+import DriversListModal from './DriversListModal';
 import { useDriverModal } from '../hooks/useDriverModal';
 
 
@@ -53,21 +54,21 @@ const STATUS_COLORS = {
 
 
 export default function DriversOverview({ onPeriodChange }) {
-  try {
-    const [period, setPeriod] = useState('6_months'); // Mudado para 6 meses
-    const [filters, setFilters] = useState({
-      period: '6_months', // Mudado para 6 meses para incluir dados históricos
-      status: 'all',
-      performance: 'all',
-      order_by: 'rating',
-      city: 'all',
-      vehicle: 'all',
-      revenue_range: 'all',
-      alerts: true
-    });
+  const [period, setPeriod] = useState('6_months'); // Mudado para 6 meses
+  const [filters, setFilters] = useState({
+    period: '6_months', // Mudado para 6 meses para incluir dados históricos
+    status: 'all',
+    performance: 'all',
+    order_by: 'rating',
+    city: 'all',
+    vehicle: 'all',
+    revenue_range: 'all',
+    alerts: true
+  });
 
-    const [showComparison, setShowComparison] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
     const [selectedAlert, setSelectedAlert] = useState('');
+    const [isDriversListModalOpen, setIsDriversListModalOpen] = useState(false);
 
     // Hook para modal de detalhes do motorista
     const { isModalOpen, selectedDriverId, selectedDriverName, openModal, closeModal } = useDriverModal();
@@ -710,17 +711,100 @@ export default function DriversOverview({ onPeriodChange }) {
                 {/* Total de Motoristas */}
                 <motion.div 
                   whileHover={{ scale: 1.02 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px]"
+                  onClick={() => setIsDriversListModalOpen(true)}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 min-h-[120px] sm:min-h-[140px] cursor-pointer group relative"
+                  title="Clique para ver lista completa de motoristas"
                 >
                     <div className="flex items-center justify-between h-full">
                         <div className="flex-1 min-w-0">
                             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm font-medium tracking-wide uppercase truncate">Total de Motoristas</p>
-                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 sm:mt-2 truncate">{dashboardData.total_drivers || 0}</p>
-                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">{dashboardData.active_drivers || 0} ativos</p>
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 sm:mt-2 truncate">
+                              {dashboardData.total_drivers || 0}
+                            </p>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 truncate">
+                              {statusData?.summary?.total_drivers || 0} ativos
+                            </p>
                         </div>
                         <div className="bg-blue-100 dark:bg-blue-900/30 p-2 sm:p-3 rounded-lg flex-shrink-0 ml-2">
                           <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                         </div>
+                    </div>
+                    
+                    {/* Tooltip com detalhes dos motoristas */}
+                    <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block z-50 w-80 p-4 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700">
+                      <div className="text-xs font-semibold mb-3 text-blue-300 border-b border-gray-700 pb-2">
+                        📊 Detalhes dos Motoristas
+                      </div>
+                      
+                      <div className="space-y-2.5 text-xs">
+                        {/* Totais Gerais */}
+                        <div className="bg-gray-800/50 rounded p-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-300">📋 Total Cadastrados:</span>
+                            <span className="font-bold text-blue-400 text-sm">{dashboardData.total_drivers || 0}</span>
+                          </div>
+                          <div className="flex justify-between items-center mt-1.5">
+                            <span className="text-gray-300">✓ Motoristas Ativos:</span>
+                            <span className="font-bold text-green-400 text-sm">{statusData?.summary?.total_drivers || 0}</span>
+                          </div>
+                          <div className="flex justify-between items-center mt-1.5">
+                            <span className="text-gray-300">✗ Motoristas Inativos:</span>
+                            <span className="font-bold text-red-400 text-sm">
+                              {(dashboardData.total_drivers || 0) - (statusData?.summary?.total_drivers || 0)}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* Status Online/Offline (dos ativos) */}
+                        <div className="border-t border-gray-700 pt-2">
+                          <div className="text-[11px] font-semibold mb-1.5 text-purple-300">Status em Tempo Real (Ativos):</div>
+                          <div className="bg-gray-800/50 rounded p-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-green-400">🟢 Online agora:</span>
+                              <span className="font-bold text-green-400">{statusData?.summary?.online_drivers || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center mt-1">
+                              <span className="text-red-400">⚫ Offline agora:</span>
+                              <span className="font-bold text-red-400">{statusData?.summary?.offline_drivers || 0}</span>
+                            </div>
+                            {statusData?.summary?.unknown_drivers > 0 && (
+                              <div className="flex justify-between items-center mt-1">
+                                <span className="text-gray-400">❓ Status desconhecido:</span>
+                                <span className="font-bold text-gray-400">{statusData?.summary?.unknown_drivers || 0}</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between items-center mt-1.5 pt-1.5 border-t border-gray-700">
+                              <span className="text-gray-300">Taxa Online:</span>
+                              <span className="font-bold text-yellow-400">{statusData?.summary?.online_percentage || 0}%</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Por Cidade */}
+                        {statusData?.by_city && Object.keys(statusData.by_city).length > 0 && (
+                          <div className="border-t border-gray-700 pt-2">
+                            <div className="text-[11px] font-semibold mb-1.5 text-purple-300">📍 Por Cidade (Online/Offline):</div>
+                            <div className="max-h-28 overflow-y-auto space-y-1 bg-gray-800/50 rounded p-2">
+                              {Object.entries(statusData.by_city)
+                                .filter(([city]) => city !== '') // Filtrar cidade vazia
+                                .slice(0, 5)
+                                .map(([city, data]) => (
+                                <div key={city} className="flex justify-between items-center text-[10px]">
+                                  <span className="text-gray-400 truncate max-w-[160px]">{city}:</span>
+                                  <span className="text-gray-300">
+                                    <span className="text-green-400">{data.Online || 0}</span> / 
+                                    <span className="text-red-400 ml-1">{data.Offline || 0}</span>
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="mt-3 pt-2 border-t border-gray-700 text-[10px] text-gray-400 text-center">
+                        💡 Clique no card para ver lista completa de motoristas
+                      </div>
                     </div>
                 </motion.div>
 
@@ -1964,6 +2048,18 @@ export default function DriversOverview({ onPeriodChange }) {
         )}
       </div>
 
+      {/* Modal de Lista de Motoristas */}
+      <DriversListModal 
+        isOpen={isDriversListModalOpen}
+        onClose={() => setIsDriversListModalOpen(false)}
+      />
+
+      {/* Modal de Lista de Motoristas */}
+      <DriversListModal 
+        isOpen={isDriversListModalOpen}
+        onClose={() => setIsDriversListModalOpen(false)}
+      />
+
       {/* Modal de Detalhes do Motorista */}
       <DriverDetailsModal 
         isOpen={isModalOpen}
@@ -1973,14 +2069,4 @@ export default function DriversOverview({ onPeriodChange }) {
       />
     </div>
   );
-  
-  } catch (componentError) {
-    console.error('Erro crítico no DriversOverview:', componentError);
-    return (
-      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-        <h2 className="text-lg font-semibold text-red-800 mb-2">Erro no Componente DriversOverview</h2>
-        <p className="text-red-600">Ocorreu um erro ao renderizar o componente. Detalhes no console.</p>
-      </div>
-    );
-  }
 }
