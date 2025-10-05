@@ -14,6 +14,7 @@ from app.api import metas_progressivas
 from app.api import driver_personal_details
 from app.api import passengers  # NOVO: endpoints para passageiros
 from app.api import performance_analytics  # NOVO: endpoints específicos para aba Performance
+from app.api import drivers_analytics  # NOVO: endpoints de gráficos para aba Motoristas
 from routes import cidades_demografia
 from routes import dashboard_executivo
 from routes import metas_estrategicas_routes
@@ -56,6 +57,7 @@ app.add_middleware(
 
 app.include_router(auth.router, prefix="/api", tags=["auth"])
 app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
+app.include_router(drivers_analytics.router, prefix="/api", tags=["drivers-analytics"])  # NOVO: analytics de motoristas - DEVE VIR ANTES de drivers.router
 app.include_router(drivers.router, prefix="/api/drivers", tags=["drivers"])  # Voltar para API real
 app.include_router(driver_personal_details.router, prefix="/api/drivers", tags=["driver-personal-details"])
 app.include_router(passengers.router, prefix="/api", tags=["passengers"])  # NOVO: endpoints para passageiros

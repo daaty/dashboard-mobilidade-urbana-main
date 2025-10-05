@@ -335,12 +335,34 @@ def get_drivers_kpis(
                     continue
                 
                 # Contar como ativo se vier da aba "Active Drivers" OU se status for ativo
-                is_active_by_page = hasattr(driver, 'page_source') and driver.page_source == 'Active Drivers'
-                status = additional_data.get('Status', 'Unknown')
-                is_active_by_status = status.lower() in ['online', 'busy', 'active']
+                # CORRIGIDO: Usar personal_data (tabela driver_personal_details) que tem os status corretos
+                # Status ATIVOS: Active, Online, Offline, Busy (qualquer um diferente de Unknown/NULL)
                 
-                if is_active_by_page or is_active_by_status:
-                    active_drivers += 1
+                # Verificar se tem personal_data (fonte mais confiável)
+                if hasattr(driver, 'personal_data') and driver.personal_data:
+                    try:
+                        personal_data = json.loads(driver.personal_data) if isinstance(driver.personal_data, str) else driver.personal_data
+                        status_personal = personal_data.get('status', 'Unknown')
+                        is_active_by_personal = status_personal.lower() in ['active', 'online', 'offline', 'busy']
+                        
+                        if is_active_by_personal:
+                            active_drivers += 1
+                    except:
+                        # Fallback para additional_data
+                        is_active_by_page = hasattr(driver, 'page_source') and driver.page_source == 'Active Drivers'
+                        status = additional_data.get('Status', 'Unknown')
+                        is_active_by_status = status.lower() in ['active', 'online', 'offline', 'busy']
+                        
+                        if is_active_by_page or is_active_by_status:
+                            active_drivers += 1
+                else:
+                    # Fallback para additional_data se não tiver personal_data
+                    is_active_by_page = hasattr(driver, 'page_source') and driver.page_source == 'Active Drivers'
+                    status = additional_data.get('Status', 'Unknown')
+                    is_active_by_status = status.lower() in ['active', 'online', 'offline', 'busy']
+                    
+                    if is_active_by_page or is_active_by_status:
+                        active_drivers += 1
                 
                 # USAR DADOS REAIS DE CANCELAMENTOS DO additional_data
                 # Verificar ambos os formatos de dados (performance e outros)

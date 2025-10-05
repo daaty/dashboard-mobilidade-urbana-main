@@ -4,6 +4,7 @@ import { Users, Star, TrendingUp, UserCheck, Activity, Award, AlertTriangle, Clo
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
 import DriverDetailsModal from './DriverDetailsModal';
 import DriversListModal from './DriversListModal';
+import DriversAnalytics from './DriversAnalytics';
 import { useDriverModal } from '../hooks/useDriverModal';
 
 
@@ -1130,6 +1131,21 @@ export default function DriversOverview({ onPeriodChange }) {
                 </motion.div>
             </motion.div>
 
+            {/* Seção de Analytics e Gráficos */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mb-8"
+            >
+              {console.log('🚀 Passando para DriversAnalytics - activeDriversCount:', dashboardData?.active_drivers)}
+              <DriversAnalytics 
+                period={filters.period} 
+                activeDriversCount={dashboardData?.active_drivers || 0}
+                totalDriversCount={dashboardData?.total_drivers || 0}
+              />
+            </motion.div>
+
             {/* Alertas Inteligentes */}
             {dashboardData.alerts && dashboardData.alerts.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
@@ -1345,169 +1361,6 @@ export default function DriversOverview({ onPeriodChange }) {
                                 </div>
                             ))}
                         </div>
-                    </motion.div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Análise Geográfica e de Veículos */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl">
-                <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl p-6">
-                  <div className="flex items-center gap-3 text-lg font-semibold">
-                    <div className="bg-cyan-500/20 p-2 rounded-lg">
-                      <MapPin className="w-5 h-5 text-cyan-400" />
-                    </div>
-                    Análise Geográfica e Operacional
-                  </div>
-                </div>
-                <div className="p-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
-                    {/* Top Cidades por Receita */}
-                    <motion.div 
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
-                    >
-                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                          <div className="p-2 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-lg shadow-lg">
-                            <MapPin className="h-5 w-5 text-white" />
-                          </div>
-                          Top Cidades
-                        </h3>
-                      </div>
-                      <div className="p-6">
-                        <div className="space-y-4">
-                          {filters.city === 'all' ? (
-                            // Quando "todas as cidades" está selecionado, mostrar dados das cidades
-                            citiesData && citiesData.length > 0 ? citiesData.slice(0, 5).map((city, index) => (
-                              <div key={city} className="flex items-center justify-between p-3 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                                    {index + 1}
-                                  </div>
-                                  <div>
-                                    <p className="font-semibold text-gray-900">{city}</p>
-                                    <p className="text-sm text-gray-600">Cidade disponível</p>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-lg font-bold text-cyan-600">Ativa</p>
-                                  <p className="text-xs text-gray-500">Operando</p>
-                                </div>
-                              </div>
-                            )) : (
-                              <div className="text-center py-4 text-gray-500">
-                                <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                <p>Carregando cidades...</p>
-                              </div>
-                            )
-                          ) : (
-                            // Quando uma cidade específica está selecionada, mostrar informações dessa cidade
-                            <div className="flex items-center justify-between p-3 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                                  1
-                                </div>
-                                <div>
-                                  <p className="font-semibold text-gray-900">{filters.city}</p>
-                                  <p className="text-sm text-gray-600">{kpisData?.active_drivers || 0} motoristas ativos</p>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-lg font-bold text-cyan-600">R$ {Number(kpisData?.total_revenue || 0).toFixed(2)}</p>
-                                <p className="text-xs text-gray-500">{kpisData?.total_rides || 0} corridas</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-
-                    {/* Análise de Veículos */}
-                    <motion.div 
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
-                    >
-                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                          <div className="p-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg">
-                            <Car className="h-5 w-5 text-white" />
-                          </div>
-                          Tipos de Veículos
-                        </h3>
-                      </div>
-                      <div className="p-6">
-                        <div className="space-y-4">
-                          {Object.entries(getVehicleAnalysis())
-                            .sort(([,a], [,b]) => b.drivers - a.drivers)
-                            .slice(0, 5)
-                            .map(([vehicle, data], index) => (
-                              <div key={vehicle} className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                                    {index + 1}
-                                  </div>
-                                  <div>
-                                    <p className="font-semibold text-gray-900">{vehicle}</p>
-                                    <p className="text-sm text-gray-600">R$ {data.revenue.toFixed(2)} receita</p>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-lg font-bold text-orange-600">{data.drivers}</p>
-                                  <p className="text-xs text-gray-500">motoristas</p>
-                                </div>
-                              </div>
-                            ))}
-                          {Object.keys(getVehicleAnalysis()).length === 0 && (
-                            <div className="text-center py-4 text-gray-500">
-                              <Car className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                              <p>Nenhum dado de veículo disponível</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-
-                    {/* Métricas de Eficiência */}
-                    <motion.div 
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      className="bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300"
-                    >
-                      <div className="bg-gray-50 dark:bg-gray-900 rounded-t-xl px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 className="text-lg font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                          <div className="p-2 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg">
-                            <Activity className="h-5 w-5 text-white" />
-                          </div>
-                          Eficiência Operacional
-                        </h3>
-                      </div>
-                      <div className="space-y-4 p-6">
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
-                            <span className="text-sm font-medium text-gray-700">Taxa de Conclusão</span>
-                            <span className="text-xl font-bold text-purple-600">{Number(kpisData?.completion_rate || 0).toFixed(1)}%</span>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg">
-                            <span className="text-sm font-medium text-gray-700">Tempo de Resposta</span>
-                            <span className="text-xl font-bold text-pink-600">{Number(kpisData?.avg_response_time || 0).toFixed(1)}s</span>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-rose-50 to-red-50 rounded-lg">
-                            <span className="text-sm font-medium text-gray-700">Taxa de Cancelamento</span>
-                            <span className="text-xl font-bold text-rose-600">{Number(kpisData?.cancellation_rate || 0).toFixed(1)}%</span>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg">
-                            <span className="text-sm font-medium text-gray-700">Corridas Perdidas</span>
-                            <span className="text-xl font-bold text-emerald-600">{kpisData?.lost_rides || 0}</span>
-                          </div>
-                          <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
-                            <span className="text-sm font-medium text-gray-700">Km por Corrida</span>
-                            <span className="text-xl font-bold text-blue-600">{Number(kpisData?.km_per_ride || 0).toFixed(1)}</span>
-                          </div>
-                        </div>
-                      </div>
                     </motion.div>
                   </div>
                 </div>
