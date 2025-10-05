@@ -34,19 +34,26 @@ else:
         "http://127.0.0.1:3001",
         "https://8tzcwd83-3000.brs.devtunnels.ms",
         "https://dashbord.urbanmt.com.br",
-        "https://fastapi.urbanmt.com.br"
+        "https://fastapi.urbanmt.com.br",
+        "http://dashbord.urbanmt.com.br",  # HTTP também
+        "http://fastapi.urbanmt.com.br"    # HTTP também
     ]
 
 # Em desenvolvimento, permite qualquer origem
 if os.getenv("ENVIRONMENT", "development") == "development":
     cors_origins = ["*"]
 
+# LOG de debug para verificar CORS
+print(f"🔒 CORS CONFIGURADO - Origens permitidas: {cors_origins}")
+print(f"🌍 ENVIRONMENT: {os.getenv('ENVIRONMENT', 'development')}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
+    expose_headers=["*"]  # Adicionar expose_headers
 )
 
 # Adicionar middleware para corrigir problemas de codificação
