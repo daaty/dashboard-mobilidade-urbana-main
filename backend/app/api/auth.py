@@ -24,11 +24,14 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
     if existing_user:
         return SignupResponse(success=False, message="Usuário ou email já cadastrado.")
     
+    # Truncar senha para 72 bytes (limite do bcrypt)
+    password_bytes = request.password.encode('utf-8')[:72]
+    
     # Cria novo usuário
     new_user = User(
         username=request.username,
         email=request.email,
-        password_hash=bcrypt.hash(request.password),
+        password_hash=bcrypt.hash(password_bytes),
         first_name=request.first_name,
         last_name=request.last_name,
         roles="user"
@@ -48,7 +51,10 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     # Busca usuário no banco
     user = db.query(User).filter(User.username == request.username).first()
     
-    if not user or not bcrypt.verify(request.password, user.password_hash):
+    # Truncar senha para 72 bytes (limite do bcrypt)
+    password_bytes = request.password.encode('utf-8')[:72]
+    
+    if not user or not bcrypt.verify(password_bytes, user.password_hash):
         raise HTTPException(status_code=401, detail="Usuário ou senha incorretos.")
     
     if not user.is_active:
