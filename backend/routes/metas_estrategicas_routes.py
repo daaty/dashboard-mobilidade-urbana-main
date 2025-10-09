@@ -13,7 +13,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.database.db import get_db
-from services.metas_estrategicas_service_fixed import MetasEstrategicasService
+from services.metas_estrategicas_service import MetasEstrategicasService
 from services.calculo_progresso_fases import CalculadorProgressoFases, obter_configuracao_calculo_progresso
 
 router = APIRouter(prefix="/api/metas-estrategicas", tags=["Metas Estratégicas"])
