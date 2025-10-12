@@ -62,9 +62,9 @@ def get_performance_overview(period: str = Query("7_days", description="Período
         
         start_date, end_date = calculate_date_range(period)
         
-        # Buscar dados de performance dos motoristas
+        # Buscar dados de performance dos motoristas (DISTINCT driver_id para evitar duplicatas)
         cur.execute('''
-            SELECT 
+            SELECT DISTINCT ON (dd.driver_id)
                 dd.driver_id,
                 dd.name,
                 dpd.personal_data,
@@ -72,6 +72,7 @@ def get_performance_overview(period: str = Query("7_days", description="Período
             FROM drivers_data dd
             LEFT JOIN driver_personal_details dpd ON dd.driver_id = dpd.driver_id
             WHERE dpd.rides_history IS NOT NULL
+            ORDER BY dd.driver_id
         ''')
         
         drivers = cur.fetchall()
@@ -143,58 +144,55 @@ def get_performance_overview(period: str = Query("7_days", description="Período
                     total_completed += completed
                     total_cancelled += cancelled
             
-            # Analisar rating do motorista
+            # Analisar rating do motorista (sem duplicação)
+            driver_rating = None
+            rating_added = False
+            
+            # Primeiro tentar pegar rating do personal_data
             if personal_data and isinstance(personal_data, dict):
                 rating = personal_data.get('rating')
                 if rating:
                     try:
-                        rating_value = float(rating)
-                        total_ratings.append(rating_value)
-                        
-                        # Classificar performance
-                        if rating_value >= 4.5:
-                            performance_stats['performance_distribution']['excellent'] += 1
-                        elif rating_value >= 4.0:
-                            performance_stats['performance_distribution']['good'] += 1
-                        elif rating_value >= 3.5:
-                            performance_stats['performance_distribution']['average'] += 1
-                        else:
-                            performance_stats['performance_distribution']['poor'] += 1
+                        driver_rating = float(rating)
+                        rating_added = True
                     except:
-                        continue
+                        pass
             
             # Se não tiver rating no personal_data, tentar deduzir das corridas
-            if not personal_data or not personal_data.get('rating'):
-                if rides_history:
-                    rides = rides_history if isinstance(rides_history, list) else []
-                    # Procurar por ratings nas corridas
-                    ride_ratings = []
-                    for ride in rides:
-                        if isinstance(ride, dict) and 'driver_rating' in ride:
-                            rating_str = ride['driver_rating']
-                            if rating_str and rating_str != '--':
-                                try:
-                                    # Formato: "5/5" ou "4/5"
-                                    if '/' in rating_str:
-                                        rating_num = float(rating_str.split('/')[0])
-                                        ride_ratings.append(rating_num)
-                                except:
-                                    continue
-                    
-                    # Se tiver ratings das corridas, calcular média
-                    if ride_ratings:
-                        avg_rating = sum(ride_ratings) / len(ride_ratings)
-                        total_ratings.append(avg_rating)
-                        
-                        # Classificar performance
-                        if avg_rating >= 4.5:
-                            performance_stats['performance_distribution']['excellent'] += 1
-                        elif avg_rating >= 4.0:
-                            performance_stats['performance_distribution']['good'] += 1
-                        elif avg_rating >= 3.5:
-                            performance_stats['performance_distribution']['average'] += 1
-                        else:
-                            performance_stats['performance_distribution']['poor'] += 1
+            if not rating_added and rides_history:
+                rides = rides_history if isinstance(rides_history, list) else []
+                # Procurar por ratings nas corridas
+                ride_ratings = []
+                for ride in rides:
+                    if isinstance(ride, dict) and 'driver_rating' in ride:
+                        rating_str = ride['driver_rating']
+                        if rating_str and rating_str != '--':
+                            try:
+                                # Formato: "5/5" ou "4/5"
+                                if '/' in rating_str:
+                                    rating_num = float(rating_str.split('/')[0])
+                                    ride_ratings.append(rating_num)
+                            except:
+                                continue
+                
+                # Se tiver ratings das corridas, calcular média
+                if ride_ratings:
+                    driver_rating = sum(ride_ratings) / len(ride_ratings)
+                    rating_added = True
+            
+            # Adicionar rating UMA VEZ APENAS e classificar performance
+            if driver_rating is not None:
+                total_ratings.append(driver_rating)
+                
+                # Classificar performance (SEM DUPLICAÇÃO)
+                if driver_rating >= 4.5:
+                    performance_stats['performance_distribution']['excellent'] += 1
+                elif driver_rating >= 4.0:
+                    performance_stats['performance_distribution']['good'] += 1
+                elif driver_rating >= 3.5:
+                    performance_stats['performance_distribution']['average'] += 1
+                else:
+                    performance_stats['performance_distribution']['poor'] += 1
         
         # Calcular métricas
         performance_stats['active_drivers'] = active_drivers
@@ -281,7 +279,7 @@ def get_performance_achievements():
         
         # Buscar dados reais para gerar conquistas
         cur.execute('''
-            SELECT COUNT(*) as total_drivers
+            SELECT COUNT(DISTINCT dd.driver_id) as total_drivers
             FROM drivers_data dd
             LEFT JOIN driver_personal_details dpd ON dd.driver_id = dpd.driver_id
             WHERE dpd.rides_history IS NOT NULL
@@ -343,7 +341,7 @@ def get_performance_alerts():
         # Verificar taxa de cancelamento
         cur.execute('''
             SELECT 
-                COUNT(*) as total_drivers
+                COUNT(DISTINCT dd.driver_id) as total_drivers
             FROM drivers_data dd
             LEFT JOIN driver_personal_details dpd ON dd.driver_id = dpd.driver_id
             WHERE dpd.rides_history IS NOT NULL
@@ -393,14 +391,16 @@ def get_performance_predictions():
         cur = conn.cursor()
         
         # Analisar dados reais dos últimos períodos para gerar predições
+        # USAR DISTINCT ON para evitar contar corridas duplicadas!
         cur.execute('''
-            SELECT 
+            SELECT DISTINCT ON (dd.driver_id)
                 dd.driver_id,
                 dd.name,
                 dpd.rides_history
             FROM drivers_data dd
             LEFT JOIN driver_personal_details dpd ON dd.driver_id = dpd.driver_id
             WHERE dpd.rides_history IS NOT NULL
+            ORDER BY dd.driver_id
         ''')
         
         drivers = cur.fetchall()
@@ -485,15 +485,40 @@ def get_performance_predictions():
         avg_rides_per_day_7d = stats_7d["total_rides"] / 7 if stats_7d["total_rides"] > 0 else 0
         avg_revenue_per_day_30d = stats_30d["total_revenue"] / 30 if stats_30d["total_revenue"] > 0 else 0
         
+        # Calcular receitas separadas
+        # Receita dos motoristas = soma das fares
+        driver_revenue_7d = stats_7d["total_revenue"]
+        driver_revenue_30d = stats_30d["total_revenue"]
+        driver_avg_per_day_30d = driver_revenue_30d / 30 if driver_revenue_30d > 0 else 0
+        
+        # Receita do app = R$ 2,50 por corrida
+        APP_FEE_PER_RIDE = 2.50
+        app_revenue_7d = stats_7d["total_rides"] * APP_FEE_PER_RIDE
+        app_revenue_30d = stats_30d["total_rides"] * APP_FEE_PER_RIDE
+        app_avg_per_day_30d = app_revenue_30d / 30 if app_revenue_30d > 0 else 0
+        
+        # Projeção para próxima semana
+        driver_revenue_next_week = driver_avg_per_day_30d * 7
+        app_revenue_next_week = app_avg_per_day_30d * 7
+        total_revenue_next_week = driver_revenue_next_week + app_revenue_next_week
+        
         # Gerar predições realistas baseadas nos dados
         predictions = [
             {
-                "metric": "Receita Próxima Semana",
-                "predicted": f"R$ {avg_revenue_per_day_30d * 7:.2f}",
+                "metric": "Receita Motoristas (Semana)",
+                "predicted": f"R$ {driver_revenue_next_week:.2f}",
                 "confidence": 85,
                 "trend": "stable",
-                "change": "+2.1%",
-                "description": f"Baseado na média de R$ {avg_revenue_per_day_30d:.2f}/dia dos últimos 30 dias"
+                "change": "+2.0%",
+                "description": f"Baseado nas fares - Média de R$ {driver_avg_per_day_30d:.2f}/dia"
+            },
+            {
+                "metric": "Receita App (Semana)",
+                "predicted": f"R$ {app_revenue_next_week:.2f}",
+                "confidence": 88,
+                "trend": "stable",
+                "change": "+2.5%",
+                "description": f"R$ 2,50 por corrida - Média de {app_avg_per_day_30d:.2f}/dia"
             },
             {
                 "metric": "Corridas Amanhã",
@@ -553,7 +578,7 @@ def get_detailed_performance_metrics(period: str = Query("7_days")):
         start_date, end_date = calculate_date_range(period)
         
         cur.execute('''
-            SELECT 
+            SELECT DISTINCT ON (dd.driver_id)
                 dd.driver_id,
                 dd.name,
                 dpd.personal_data,
@@ -561,6 +586,7 @@ def get_detailed_performance_metrics(period: str = Query("7_days")):
             FROM drivers_data dd
             LEFT JOIN driver_personal_details dpd ON dd.driver_id = dpd.driver_id
             WHERE dpd.rides_history IS NOT NULL
+            ORDER BY dd.driver_id
             LIMIT 20
         ''')
         

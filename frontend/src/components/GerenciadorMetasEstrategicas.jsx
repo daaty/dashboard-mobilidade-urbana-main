@@ -11,7 +11,7 @@ import {
 import { useMetasEstrategicas } from '../hooks/useMetasEstrategicas'
 import CalculadorProgressoFases from './CalculadorProgressoFases'
 
-const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
+const GerenciadorMetasEstrategicas = ({ isOpen, onClose, abaInicial = 'metas' }) => {
   const {
     metasProgressivas,
     fasesEstrategicas,
@@ -47,7 +47,14 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
   }
 
   // Estados locais
-  const [abaSelecionada, setAbaSelecionada] = useState('metas') // 'metas' | 'fases' | 'estatisticas'
+  const [abaSelecionada, setAbaSelecionada] = useState(abaInicial) // 'metas' | 'fases' | 'estatisticas'
+  
+  // Atualizar aba quando abaInicial mudar
+  useEffect(() => {
+    if (isOpen) {
+      setAbaSelecionada(abaInicial)
+    }
+  }, [isOpen, abaInicial])
   const [itemEditando, setItemEditando] = useState(null)
   const [showFormulario, setShowFormulario] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
@@ -224,6 +231,15 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
 
   const handleDelete = async () => {
     try {
+      // Validar que temos um ID válido
+      if (!itemParaDeletar?.id) {
+        console.error('❌ Erro: ID do item para deletar está undefined', itemParaDeletar)
+        showToast('Erro: ID do item inválido', 'error')
+        setShowConfirmDelete(false)
+        setItemParaDeletar(null)
+        return
+      }
+
       let resultado
       
       if (itemParaDeletar.tipo === 'meta') {
@@ -437,8 +453,8 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
                       <h3 className="font-bold text-lg text-gray-800 mb-3">{cidade.cidade_nome}</h3>
                       
                       <div className="space-y-3">
-                        {cidade.metas.map(meta => (
-                          <div key={meta.id} className="bg-white rounded-lg p-3 border border-gray-200">
+                        {cidade.metas.map((meta, index) => (
+                          <div key={meta.id || `meta-${meta.cidade_id}-${meta.mes}-${index}`} className="bg-white rounded-lg p-3 border border-gray-200">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-sm font-medium text-gray-600">Mês {meta.mes}</span>
                               <span className={`text-xs px-2 py-1 rounded-full ${
@@ -468,6 +484,12 @@ const GerenciadorMetasEstrategicas = ({ isOpen, onClose }) => {
                               </button>
                               <button
                                 onClick={() => {
+                                  console.log('🗑️ Deletar meta:', meta) // Debug
+                                  if (!meta.id) {
+                                    console.error('❌ Meta sem ID:', meta)
+                                    showToast('Erro: Esta meta não tem um ID válido', 'error')
+                                    return
+                                  }
                                   setItemParaDeletar({...meta, tipo: 'meta'})
                                   setShowConfirmDelete(true)
                                 }}

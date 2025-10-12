@@ -372,36 +372,38 @@ const GruposCidadesManager = ({ dadosCidades = [], corridasReais, motoristasReai
   const [filtroAtivo, setFiltroAtivo] = useState('todos')
   const [busca, setBusca] = useState('')
 
-  // Agrupar cidades de forma inteligente
+  // 🎯 AGRUPAR CIDADES DE FORMA DINÂMICA (SEM HARDCODE)
+  // Lógica: Agrupar por FASE PRIORITÁRIA de cada cidade
   const grupos = {
     'operacionais': {
       nome: '🟢 Cidades Operacionais',
       cor: 'from-green-500 to-emerald-600',
-      cidades: dadosCidades.filter(cidade => 
-        ['PEIXOTO', 'MATUPA', 'GUARANTA DO NORTE'].includes(cidade.cidade) &&
-        (cidade.realizado_corridas > 0 || cidade.realizado_motoristas > 0)
-      )
+      cidades: dadosCidades.filter(cidade => {
+        // Cidade tem Fase 1 OU lançamento E está ativa
+        const temFase1 = cidade.fase === 'Fase 1' || cidade.fase === 'lançamento';
+        const estaAtiva = cidade.status === 'ativa' || cidade.realizado_corridas > 0 || cidade.realizado_motoristas > 0;
+        return temFase1 && estaAtiva;
+      })
     },
     'expansao_fase2': {
       nome: '🔵 Expansão Fase 2',
       cor: 'from-blue-500 to-cyan-600', 
-      cidades: dadosCidades.filter(cidade => 
-        ['Alta Floresta', 'Paranaíta'].includes(cidade.cidade)
-      )
+      cidades: dadosCidades.filter(cidade => cidade.fase === 'Fase 2')
     },
     'expansao_fase3': {
       nome: '🟣 Expansão Fase 3',
       cor: 'from-purple-500 to-pink-600',
-      cidades: dadosCidades.filter(cidade => 
-        ['Colíder', 'Nova Canaã do Norte', 'Carlinda'].includes(cidade.cidade)
-      )
+      cidades: dadosCidades.filter(cidade => cidade.fase === 'Fase 3')
     },
     'planejamento': {
       nome: '🟡 Em Planejamento',
       cor: 'from-yellow-500 to-orange-600',
-      cidades: dadosCidades.filter(cidade => 
-        ['Monte Verde', 'Nova Bandeirantes'].includes(cidade.cidade)
-      )
+      cidades: dadosCidades.filter(cidade => {
+        // Cidades planejadas mas sem fase definida ou status planejada
+        const semFase = !cidade.fase || cidade.fase === 'A definir';
+        const statusPlanejada = cidade.status === 'planejada' || cidade.status === 'pendente';
+        return semFase || statusPlanejada;
+      })
     }
   }
 
@@ -703,16 +705,16 @@ const CidadesManager = ({ dadosCruzados = [], onEditar }) => {
   return (
     <div className="space-y-6">
       {/* Header com estatísticas */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-6 text-white">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-3xl font-bold">🏙️ Gerenciamento de Cidades</h2>
-            <p className="text-blue-100">Organize e visualize dados por grupos inteligentes</p>
+            <p className="text-purple-100">Organize e visualize dados por grupos inteligentes</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-2xl font-bold">{estatisticasGerais.totalCidades}</div>
-              <div className="text-blue-200 text-sm">cidades monitoradas</div>
+              <div className="text-purple-100 text-sm">cidades monitoradas</div>
             </div>
             
             {/* Ações rápidas */}
@@ -737,19 +739,19 @@ const CidadesManager = ({ dadosCruzados = [], onEditar }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white bg-opacity-20 rounded-lg p-3 text-center">
             <div className="text-2xl font-bold">{estatisticasGerais.cidadesAtivas}</div>
-            <div className="text-blue-200 text-sm">Cidades Ativas</div>
+            <div className="text-purple-100 text-sm">Cidades Ativas</div>
           </div>
           <div className="bg-white bg-opacity-20 rounded-lg p-3 text-center">
             <div className="text-2xl font-bold">{estatisticasGerais.totalCorridas}</div>
-            <div className="text-blue-200 text-sm">Total Corridas</div>
+            <div className="text-purple-100 text-sm">Total Corridas</div>
           </div>
           <div className="bg-white bg-opacity-20 rounded-lg p-3 text-center">
             <div className="text-2xl font-bold">{estatisticasGerais.totalMotoristas}</div>
-            <div className="text-blue-200 text-sm">Motoristas</div>
+            <div className="text-purple-100 text-sm">Motoristas</div>
           </div>
           <div className="bg-white bg-opacity-20 rounded-lg p-3 text-center">
             <div className="text-2xl font-bold">R$ {Math.round(estatisticasGerais.receitaTotal).toLocaleString()}</div>
-            <div className="text-blue-200 text-sm">Receita Est.</div>
+            <div className="text-purple-100 text-sm">Receita Est.</div>
           </div>
         </div>
       </div>

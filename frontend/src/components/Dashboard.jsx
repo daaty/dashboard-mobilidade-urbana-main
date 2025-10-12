@@ -250,7 +250,7 @@ function Dashboard() {
       case 'performance':
         return (
           <motion.div variants={contentVariants} initial="hidden" animate="visible">
-            <ResumoPerformance data={performanceData} loading={loadingPerformance} />
+            <ResumoPerformance />
           </motion.div>
         )
       case 'alertas':

@@ -236,8 +236,36 @@ async def get_campanhas(db: Session = Depends(get_db)):
         
         campanhas_list = []
         for campanha in campanhas:
-            # Buscar informações da cidade
-            cidade = db.query(CidadesDemografia).filter(CidadesDemografia.id == campanha.cidade_id).first()
+            # 🎯 BUSCAR CIDADE: Priorizar cidade_id (FK), depois campo cidade (string)
+            cidade = None
+            cidade_nome = "Cidade não encontrada"
+            cidade_id_valor = None
+            populacao = 0
+            
+            # Tentar buscar por cidade_id (ForeignKey)
+            if campanha.cidade_id:
+                cidade = db.query(CidadesDemografia).filter(
+                    CidadesDemografia.id == campanha.cidade_id
+                ).first()
+                if cidade:
+                    cidade_nome = cidade.cidade
+                    cidade_id_valor = cidade.id
+                    populacao = cidade.populacao_estimada_2024 or cidade.populacao_censo_2022
+            
+            # 🔥 FALLBACK: Se não achou por FK, usar campo 'cidade' (string) da tabela
+            if not cidade and campanha.cidade:
+                # Tentar encontrar a cidade pelo nome no campo 'cidade' (string)
+                cidade = db.query(CidadesDemografia).filter(
+                    CidadesDemografia.cidade.ilike(f"%{campanha.cidade}%")
+                ).first()
+                
+                if cidade:
+                    cidade_nome = cidade.cidade
+                    cidade_id_valor = cidade.id
+                    populacao = cidade.populacao_estimada_2024 or cidade.populacao_censo_2022
+                else:
+                    # Se não encontrou na tabela, usar o valor do campo direto
+                    cidade_nome = campanha.cidade
             
             campanha_data = {
                 "id": campanha.id,
@@ -254,9 +282,9 @@ async def get_campanhas(db: Session = Depends(get_db)):
                 "data_fim": campanha.data_fim.isoformat() if campanha.data_fim else None,
                 "created_at": campanha.created_at.isoformat() if campanha.created_at else None,
                 "cidade": {
-                    "id": cidade.id if cidade else None,
-                    "nome": cidade.cidade if cidade else "Cidade não encontrada",
-                    "populacao": cidade.populacao_estimada_2024 or cidade.populacao_censo_2022 if cidade else 0
+                    "id": cidade_id_valor,
+                    "nome": cidade_nome,
+                    "populacao": populacao
                 }
             }
             campanhas_list.append(campanha_data)

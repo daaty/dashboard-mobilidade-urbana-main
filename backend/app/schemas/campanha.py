@@ -5,7 +5,7 @@ from datetime import date, datetime
 class CampanhaBase(BaseModel):
     nome: str
     fase: str
-    cidade: str
+    cidade: Optional[str] = None  # Allow None for campaigns without city
     data_inicio: date
     data_fim: date
     tipo_campanha: str

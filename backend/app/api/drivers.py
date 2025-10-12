@@ -1491,3 +1491,92 @@ async def get_drivers_status_kpi(city: str = "all", db: Session = Depends(get_db
     except Exception as e:
         print(f"ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erro ao buscar status KPI: {str(e)}")
+
+
+# ===== ENDPOINT: MOTORISTAS POR CIDADE =====
+
+@router.get("/by-city")
+async def get_drivers_by_city(
+    cidade: Optional[str] = Query(None, description="Nome da cidade para filtrar motoristas"),
+    db: Session = Depends(get_db)
+):
+    """
+    Retorna motoristas filtrados por cidade
+    Usado por MetasCidades.jsx para exibir dados de motoristas por cidade
+    """
+    try:
+        if not cidade:
+            return {
+                "success": False,
+                "error": "Parâmetro 'cidade' é obrigatório",
+                "motoristas": []
+            }
+        
+        # Normalizar nome da cidade para busca
+        cidade_normalizada = cidade.strip().upper()
+        
+        # Mapeamento de variações de nomes de cidades
+        cidade_map = {
+            "PEIXOTO": "PEIXOTO DE AZEVEDO",
+            "MATUPA": "MATUPÁ",
+            "GUARANTA": "GUARANTÃ DO NORTE",
+            "GUARANTA DO NORTE": "GUARANTÃ DO NORTE",
+            "NOVA MONTE VERDE": "NOVA MONTE VERDE",
+            "MONTE VERDE": "NOVA MONTE VERDE",
+            "NOVA BANDEIRANTES": "NOVA BANDEIRANTES"
+        }
+        
+        cidade_busca = cidade_map.get(cidade_normalizada, cidade_normalizada)
+        
+        # Buscar motoristas na tabela driver_personal_details
+        query = text("""
+            SELECT 
+                driver_id,
+                city,
+                personal_data,
+                rides_history
+            FROM driver_personal_details
+            WHERE UPPER(city) = UPPER(:cidade)
+               OR UPPER(city) LIKE :cidade_pattern
+            LIMIT 100
+        """)
+        
+        result = db.execute(query, {
+            "cidade": cidade_busca,
+            "cidade_pattern": f"%{cidade_busca}%"
+        })
+        rows = result.fetchall()
+        
+        motoristas = []
+        for row in rows:
+            # Extrair nome do personal_data JSONB
+            personal_data = row.personal_data if row.personal_data else {}
+            driver_name = personal_data.get('name', 'N/A') if isinstance(personal_data, dict) else 'N/A'
+            
+            # Contar corridas do rides_history
+            rides_history = row.rides_history if row.rides_history else []
+            total_rides = len(rides_history) if isinstance(rides_history, list) else 0
+            
+            motorista = {
+                "driver_id": row.driver_id,
+                "name": driver_name,
+                "city": row.city,
+                "total_rides": total_rides
+            }
+            motoristas.append(motorista)
+        
+        return {
+            "success": True,
+            "cidade": cidade,
+            "cidade_normalizada": cidade_busca,
+            "total": len(motoristas),
+            "motoristas": motoristas
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "cidade": cidade or "N/A",
+            "motoristas": []
+        }

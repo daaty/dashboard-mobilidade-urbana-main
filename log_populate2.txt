@@ -1,0 +1,2200 @@
+﻿python : 2025-10-08 23:26:36,860 - INFO - =====================
+===========================================================
+No linha:1 caractere:178
++ ... ecutivo-styling; python populate_metas_from_real_data.py 
+2>&1 | Out-F ...
++                      
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (2025-10-08 23:2.. 
+   .===============:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+2025-10-08 23:26:36,860 - INFO - \U0001f680 INICIANDO 
+POPULAÃ├O DE METAS COM DADOS REAIS
+2025-10-08 23:26:36,860 - INFO - ==============================
+==================================================
+2025-10-08 23:26:37,227 - INFO - \u2705 Conectado ao banco: 
+148.230.73.27:5432/n8n_db
+2025-10-08 23:26:37,227 - INFO - 
+===============================================================
+=================
+2025-10-08 23:26:37,227 - INFO - \U0001f4ca PROCESSANDO 
+PER═ODO: 2 meses
+2025-10-08 23:26:37,227 - INFO - ==============================
+==================================================
+
+2025-10-08 23:26:37,227 - INFO - \U0001f4cd Extraindo corridas 
+por cidade...
+2025-10-08 23:26:37,227 - INFO - Extraindo corridas de 
+2025-08-09 23:26:37.227571 atÚ 2025-10-08 23:26:37.227571 (2 
+meses)
+2025-10-08 23:26:37,852 - INFO - Total de registros brutos: 467
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,852 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,866 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,867 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,867 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,867 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,867 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,867 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,867 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,867 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,867 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,867 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,867 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,868 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,868 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,868 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,868 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,869 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,870 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,870 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,870 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,870 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,870 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,870 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,870 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,870 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,871 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,884 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,884 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,884 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,884 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,884 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,884 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,884 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,884 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,884 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,885 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,886 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,887 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:37,888 - INFO -   -:
+2025-10-08 23:26:37,888 - INFO -     - Completadas: 2433
+2025-10-08 23:26:37,888 - INFO -     - Canceladas: 0
+2025-10-08 23:26:37,888 - INFO -     - Perdidas: 0
+2025-10-08 23:26:37,888 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:37,888 - INFO -     - Motoristas: 1
+2025-10-08 23:26:37,888 - INFO -     - Passageiros: 11
+2025-10-08 23:26:37,888 - INFO -   Book Ride:
+2025-10-08 23:26:37,888 - INFO -     - Completadas: 0
+2025-10-08 23:26:37,888 - INFO -     - Canceladas: 71
+2025-10-08 23:26:37,888 - INFO -     - Perdidas: 0
+2025-10-08 23:26:37,888 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:37,888 - INFO -     - Motoristas: 12
+2025-10-08 23:26:37,888 - INFO -     - Passageiros: 0
+2025-10-08 23:26:37,888 - INFO -   Peixoto de Azevedo:
+2025-10-08 23:26:37,888 - INFO -     - Completadas: 0
+2025-10-08 23:26:37,888 - INFO -     - Canceladas: 43
+2025-10-08 23:26:37,888 - INFO -     - Perdidas: 67
+2025-10-08 23:26:37,888 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:37,888 - INFO -     - Motoristas: 6
+2025-10-08 23:26:37,888 - INFO -     - Passageiros: 0
+2025-10-08 23:26:37,888 - INFO -   Matupß:
+2025-10-08 23:26:37,888 - INFO -     - Completadas: 88
+2025-10-08 23:26:37,888 - INFO -     - Canceladas: 0
+2025-10-08 23:26:37,888 - INFO -     - Perdidas: 0
+2025-10-08 23:26:37,888 - INFO -     - Receita: R$ nan
+2025-10-08 23:26:37,888 - INFO -     - Motoristas: 15
+2025-10-08 23:26:37,888 - INFO -     - Passageiros: 32
+2025-10-08 23:26:37,888 - INFO - 
+\U0001f468\u200d\u2708\ufe0f Contando motoristas ativos...
+2025-10-08 23:26:37,970 - INFO -   Nova Monte Verde: 5 
+motoristas
+2025-10-08 23:26:37,970 - INFO -   GuarantÒ do Norte: 4 
+motoristas
+2025-10-08 23:26:37,970 - INFO -   Nova Bandeirantes: 4 
+motoristas
+2025-10-08 23:26:37,970 - INFO -   Matupß: 12 motoristas
+2025-10-08 23:26:37,971 - INFO - 
+\U0001f4be Atualizando metas_progressivas...
+2025-10-08 23:26:37,971 - WARNING - \u26a0\ufe0f Cidade - sem 
+ID mapeado, pulando...
+2025-10-08 23:26:37,971 - WARNING - \u26a0\ufe0f Cidade Book 
+Ride sem ID mapeado, pulando...
+2025-10-08 23:26:38,039 - INFO - Atualizando metas para 
+Peixoto de Azevedo (2 meses)
+2025-10-08 23:26:38,117 - WARNING - Meta nÒo encontrada para 
+cidade_id=6, mes=2
+2025-10-08 23:26:38,421 - INFO - Atualizando metas para Matupß 
+(2 meses)
+2025-10-08 23:26:38,500 - WARNING - Meta nÒo encontrada para 
+cidade_id=3, mes=2
+2025-10-08 23:26:38,501 - INFO - 
+===============================================================
+=================
+2025-10-08 23:26:38,501 - INFO - \U0001f4ca PROCESSANDO 
+PER═ODO: 3 meses
+2025-10-08 23:26:38,501 - INFO - ==============================
+==================================================
+
+2025-10-08 23:26:38,501 - INFO - \U0001f4cd Extraindo corridas 
+por cidade...
+2025-10-08 23:26:38,501 - INFO - Extraindo corridas de 
+2025-07-10 23:26:38.501156 atÚ 2025-10-08 23:26:38.501156 (3 
+meses)
+2025-10-08 23:26:38,952 - INFO - Total de registros brutos: 467
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,953 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,967 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,967 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,967 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,967 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,967 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,967 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,967 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,967 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,967 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,968 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,976 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,984 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,984 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,984 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,984 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,984 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,984 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,984 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,984 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:38,985 - INFO -   -:
+2025-10-08 23:26:38,985 - INFO -     - Completadas: 2433
+2025-10-08 23:26:38,985 - INFO -     - Canceladas: 0
+2025-10-08 23:26:38,985 - INFO -     - Perdidas: 0
+2025-10-08 23:26:38,985 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:38,985 - INFO -     - Motoristas: 1
+2025-10-08 23:26:38,985 - INFO -     - Passageiros: 11
+2025-10-08 23:26:38,985 - INFO -   Book Ride:
+2025-10-08 23:26:38,985 - INFO -     - Completadas: 0
+2025-10-08 23:26:38,985 - INFO -     - Canceladas: 71
+2025-10-08 23:26:38,985 - INFO -     - Perdidas: 0
+2025-10-08 23:26:38,985 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:38,985 - INFO -     - Motoristas: 12
+2025-10-08 23:26:38,985 - INFO -     - Passageiros: 0
+2025-10-08 23:26:38,985 - INFO -   Peixoto de Azevedo:
+2025-10-08 23:26:38,985 - INFO -     - Completadas: 0
+2025-10-08 23:26:38,985 - INFO -     - Canceladas: 43
+2025-10-08 23:26:38,985 - INFO -     - Perdidas: 67
+2025-10-08 23:26:38,985 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:38,985 - INFO -     - Motoristas: 6
+2025-10-08 23:26:38,985 - INFO -     - Passageiros: 0
+2025-10-08 23:26:38,985 - INFO -   Matupß:
+2025-10-08 23:26:38,985 - INFO -     - Completadas: 88
+2025-10-08 23:26:38,985 - INFO -     - Canceladas: 0
+2025-10-08 23:26:38,985 - INFO -     - Perdidas: 0
+2025-10-08 23:26:38,985 - INFO -     - Receita: R$ nan
+2025-10-08 23:26:38,985 - INFO -     - Motoristas: 15
+2025-10-08 23:26:38,985 - INFO -     - Passageiros: 32
+2025-10-08 23:26:38,985 - INFO - 
+\U0001f468\u200d\u2708\ufe0f Contando motoristas ativos...
+2025-10-08 23:26:39,052 - INFO -   Nova Monte Verde: 5 
+motoristas
+2025-10-08 23:26:39,052 - INFO -   GuarantÒ do Norte: 4 
+motoristas
+2025-10-08 23:26:39,052 - INFO -   Nova Bandeirantes: 4 
+motoristas
+2025-10-08 23:26:39,052 - INFO -   Matupß: 12 motoristas
+2025-10-08 23:26:39,052 - INFO - 
+\U0001f4be Atualizando metas_progressivas...
+2025-10-08 23:26:39,052 - WARNING - \u26a0\ufe0f Cidade - sem 
+ID mapeado, pulando...
+2025-10-08 23:26:39,052 - WARNING - \u26a0\ufe0f Cidade Book 
+Ride sem ID mapeado, pulando...
+2025-10-08 23:26:39,134 - INFO - Atualizando metas para 
+Peixoto de Azevedo (3 meses)
+2025-10-08 23:26:39,352 - INFO - \u2705 Atualizado: 1 
+registro(s)
+2025-10-08 23:26:39,652 - INFO - Atualizando metas para Matupß 
+(3 meses)
+2025-10-08 23:26:39,869 - INFO - \u2705 Atualizado: 2 
+registro(s)
+2025-10-08 23:26:39,869 - INFO - 
+===============================================================
+=================
+2025-10-08 23:26:39,869 - INFO - \U0001f4ca PROCESSANDO 
+PER═ODO: 6 meses
+2025-10-08 23:26:39,869 - INFO - ==============================
+==================================================
+
+2025-10-08 23:26:39,869 - INFO - \U0001f4cd Extraindo corridas 
+por cidade...
+2025-10-08 23:26:39,869 - INFO - Extraindo corridas de 
+2025-04-11 23:26:39.869572 atÚ 2025-10-08 23:26:39.869572 (6 
+meses)
+2025-10-08 23:26:40,027 - INFO - Total de registros brutos: 467
+2025-10-08 23:26:40,027 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,027 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,027 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,027 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,027 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,027 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,027 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,027 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,027 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,028 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,029 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,029 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,029 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,029 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,029 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,029 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,029 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,029 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,029 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,029 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,030 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,030 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,030 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,030 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,030 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,030 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,030 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,030 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,030 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,030 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,031 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,032 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,033 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,033 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,033 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,033 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,033 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,033 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,033 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,033 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,033 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,034 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,035 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,038 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,044 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,045 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,051 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,054 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,060 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:40,061 - INFO -   -:
+2025-10-08 23:26:40,061 - INFO -     - Completadas: 2433
+2025-10-08 23:26:40,061 - INFO -     - Canceladas: 0
+2025-10-08 23:26:40,061 - INFO -     - Perdidas: 0
+2025-10-08 23:26:40,061 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:40,061 - INFO -     - Motoristas: 1
+2025-10-08 23:26:40,061 - INFO -     - Passageiros: 11
+2025-10-08 23:26:40,061 - INFO -   Book Ride:
+2025-10-08 23:26:40,061 - INFO -     - Completadas: 0
+2025-10-08 23:26:40,061 - INFO -     - Canceladas: 71
+2025-10-08 23:26:40,061 - INFO -     - Perdidas: 0
+2025-10-08 23:26:40,061 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:40,061 - INFO -     - Motoristas: 12
+2025-10-08 23:26:40,061 - INFO -     - Passageiros: 0
+2025-10-08 23:26:40,061 - INFO -   Peixoto de Azevedo:
+2025-10-08 23:26:40,061 - INFO -     - Completadas: 0
+2025-10-08 23:26:40,061 - INFO -     - Canceladas: 43
+2025-10-08 23:26:40,061 - INFO -     - Perdidas: 67
+2025-10-08 23:26:40,061 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:40,061 - INFO -     - Motoristas: 6
+2025-10-08 23:26:40,061 - INFO -     - Passageiros: 0
+2025-10-08 23:26:40,061 - INFO -   Matupß:
+2025-10-08 23:26:40,061 - INFO -     - Completadas: 88
+2025-10-08 23:26:40,061 - INFO -     - Canceladas: 0
+2025-10-08 23:26:40,061 - INFO -     - Perdidas: 0
+2025-10-08 23:26:40,061 - INFO -     - Receita: R$ nan
+2025-10-08 23:26:40,061 - INFO -     - Motoristas: 15
+2025-10-08 23:26:40,061 - INFO -     - Passageiros: 32
+2025-10-08 23:26:40,061 - INFO - 
+\U0001f468\u200d\u2708\ufe0f Contando motoristas ativos...
+2025-10-08 23:26:40,139 - INFO -   Nova Monte Verde: 5 
+motoristas
+2025-10-08 23:26:40,139 - INFO -   GuarantÒ do Norte: 4 
+motoristas
+2025-10-08 23:26:40,139 - INFO -   Nova Bandeirantes: 4 
+motoristas
+2025-10-08 23:26:40,139 - INFO -   Matupß: 12 motoristas
+2025-10-08 23:26:40,139 - INFO - 
+\U0001f4be Atualizando metas_progressivas...
+2025-10-08 23:26:40,139 - WARNING - \u26a0\ufe0f Cidade - sem 
+ID mapeado, pulando...
+2025-10-08 23:26:40,139 - WARNING - \u26a0\ufe0f Cidade Book 
+Ride sem ID mapeado, pulando...
+2025-10-08 23:26:40,212 - INFO - Atualizando metas para 
+Peixoto de Azevedo (6 meses)
+2025-10-08 23:26:40,419 - INFO - \u2705 Atualizado: 1 
+registro(s)
+2025-10-08 23:26:40,718 - INFO - Atualizando metas para Matupß 
+(6 meses)
+2025-10-08 23:26:40,936 - INFO - \u2705 Atualizado: 2 
+registro(s)
+2025-10-08 23:26:40,936 - INFO - 
+===============================================================
+=================
+2025-10-08 23:26:40,936 - INFO - \U0001f4ca PROCESSANDO 
+PER═ODO: 12 meses
+2025-10-08 23:26:40,936 - INFO - ==============================
+==================================================
+
+2025-10-08 23:26:40,936 - INFO - \U0001f4cd Extraindo corridas 
+por cidade...
+2025-10-08 23:26:40,936 - INFO - Extraindo corridas de 
+2024-10-13 23:26:40.936382 atÚ 2025-10-08 23:26:40.936382 (12 
+meses)
+2025-10-08 23:26:41,085 - INFO - Total de registros brutos: 467
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,085 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,097 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,102 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,118 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,118 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,118 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,118 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,118 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,118 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,118 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,118 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,118 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,118 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,119 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,119 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,119 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,119 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,119 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,119 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,119 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,119 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,119 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,120 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,120 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,120 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,120 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,120 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,120 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,120 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,120 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: Book 
+Ride
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - WARNING - Cidade nÒo mapeada: -
+2025-10-08 23:26:41,121 - INFO -   -:
+2025-10-08 23:26:41,121 - INFO -     - Completadas: 2433
+2025-10-08 23:26:41,121 - INFO -     - Canceladas: 0
+2025-10-08 23:26:41,121 - INFO -     - Perdidas: 0
+2025-10-08 23:26:41,121 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:41,121 - INFO -     - Motoristas: 1
+2025-10-08 23:26:41,121 - INFO -     - Passageiros: 11
+2025-10-08 23:26:41,121 - INFO -   Book Ride:
+2025-10-08 23:26:41,121 - INFO -     - Completadas: 0
+2025-10-08 23:26:41,121 - INFO -     - Canceladas: 71
+2025-10-08 23:26:41,121 - INFO -     - Perdidas: 0
+2025-10-08 23:26:41,121 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:41,121 - INFO -     - Motoristas: 12
+2025-10-08 23:26:41,121 - INFO -     - Passageiros: 0
+2025-10-08 23:26:41,121 - INFO -   Peixoto de Azevedo:
+2025-10-08 23:26:41,121 - INFO -     - Completadas: 0
+2025-10-08 23:26:41,121 - INFO -     - Canceladas: 43
+2025-10-08 23:26:41,121 - INFO -     - Perdidas: 67
+2025-10-08 23:26:41,121 - INFO -     - Receita: R$ 0.00
+2025-10-08 23:26:41,121 - INFO -     - Motoristas: 6
+2025-10-08 23:26:41,121 - INFO -     - Passageiros: 0
+2025-10-08 23:26:41,121 - INFO -   Matupß:
+2025-10-08 23:26:41,121 - INFO -     - Completadas: 88
+2025-10-08 23:26:41,121 - INFO -     - Canceladas: 0
+2025-10-08 23:26:41,121 - INFO -     - Perdidas: 0
+2025-10-08 23:26:41,121 - INFO -     - Receita: R$ nan
+2025-10-08 23:26:41,121 - INFO -     - Motoristas: 15
+2025-10-08 23:26:41,121 - INFO -     - Passageiros: 32
+2025-10-08 23:26:41,121 - INFO - 
+\U0001f468\u200d\u2708\ufe0f Contando motoristas ativos...
+2025-10-08 23:26:41,198 - INFO -   Nova Monte Verde: 5 
+motoristas
+2025-10-08 23:26:41,198 - INFO -   GuarantÒ do Norte: 4 
+motoristas
+2025-10-08 23:26:41,201 - INFO -   Nova Bandeirantes: 4 
+motoristas
+2025-10-08 23:26:41,201 - INFO -   Matupß: 12 motoristas
+2025-10-08 23:26:41,201 - INFO - 
+\U0001f4be Atualizando metas_progressivas...
+2025-10-08 23:26:41,201 - WARNING - \u26a0\ufe0f Cidade - sem 
+ID mapeado, pulando...
+2025-10-08 23:26:41,201 - WARNING - \u26a0\ufe0f Cidade Book 
+Ride sem ID mapeado, pulando...
+2025-10-08 23:26:41,274 - INFO - Atualizando metas para 
+Peixoto de Azevedo (12 meses)
+2025-10-08 23:26:41,485 - INFO - \u2705 Atualizado: 2 
+registro(s)
+2025-10-08 23:26:41,768 - INFO - Atualizando metas para Matupß 
+(12 meses)
+2025-10-08 23:26:41,835 - WARNING - Meta nÒo encontrada para 
+cidade_id=3, mes=12
+2025-10-08 23:26:41,835 - INFO - 
+===============================================================
+=================
+2025-10-08 23:26:41,835 - INFO - \u2705 POPULAÃ├O CONCLU═DA 
+COM SUCESSO!
+2025-10-08 23:26:41,835 - INFO - ==============================
+==================================================

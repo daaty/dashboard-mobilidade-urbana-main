@@ -3,6 +3,7 @@ import { RefreshCw, Sun, Moon, Bell, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 
 export function Header({ 
   sidebarOpen, 
@@ -10,7 +11,7 @@ export function Header({
   refreshInterval, 
   setRefreshInterval 
 }) {
-  const [isDark, setIsDark] = useState(false)
+  const { isDark, toggleTheme } = useTheme()
   const [currentTime, setCurrentTime] = useState(new Date())
   const { user, logout } = useAuth()
 
@@ -21,11 +22,6 @@ export function Header({
 
     return () => clearInterval(timer)
   }, [])
-
-  const toggleTheme = () => {
-    setIsDark(!isDark)
-    document.documentElement.classList.toggle('dark')
-  }
 
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-2 sm:py-4">

@@ -29,10 +29,19 @@ class MetasEstrategicasService:
             
             metas = query.order_by(MetasProgressivas.cidade_id, MetasProgressivas.mes).all()
             
+            # Mapeamento de IDs para nomes de cidades
+            CIDADE_NOMES = {
+                1: "Peixoto de Azevedo",
+                2: "Nova Monte Verde",
+                3: "Matupá",
+                4: "Guarantã do Norte",
+                5: "Nova Bandeirantes"
+            }
+            
             # Agrupar por cidade
             metas_por_cidade = {}
             for meta in metas:
-                cidade_nome = meta.cidade_nome or f"Cidade {meta.cidade_id}"
+                cidade_nome = CIDADE_NOMES.get(meta.cidade_id, f"Cidade {meta.cidade_id}")
                 
                 if cidade_nome not in metas_por_cidade:
                     metas_por_cidade[cidade_nome] = {
@@ -44,7 +53,7 @@ class MetasEstrategicasService:
                 metas_por_cidade[cidade_nome]['metas'].append({
                     'id': meta.id,
                     'mes': meta.mes,
-                    'percentual_penetracao': meta.percentual_penetracao,
+                    'percentual_penetracao': meta.percentual_publico,
                     'meta_corridas': meta.meta_corridas,
                     'meta_motoristas': meta.meta_motoristas,
                     'meta_receita': meta.meta_receita,
@@ -188,7 +197,7 @@ class MetasEstrategicasService:
         """Lista todas as fases de planejamento"""
         try:
             fases = self.db.query(FasesPlanejamento)\
-                .order_by(FasesPlanejamento.ordem, FasesPlanejamento.data_inicio)\
+                .order_by(FasesPlanejamento.data_inicio, FasesPlanejamento.id)\
                 .all()
             
             return [{
@@ -295,6 +304,59 @@ class MetasEstrategicasService:
     
     # ========== RELATÓRIOS E ANALYTICS ==========
     
+    def obter_dashboard_resumo(self) -> Dict:
+        """Retorna resumo consolidado do dashboard com totais e estatísticas"""
+        try:
+            # Contar total de metas
+            total_metas = self.db.query(MetasProgressivas).count()
+            
+            # Contar cidades únicas
+            cidades_unicas = self.db.query(MetasProgressivas.cidade_id).distinct().count()
+            
+            # Somar metas totais
+            totais = self.db.query(
+                self.db.func.sum(MetasProgressivas.meta_corridas).label('total_corridas'),
+                self.db.func.sum(MetasProgressivas.meta_motoristas).label('total_motoristas'),
+                self.db.func.sum(MetasProgressivas.meta_receita).label('total_receita'),
+                self.db.func.sum(MetasProgressivas.resultado_corridas).label('total_corridas_realizadas'),
+                self.db.func.sum(MetasProgressivas.resultado_receita).label('total_receita_realizada')
+            ).first()
+            
+            # Calcular progresso médio
+            progresso_corridas = 0
+            progresso_receita = 0
+            
+            if totais.total_corridas and totais.total_corridas > 0:
+                corridas_realizadas = totais.total_corridas_realizadas or 0
+                progresso_corridas = round((corridas_realizadas / totais.total_corridas) * 100, 1)
+            
+            if totais.total_receita and totais.total_receita > 0:
+                receita_realizada = totais.total_receita_realizada or 0
+                progresso_receita = round((float(receita_realizada) / float(totais.total_receita)) * 100, 1)
+            
+            return {
+                'success': True,
+                'resumo': {
+                    'total_metas': total_metas,
+                    'total_cidades': cidades_unicas,
+                    'meta_corridas_total': int(totais.total_corridas or 0),
+                    'meta_motoristas_total': int(totais.total_motoristas or 0),
+                    'meta_receita_total': float(totais.total_receita or 0),
+                    'corridas_realizadas': int(totais.total_corridas_realizadas or 0),
+                    'receita_realizada': float(totais.total_receita_realizada or 0),
+                    'progresso_corridas_percent': progresso_corridas,
+                    'progresso_receita_percent': progresso_receita
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Erro ao obter dashboard resumo: {e}")
+            return {
+                'success': False,
+                'resumo': {},
+                'error': str(e)
+            }
+    
     def relatorio_metas_por_tipo(self) -> Dict:
         """Gera relatório de metas agrupadas por tipo"""
         try:
@@ -350,4 +412,116 @@ class MetasEstrategicasService:
             
         except Exception as e:
             logger.error(f"Erro ao calcular penetração total: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    # ========== DADOS CONSOLIDADOS COM RESULTADOS REAIS ==========
+    
+    def obter_metas_consolidadas_por_cidade(self, cidade_id: int) -> Dict:
+        """
+        Retorna metas progressivas consolidadas com dados reais de resultado
+        
+        Integra com dados populados por populate_metas_from_real_data.py:
+        - resultado_corridas: corridas completadas reais
+        - resultado_receita: receita total real
+        - resultado_motoristas: motoristas ativos reais
+        - resultado_usuarios_ativos: passageiros únicos reais
+        - resultado_satisfacao: média de avaliações reais
+        - resultado_taxa_cancelamento: taxa de cancelamento real
+        
+        Args:
+            cidade_id: ID da cidade (1=Peixoto, 2=Nova Monte Verde, 3=Matupá, etc.)
+        
+        Returns:
+            Dict com metas e resultados consolidados por período
+        """
+        try:
+            # Mapeamento de cidade_id para nome
+            CIDADE_NOMES = {
+                1: "Peixoto de Azevedo",
+                2: "Nova Monte Verde",
+                3: "Matupá",
+                4: "Guarantã do Norte",
+                5: "Nova Bandeirantes"
+            }
+            
+            # Buscar todas as metas da cidade
+            metas = self.db.query(MetasProgressivas)\
+                .filter(MetasProgressivas.cidade_id == cidade_id)\
+                .order_by(MetasProgressivas.mes)\
+                .all()
+            
+            if not metas:
+                return {
+                    'success': False,
+                    'error': f'Nenhuma meta encontrada para cidade_id={cidade_id}'
+                }
+            
+            # Mapear dados por período
+            metas_consolidadas = []
+            cidade_nome = CIDADE_NOMES.get(cidade_id, f"Cidade {cidade_id}")
+            
+            for meta in metas:
+                
+                # Calcular percentual de progresso
+                percentual_corridas = 0
+                if meta.meta_corridas > 0 and meta.resultado_corridas:
+                    percentual_corridas = round((meta.resultado_corridas / meta.meta_corridas) * 100, 1)
+                
+                percentual_receita = 0
+                if meta.meta_receita > 0 and meta.resultado_receita:
+                    percentual_receita = round((float(meta.resultado_receita) / float(meta.meta_receita)) * 100, 1)
+                
+                percentual_motoristas = 0
+                if meta.meta_motoristas > 0 and meta.resultado_motoristas:
+                    percentual_motoristas = round((meta.resultado_motoristas / meta.meta_motoristas) * 100, 1)
+                
+                # Estrutura consolidada
+                meta_consolidada = {
+                    'id': meta.id,
+                    'periodo_meses': meta.mes,
+                    'periodo_descricao': f"{meta.mes} {'mês' if meta.mes == 1 else 'meses'}",
+                    
+                    # Metas (planejado)
+                    'metas': {
+                        'corridas': meta.meta_corridas,
+                        'motoristas': meta.meta_motoristas,
+                        'receita': float(meta.meta_receita) if meta.meta_receita else 0,
+                        'usuarios_ativos': meta.meta_usuarios_ativos or 0,
+                        'percentual_publico': float(meta.percentual_publico) if meta.percentual_publico else 0
+                    },
+                    
+                    # Resultados (real)
+                    'resultados': {
+                        'corridas': meta.resultado_corridas or 0,
+                        'motoristas': meta.resultado_motoristas or 0,
+                        'receita': float(meta.resultado_receita) if meta.resultado_receita else 0,
+                        'usuarios_ativos': meta.resultado_usuarios_ativos or 0,
+                        'satisfacao': float(meta.resultado_satisfacao) if meta.resultado_satisfacao else 0,
+                        'taxa_cancelamento': float(meta.resultado_taxa_cancelamento) if meta.resultado_taxa_cancelamento else 0
+                    },
+                    
+                    # Progresso (%)
+                    'progresso': {
+                        'corridas': percentual_corridas,
+                        'receita': percentual_receita,
+                        'motoristas': percentual_motoristas
+                    },
+                    
+                    # Status
+                    'status': meta.tipo_meta or 'media',
+                    'atualizado_em': meta.updated_at.isoformat() if meta.updated_at else None
+                }
+                
+                metas_consolidadas.append(meta_consolidada)
+            
+            return {
+                'success': True,
+                'cidade_id': cidade_id,
+                'cidade_nome': cidade_nome,
+                'total_periodos': len(metas_consolidadas),
+                'metas': metas_consolidadas
+            }
+            
+        except Exception as e:
+            logger.error(f"Erro ao obter metas consolidadas para cidade {cidade_id}: {e}")
             return {'success': False, 'error': str(e)}

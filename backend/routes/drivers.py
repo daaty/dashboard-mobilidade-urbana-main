@@ -7,7 +7,7 @@ from ..config.database import get_db
 
 router = APIRouter()
 
-@router.get("/api/drivers/by-city")
+@router.get("/by-city")
 async def get_drivers_by_city(
     cidade: Optional[str] = Query(None, description="Nome da cidade para filtrar motoristas"),
     db: Session = Depends(get_db)
@@ -66,8 +66,8 @@ async def get_drivers_by_city(
             "total_cadastrados": 0
         }
 
-@router.get("/api/drivers/by-city/{cidade}")
-async def get_drivers_by_city(cidade: str, db: Session = Depends(get_db)):
+@router.get("/by-city/{cidade}")
+async def get_drivers_by_city_path(cidade: str, db: Session = Depends(get_db)):
     """
     Buscar motoristas ativos por cidade
     """
@@ -127,7 +127,7 @@ async def get_drivers_by_city(cidade: str, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar motoristas: {str(e)}")
 
-@router.get("/api/drivers/cities")
+@router.get("/cities")
 async def get_drivers_cities(db: Session = Depends(get_db)):
     """
     Listar cidades com motoristas ativos

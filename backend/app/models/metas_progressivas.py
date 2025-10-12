@@ -40,6 +40,9 @@ class MetasProgressivas(Base):
     resultado_motoristas = Column(Integer, default=0)
     resultado_usuarios_ativos = Column(Integer, default=0)
     resultado_receita = Column(Float, default=0.0)
+    resultado_satisfacao = Column(Float, default=0.0)
+    resultado_tempo_resposta = Column(Float, default=0.0)
+    resultado_taxa_cancelamento = Column(Float, default=0.0)
     
     # Status e controle
     status = Column(String, default="ativa")  # "ativa", "pausada", "concluida", "cancelada"

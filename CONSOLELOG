@@ -1,0 +1,817 @@
+client.ts:19 [vite] connecting...
+client.ts:155 [vite] connected.
+chunk-OK4P3QOP.js?v=83b3fa78:21578 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react-router-dom.js?v=83b3fa78:4407 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=83b3fa78:4407
+logDeprecation @ react-router-dom.js?v=83b3fa78:4410
+logV6DeprecationWarnings @ react-router-dom.js?v=83b3fa78:4413
+(anônimo) @ react-router-dom.js?v=83b3fa78:5288
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:19354
+workLoop @ chunk-OK4P3QOP.js?v=83b3fa78:195
+flushWork @ chunk-OK4P3QOP.js?v=83b3fa78:174
+performWorkUntilDeadline @ chunk-OK4P3QOP.js?v=83b3fa78:382
+react-router-dom.js?v=83b3fa78:4407 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=83b3fa78:4407
+logDeprecation @ react-router-dom.js?v=83b3fa78:4410
+logV6DeprecationWarnings @ react-router-dom.js?v=83b3fa78:4416
+(anônimo) @ react-router-dom.js?v=83b3fa78:5288
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:19354
+workLoop @ chunk-OK4P3QOP.js?v=83b3fa78:195
+flushWork @ chunk-OK4P3QOP.js?v=83b3fa78:174
+performWorkUntilDeadline @ chunk-OK4P3QOP.js?v=83b3fa78:382
+App.jsx:88 Dados financeiros recebidos: {total_gastos: 0, total_despesas: 0, media_gastos_dia: 0, taxa_documentacao: 0, variacao_percentual: 0, …}
+App.jsx:88 Dados financeiros recebidos: {total_gastos: 0, total_despesas: 0, media_gastos_dia: 0, taxa_documentacao: 0, variacao_percentual: 0, …}
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: []
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: []
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: null
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: []
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: []
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: null
+MetasCidades.jsx:2030 🚀 PLANO DINÂMICO gerado: {lançamento: {…}, Fase 1: {…}, Fase 2: {…}, Fase 3: {…}}
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: []
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: null
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: []
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: null
+MetasCidades.jsx:2038 ✅ CIDADES REAIS da API carregadas: 10
+MetasCidades.jsx:2083 📊 CIDADES FINAIS (com dados reais garantidos): 10
+MetasCidades.jsx:2099 🏙️ CIDADES para buscar motoristas: (10) ['PEIXOTO', 'MATUPA', 'GUARANTA DO NORTE', 'Colíder', 'Alta Floresta', 'Nova Canaã do Norte', 'Carlinda', 'Paranaíta', 'Monte Verde', 'Nova Bandeirantes']
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: null
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: null
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=PEIXOTO 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Matup%C3%A1 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=GUARANTA%20DO%20NORTE 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Col%C3%ADder 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Alta%20Floresta 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Nova%20Cana%C3%A3%20do%20Norte 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Carlinda 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Parana%C3%ADta 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Monte%20Verde 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Nova%20Bandeirantes 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2132 🔑 Cidade original: PEIXOTO -> normalizada: peixoto
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=PEIXOTO
+MetasCidades.jsx:2030 🚀 PLANO DINÂMICO gerado: {lançamento: {…}, Fase 1: {…}, Fase 2: {…}, Fase 3: {…}}
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: null
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: null
+MetasCidades.jsx:2038 ✅ CIDADES REAIS da API carregadas: 10
+MetasCidades.jsx:2083 📊 CIDADES FINAIS (com dados reais garantidos): 10
+MetasCidades.jsx:2099 🏙️ CIDADES para buscar motoristas: (10) ['PEIXOTO', 'MATUPA', 'GUARANTA DO NORTE', 'Colíder', 'Alta Floresta', 'Nova Canaã do Norte', 'Carlinda', 'Paranaíta', 'Monte Verde', 'Nova Bandeirantes']
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: null
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: null
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=PEIXOTO 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Matup%C3%A1 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=GUARANTA%20DO%20NORTE 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Col%C3%ADder 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Alta%20Floresta 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Nova%20Cana%C3%A3%20do%20Norte 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Carlinda 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Parana%C3%ADta 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Monte%20Verde 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2104  GET http://localhost:8000/api/drivers/by-city?cidade=Nova%20Bandeirantes 404 (Not Found)
+fetchAllData @ MetasCidades.jsx:2104
+await in fetchAllData
+(anônimo) @ MetasCidades.jsx:2003
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+commitRootImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19442
+commitRoot @ chunk-OK4P3QOP.js?v=83b3fa78:19303
+performSyncWorkOnRoot @ chunk-OK4P3QOP.js?v=83b3fa78:18921
+flushSyncCallbacks @ chunk-OK4P3QOP.js?v=83b3fa78:9133
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:18653
+MetasCidades.jsx:2132 🔑 Cidade original: PEIXOTO -> normalizada: peixoto
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=PEIXOTO
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para PEIXOTO : {metricas_principais: {…}, concluidas: Array(6), canceladas: Array(4), perdidas: Array(4), evolucao: Array(7), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade PEIXOTO {concluidas: 6, canceladas: 4, perdidas: 4}
+MetasCidades.jsx:2132 🔑 Cidade original: MATUPA -> normalizada: matupa
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=MATUPA
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para MATUPA : {metricas_principais: {…}, concluidas: Array(4), canceladas: Array(1), perdidas: Array(7), evolucao: Array(6), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade MATUPA {concluidas: 4, canceladas: 1, perdidas: 7}
+MetasCidades.jsx:2132 🔑 Cidade original: GUARANTA DO NORTE -> normalizada: guaranta do norte
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=GUARANTA%20DO%20NORTE
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para GUARANTA DO NORTE : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade GUARANTA DO NORTE {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Colíder -> normalizada: colíder
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Col%C3%ADder
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Colíder : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Colíder {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Alta Floresta -> normalizada: alta floresta
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Alta%20Floresta
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Alta Floresta : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Alta Floresta {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Nova Canaã do Norte -> normalizada: nova canaã do norte
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Nova%20Cana%C3%A3%20do%20Norte
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para PEIXOTO : {metricas_principais: {…}, concluidas: Array(6), canceladas: Array(4), perdidas: Array(4), evolucao: Array(7), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade PEIXOTO {concluidas: 6, canceladas: 4, perdidas: 4}
+MetasCidades.jsx:2132 🔑 Cidade original: MATUPA -> normalizada: matupa
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=MATUPA
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Nova Canaã do Norte : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Nova Canaã do Norte {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Carlinda -> normalizada: carlinda
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Carlinda
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Carlinda : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Carlinda {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Paranaíta -> normalizada: paranaíta
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Parana%C3%ADta
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Paranaíta : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Paranaíta {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Monte Verde -> normalizada: monte verde
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Monte%20Verde
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para MATUPA : {metricas_principais: {…}, concluidas: Array(4), canceladas: Array(1), perdidas: Array(7), evolucao: Array(6), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade MATUPA {concluidas: 4, canceladas: 1, perdidas: 7}
+MetasCidades.jsx:2132 🔑 Cidade original: GUARANTA DO NORTE -> normalizada: guaranta do norte
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=GUARANTA%20DO%20NORTE
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Monte Verde : {metricas_principais: {…}, concluidas: Array(249), canceladas: Array(29), perdidas: Array(31), evolucao: Array(27), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Monte Verde {concluidas: 249, canceladas: 29, perdidas: 31}
+MetasCidades.jsx:2132 🔑 Cidade original: Nova Bandeirantes -> normalizada: nova bandeirantes
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Nova%20Bandeirantes
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Nova Bandeirantes : {metricas_principais: {…}, concluidas: Array(43), canceladas: Array(10), perdidas: Array(19), evolucao: Array(20), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Nova Bandeirantes {concluidas: 43, canceladas: 10, perdidas: 19}
+ 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - corridasReais: {peixoto: {…}, matupa: {…}, guaranta do norte: {…}, colíder: {…}, alta floresta: {…}, …}
+ 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - corridasReais: {peixoto: {…}, matupa: {…}, guaranta do norte: {…}, colíder: {…}, alta floresta: {…}, …}
+ 🎯 FASES ESTRATÉGICAS carregadas: 3 (3) [{…}, {…}, {…}]
+ 📊 METAS ESTRATÉGICAS carregadas: 8 (8) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ ✅ DADOS CRUZADOS carregados (MELHORADO): {campanhas: 33, cidades: 10, fases_plano: 4, fases_estrategicas: 3, metas_estrategicas: 8, …}
+ 🎯 CORRIDAS REAIS por cidade: {peixoto: {…}, matupa: {…}, guaranta do norte: {…}, colíder: {…}, alta floresta: {…}, …}
+ 👨‍💼 MOTORISTAS REAIS por cidade: {}
+ 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - corridasReais: {peixoto: {…}, matupa: {…}, guaranta do norte: {…}, colíder: {…}, alta floresta: {…}, …}
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Monte Verde -> dados: {concluidas: 249, canceladas: 29, perdidas: 31}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Monte Verde buscando: monte verde
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Nova Bandeirantes -> dados: {concluidas: 43, canceladas: 10, perdidas: 19}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Nova Bandeirantes buscando: nova bandeirantes
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para PEIXOTO -> dados: {concluidas: 6, canceladas: 4, perdidas: 4}
+ ❌ MOTORISTAS REAIS NÃO encontrados para PEIXOTO buscando: peixoto
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para MATUPA -> dados: {concluidas: 4, canceladas: 1, perdidas: 7}
+ ❌ MOTORISTAS REAIS NÃO encontrados para MATUPA buscando: matupa
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para GUARANTA DO NORTE -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para GUARANTA DO NORTE buscando: guaranta do norte
+ 🔍 Chaves disponíveis motoristas: []
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Paranaíta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Paranaíta buscando: paranaíta
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Alta Floresta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Alta Floresta buscando: alta floresta
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Colíder -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Colíder buscando: colíder
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Nova Canaã do Norte -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Nova Canaã do Norte buscando: nova canaã do norte
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Carlinda -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Carlinda buscando: carlinda
+ 🔍 Chaves disponíveis motoristas: []
+ 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - corridasReais: {peixoto: {…}, matupa: {…}, guaranta do norte: {…}, colíder: {…}, alta floresta: {…}, …}
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para Monte Verde -> dados: {concluidas: 249, canceladas: 29, perdidas: 31}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Monte Verde buscando: monte verde
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para Nova Bandeirantes -> dados: {concluidas: 43, canceladas: 10, perdidas: 19}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Nova Bandeirantes buscando: nova bandeirantes
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para PEIXOTO -> dados: {concluidas: 6, canceladas: 4, perdidas: 4}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para PEIXOTO buscando: peixoto
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para MATUPA -> dados: {concluidas: 4, canceladas: 1, perdidas: 7}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para MATUPA buscando: matupa
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para GUARANTA DO NORTE -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para GUARANTA DO NORTE buscando: guaranta do norte
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2244 ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+MetasCidades.jsx:2245 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para Paranaíta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Paranaíta buscando: paranaíta
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para Alta Floresta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Alta Floresta buscando: alta floresta
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para Colíder -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Colíder buscando: colíder
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para Nova Canaã do Norte -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Nova Canaã do Norte buscando: nova canaã do norte
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para Carlinda -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Carlinda buscando: carlinda
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+useMetasEstrategicas.js:99  GET http://localhost:8000/api/metas-estrategicas/dashboard 500 (Internal Server Error)
+(anônimo) @ useMetasEstrategicas.js:99
+carregarDadosIniciais @ useMetasEstrategicas.js:360
+(anônimo) @ useMetasEstrategicas.js:379
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:19354
+workLoop @ chunk-OK4P3QOP.js?v=83b3fa78:195
+flushWork @ chunk-OK4P3QOP.js?v=83b3fa78:174
+performWorkUntilDeadline @ chunk-OK4P3QOP.js?v=83b3fa78:382
+useMetasEstrategicas.js:103 Endpoint dashboard retornou 500. Usando dados padrão.
+(anônimo) @ useMetasEstrategicas.js:103
+await in (anônimo)
+carregarDadosIniciais @ useMetasEstrategicas.js:360
+(anônimo) @ useMetasEstrategicas.js:379
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+commitPassiveMountOnFiber @ chunk-OK4P3QOP.js?v=83b3fa78:18182
+commitPassiveMountEffects_complete @ chunk-OK4P3QOP.js?v=83b3fa78:18155
+commitPassiveMountEffects_begin @ chunk-OK4P3QOP.js?v=83b3fa78:18145
+commitPassiveMountEffects @ chunk-OK4P3QOP.js?v=83b3fa78:18135
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19516
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:19354
+workLoop @ chunk-OK4P3QOP.js?v=83b3fa78:195
+flushWork @ chunk-OK4P3QOP.js?v=83b3fa78:174
+performWorkUntilDeadline @ chunk-OK4P3QOP.js?v=83b3fa78:382
+useMetasEstrategicas.js:367 ✅ metas-progressivas carregado com sucesso
+useMetasEstrategicas.js:367 ✅ fases-estrategicas carregado com sucesso
+useMetasEstrategicas.js:367 ✅ dashboard carregado com sucesso
+useMetasEstrategicas.js:99  GET http://localhost:8000/api/metas-estrategicas/dashboard 500 (Internal Server Error)
+(anônimo) @ useMetasEstrategicas.js:99
+carregarDadosIniciais @ useMetasEstrategicas.js:360
+(anônimo) @ useMetasEstrategicas.js:379
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:19354
+workLoop @ chunk-OK4P3QOP.js?v=83b3fa78:195
+flushWork @ chunk-OK4P3QOP.js?v=83b3fa78:174
+performWorkUntilDeadline @ chunk-OK4P3QOP.js?v=83b3fa78:382
+useMetasEstrategicas.js:103 Endpoint dashboard retornou 500. Usando dados padrão.
+(anônimo) @ useMetasEstrategicas.js:103
+await in (anônimo)
+carregarDadosIniciais @ useMetasEstrategicas.js:360
+(anônimo) @ useMetasEstrategicas.js:379
+commitHookEffectListMount @ chunk-OK4P3QOP.js?v=83b3fa78:16934
+invokePassiveEffectMountInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:18350
+invokeEffectsInDev @ chunk-OK4P3QOP.js?v=83b3fa78:19727
+commitDoubleInvokeEffectsInDEV @ chunk-OK4P3QOP.js?v=83b3fa78:19712
+flushPassiveEffectsImpl @ chunk-OK4P3QOP.js?v=83b3fa78:19529
+flushPassiveEffects @ chunk-OK4P3QOP.js?v=83b3fa78:19473
+(anônimo) @ chunk-OK4P3QOP.js?v=83b3fa78:19354
+workLoop @ chunk-OK4P3QOP.js?v=83b3fa78:195
+flushWork @ chunk-OK4P3QOP.js?v=83b3fa78:174
+performWorkUntilDeadline @ chunk-OK4P3QOP.js?v=83b3fa78:382
+useMetasEstrategicas.js:367 ✅ metas-progressivas carregado com sucesso
+useMetasEstrategicas.js:367 ✅ fases-estrategicas carregado com sucesso
+useMetasEstrategicas.js:367 ✅ dashboard carregado com sucesso
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para GUARANTA DO NORTE : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade GUARANTA DO NORTE {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Colíder -> normalizada: colíder
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Col%C3%ADder
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Colíder : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Colíder {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Alta Floresta -> normalizada: alta floresta
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Alta%20Floresta
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Alta Floresta : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Alta Floresta {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Nova Canaã do Norte -> normalizada: nova canaã do norte
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Nova%20Cana%C3%A3%20do%20Norte
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Nova Canaã do Norte : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Nova Canaã do Norte {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Carlinda -> normalizada: carlinda
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Carlinda
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Carlinda : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Carlinda {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Paranaíta -> normalizada: paranaíta
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Parana%C3%ADta
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Paranaíta : {metricas_principais: {…}, concluidas: Array(0), canceladas: Array(0), perdidas: Array(0), evolucao: Array(0), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Paranaíta {concluidas: 0, canceladas: 0, perdidas: 0}
+MetasCidades.jsx:2132 🔑 Cidade original: Monte Verde -> normalizada: monte verde
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Monte%20Verde
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Monte Verde : {metricas_principais: {…}, concluidas: Array(249), canceladas: Array(29), perdidas: Array(31), evolucao: Array(27), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Monte Verde {concluidas: 249, canceladas: 29, perdidas: 31}
+MetasCidades.jsx:2132 🔑 Cidade original: Nova Bandeirantes -> normalizada: nova bandeirantes
+MetasCidades.jsx:2136 🌐 Tentando URL 1: http://localhost:8000/api/metrics/overview?cidade=Nova%20Bandeirantes
+MetasCidades.jsx:2148 📊 DADOS BRUTOS da API para Nova Bandeirantes : {metricas_principais: {…}, concluidas: Array(43), canceladas: Array(10), perdidas: Array(19), evolucao: Array(20), …}
+MetasCidades.jsx:2156 🚕 Métricas cidade Nova Bandeirantes {concluidas: 43, canceladas: 10, perdidas: 19}
+MetasCidades.jsx:1998 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:1999 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+MetasCidades.jsx:2000 🔎 cruzarDados - corridasReais: {peixoto: {…}, matupa: {…}, guaranta do norte: {…}, colíder: {…}, alta floresta: {…}, …}
+MetasCidades.jsx:2244 ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+MetasCidades.jsx:2245 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2244 ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+MetasCidades.jsx:2245 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para Monte Verde -> dados: {concluidas: 249, canceladas: 29, perdidas: 31}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Monte Verde buscando: monte verde
+MetasCidades.jsx:2256 🔍 Chaves disponíveis motoristas: []
+MetasCidades.jsx:2242 🎯 CORRIDAS REAIS encontradas para Nova Bandeirantes -> dados: {concluidas: 43, canceladas: 10, perdidas: 19}
+MetasCidades.jsx:2255 ❌ MOTORISTAS REAIS NÃO encontrados para Nova Bandeirantes buscando: nova bandeirantes
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para PEIXOTO -> dados: {concluidas: 6, canceladas: 4, perdidas: 4}
+ ❌ MOTORISTAS REAIS NÃO encontrados para PEIXOTO buscando: peixoto
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para MATUPA -> dados: {concluidas: 4, canceladas: 1, perdidas: 7}
+ ❌ MOTORISTAS REAIS NÃO encontrados para MATUPA buscando: matupa
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para GUARANTA DO NORTE -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para GUARANTA DO NORTE buscando: guaranta do norte
+ 🔍 Chaves disponíveis motoristas: []
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Paranaíta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Paranaíta buscando: paranaíta
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Alta Floresta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Alta Floresta buscando: alta floresta
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Colíder -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Colíder buscando: colíder
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Nova Canaã do Norte -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Nova Canaã do Norte buscando: nova canaã do norte
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Carlinda -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Carlinda buscando: carlinda
+ 🔍 Chaves disponíveis motoristas: []
+ 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - corridasReais: {peixoto: {…}, matupa: {…}, guaranta do norte: {…}, colíder: {…}, alta floresta: {…}, …}
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Monte Verde -> dados: {concluidas: 249, canceladas: 29, perdidas: 31}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Monte Verde buscando: monte verde
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Nova Bandeirantes -> dados: {concluidas: 43, canceladas: 10, perdidas: 19}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Nova Bandeirantes buscando: nova bandeirantes
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para PEIXOTO -> dados: {concluidas: 6, canceladas: 4, perdidas: 4}
+ ❌ MOTORISTAS REAIS NÃO encontrados para PEIXOTO buscando: peixoto
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para MATUPA -> dados: {concluidas: 4, canceladas: 1, perdidas: 7}
+ ❌ MOTORISTAS REAIS NÃO encontrados para MATUPA buscando: matupa
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para GUARANTA DO NORTE -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para GUARANTA DO NORTE buscando: guaranta do norte
+ 🔍 Chaves disponíveis motoristas: []
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Paranaíta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Paranaíta buscando: paranaíta
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Alta Floresta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Alta Floresta buscando: alta floresta
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Colíder -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Colíder buscando: colíder
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Nova Canaã do Norte -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Nova Canaã do Norte buscando: nova canaã do norte
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Carlinda -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Carlinda buscando: carlinda
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 FASES ESTRATÉGICAS carregadas: 3 (3) [{…}, {…}, {…}]
+ 📊 METAS ESTRATÉGICAS carregadas: 8 (8) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ ✅ DADOS CRUZADOS carregados (MELHORADO): {campanhas: 33, cidades: 10, fases_plano: 4, fases_estrategicas: 3, metas_estrategicas: 8, …}
+ 🎯 CORRIDAS REAIS por cidade: {peixoto: {…}, matupa: {…}, guaranta do norte: {…}, colíder: {…}, alta floresta: {…}, …}
+ 👨‍💼 MOTORISTAS REAIS por cidade: {}
+ 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - corridasReais: {peixoto: {…}, matupa: {…}, guaranta do norte: {…}, colíder: {…}, alta floresta: {…}, …}
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Monte Verde -> dados: {concluidas: 249, canceladas: 29, perdidas: 31}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Monte Verde buscando: monte verde
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Nova Bandeirantes -> dados: {concluidas: 43, canceladas: 10, perdidas: 19}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Nova Bandeirantes buscando: nova bandeirantes
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para PEIXOTO -> dados: {concluidas: 6, canceladas: 4, perdidas: 4}
+ ❌ MOTORISTAS REAIS NÃO encontrados para PEIXOTO buscando: peixoto
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para MATUPA -> dados: {concluidas: 4, canceladas: 1, perdidas: 7}
+ ❌ MOTORISTAS REAIS NÃO encontrados para MATUPA buscando: matupa
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para GUARANTA DO NORTE -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para GUARANTA DO NORTE buscando: guaranta do norte
+ 🔍 Chaves disponíveis motoristas: []
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Paranaíta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Paranaíta buscando: paranaíta
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Alta Floresta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Alta Floresta buscando: alta floresta
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Colíder -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Colíder buscando: colíder
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Nova Canaã do Norte -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Nova Canaã do Norte buscando: nova canaã do norte
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Carlinda -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Carlinda buscando: carlinda
+ 🔍 Chaves disponíveis motoristas: []
+ 🔎 cruzarDados - campanhas: (33) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - cidadesData: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+ 🔎 cruzarDados - corridasReais: {peixoto: {…}, matupa: {…}, guaranta do norte: {…}, colíder: {…}, alta floresta: {…}, …}
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Monte Verde -> dados: {concluidas: 249, canceladas: 29, perdidas: 31}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Monte Verde buscando: monte verde
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Nova Bandeirantes -> dados: {concluidas: 43, canceladas: 10, perdidas: 19}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Nova Bandeirantes buscando: nova bandeirantes
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para PEIXOTO -> dados: {concluidas: 6, canceladas: 4, perdidas: 4}
+ ❌ MOTORISTAS REAIS NÃO encontrados para PEIXOTO buscando: peixoto
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para MATUPA -> dados: {concluidas: 4, canceladas: 1, perdidas: 7}
+ ❌ MOTORISTAS REAIS NÃO encontrados para MATUPA buscando: matupa
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para GUARANTA DO NORTE -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para GUARANTA DO NORTE buscando: guaranta do norte
+ 🔍 Chaves disponíveis motoristas: []
+ ❌ CORRIDAS REAIS NÃO encontradas para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis: (10) ['peixoto', 'matupa', 'guaranta do norte', 'colíder', 'alta floresta', 'nova canaã do norte', 'carlinda', 'paranaíta', 'monte verde', 'nova bandeirantes']
+ ❌ MOTORISTAS REAIS NÃO encontrados para Cidade não encontrada buscando: cidade não encontrada
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Paranaíta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Paranaíta buscando: paranaíta
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Alta Floresta -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Alta Floresta buscando: alta floresta
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Colíder -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Colíder buscando: colíder
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Nova Canaã do Norte -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Nova Canaã do Norte buscando: nova canaã do norte
+ 🔍 Chaves disponíveis motoristas: []
+ 🎯 CORRIDAS REAIS encontradas para Carlinda -> dados: {concluidas: 0, canceladas: 0, perdidas: 0}
+ ❌ MOTORISTAS REAIS NÃO encontrados para Carlinda buscando: carlinda
+ 🔍 Chaves disponíveis motoristas: []

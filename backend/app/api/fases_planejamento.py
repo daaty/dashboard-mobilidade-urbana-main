@@ -185,10 +185,8 @@ async def atualizar_fase(fase_id: int, fase_update: FasesPlanejamentoUpdate, db:
         db.commit()
         db.refresh(fase)
         
-        # Adicionar propriedades calculadas
-        fase.percentual_orcamento_usado = fase.percentual_orcamento_usado
-        fase.roi_fase = fase.roi_fase
-        fase.esta_ativa = fase.esta_ativa
+        # ✅ REMOVIDO: Não tentar setar propriedades calculadas (@property)
+        # Elas já estão disponíveis automaticamente ao retornar o objeto
         
         return fase
     except HTTPException:

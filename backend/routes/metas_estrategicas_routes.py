@@ -142,6 +142,36 @@ async def limpar_metas_duplicadas(db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao limpar duplicatas: {str(e)}")
 
+@router.get("/consolidado/{cidade_id}")
+async def obter_metas_consolidadas(
+    cidade_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Retorna metas consolidadas com dados reais de uma cidade
+    
+    Retorna todos os períodos (2, 3, 6, 12 meses) com:
+    - Metas planejadas (meta_corridas, meta_motoristas, meta_receita)
+    - Resultados reais (resultado_corridas, resultado_receita, resultado_motoristas, etc.)
+    - Progresso percentual de cada métrica
+    
+    Dados populados por populate_metas_from_real_data.py
+    
+    Exemplo: GET /api/metas-estrategicas/consolidado/3 (Matupá)
+    """
+    try:
+        service = MetasEstrategicasService(db)
+        resultado = service.obter_metas_consolidadas_por_cidade(cidade_id)
+        
+        if not resultado['success']:
+            raise HTTPException(status_code=404, detail=resultado.get('error', 'Metas não encontradas'))
+        
+        return resultado
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao obter metas consolidadas: {str(e)}")
+
 # ========== ENDPOINTS FASES DE PLANEJAMENTO ==========
 
 @router.get("/fases-planejamento")
@@ -271,7 +301,7 @@ async def dashboard_metas_estrategicas(db: Session = Depends(get_db)):
         # Buscar dados consolidados
         metas_por_cidade = service.listar_metas_por_cidade()
         fases = service.listar_fases_planejamento()
-        relatorio_tipos = service.gerar_relatorio_por_tipo()
+        relatorio_tipos = service.relatorio_metas_por_tipo()
         dashboard_resumo = service.obter_dashboard_resumo()
         
         return {
@@ -279,7 +309,7 @@ async def dashboard_metas_estrategicas(db: Session = Depends(get_db)):
             "dashboard": dashboard_resumo.get('resumo', {}),
             "metas_detalhadas": metas_por_cidade,
             "fases": fases,
-            "relatorio_tipos": relatorio_tipos.get('relatorio', []) if relatorio_tipos.get('success') else []
+            "relatorio_tipos": relatorio_tipos.get('tipos', {}) if relatorio_tipos.get('success') else {}
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao gerar dashboard: {str(e)}")
