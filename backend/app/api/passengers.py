@@ -243,7 +243,7 @@ async def get_passengers_kpis(
     try:
         start_date, end_date = calculate_date_range(period)
         
-        # Query base
+        # Query base - CORRIGIDO: usar coluna city ao invés de personal_data->>'city'
         city_filter = f"AND city = '{city}'" if city != "all" else ""
         
         query = text(f"""
@@ -254,31 +254,32 @@ async def get_passengers_kpis(
                     AND jsonb_array_length(COALESCE(rides_history, '[]'::jsonb)) > 0 
                     THEN 1 ELSE 0 
                 END) as active_passengers,
-                COUNT(DISTINCT COALESCE(NULLIF(TRIM(personal_data->>'city'), ''), 'Não informado')) as cities_count,
+                COUNT(DISTINCT COALESCE(NULLIF(TRIM(city), ''), 'Não informado')) as cities_count,
                 SUM(CASE 
                     WHEN personal_data->>'blocked' = 'Yes' 
                     THEN 1 ELSE 0 
                 END) as blocked_passengers
             FROM passenger_personal_details 
-            WHERE personal_data->>'city' IS NOT NULL 
-            AND personal_data->>'city' != ''
-            AND UPPER(personal_data->>'city') != 'N/A'
-            AND TRIM(personal_data->>'city') != ''
+            WHERE city IS NOT NULL 
+            AND city != ''
+            AND UPPER(city) != 'N/A'
+            AND TRIM(city) != ''
             {city_filter}
         """)
         
         result = db.execute(query).fetchone()
         
         # Calcular métricas de corridas e receita processando os dados JSONB
+        # CORRIGIDO: usar coluna city ao invés de personal_data->>'city'
         rides_query = text(f"""
             SELECT rides_history, personal_data
             FROM passenger_personal_details 
             WHERE rides_history IS NOT NULL 
             AND jsonb_array_length(rides_history) > 0
-            AND personal_data->>'city' IS NOT NULL 
-            AND personal_data->>'city' != ''
-            AND UPPER(personal_data->>'city') != 'N/A'
-            AND TRIM(personal_data->>'city') != ''
+            AND city IS NOT NULL 
+            AND city != ''
+            AND UPPER(city) != 'N/A'
+            AND TRIM(city) != ''
             {city_filter}
         """)
         

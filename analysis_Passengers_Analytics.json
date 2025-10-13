@@ -1,0 +1,26 @@
+{
+  "name": "Passengers Analytics",
+  "url": "http://localhost:8000/api/passengers/analytics",
+  "params": {
+    "period": "today",
+    "city": "all"
+  },
+  "data_type": "dict",
+  "keys": [
+    "summary",
+    "payment_methods",
+    "device_types",
+    "ratings_distribution",
+    "distance_ranges",
+    "revenue_ranges"
+  ],
+  "summary": {
+    "total_rides": 2,
+    "total_revenue": 28.45,
+    "avg_revenue_per_ride": 14.225,
+    "period": "today",
+    "city": "all"
+  },
+  "count": 2,
+  "structure": "Dict com summary.total_rides"
+}

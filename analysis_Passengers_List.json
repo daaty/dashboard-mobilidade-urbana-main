@@ -1,0 +1,28 @@
+{
+  "name": "Passengers List",
+  "url": "http://localhost:8000/api/passengers/list",
+  "params": {
+    "period": "today",
+    "city": "all",
+    "limit": 1000
+  },
+  "data_type": "list",
+  "count": 303,
+  "structure": "Array direto de objetos",
+  "item_keys": [
+    "passenger_id",
+    "user_name",
+    "user_email",
+    "user_phone",
+    "city",
+    "total_rides",
+    "total_spent",
+    "avg_rating",
+    "date_registered",
+    "status",
+    "app_version",
+    "device_type"
+  ],
+  "total_rides_sum": 585,
+  "interpretation": "303 passageiros com 585 corridas no total"
+}

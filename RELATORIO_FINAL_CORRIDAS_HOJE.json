@@ -1,0 +1,40 @@
+{
+  "data_analise": "2025-10-12",
+  "timestamp": "2025-10-12T18:45:47.217892",
+  "endpoints_analisados": {
+    "passengers_analytics": {
+      "url": "/api/passengers/analytics",
+      "total_rides": 2,
+      "observacao": "Corridas de passageiros cadastrados hoje"
+    },
+    "passengers_list": {
+      "url": "/api/passengers/list",
+      "total_passageiros": 303,
+      "total_rides_historico": 585,
+      "observacao": "Retorna passageiros com histórico completo"
+    },
+    "metrics_overview": {
+      "url": "/api/metrics/overview",
+      "concluidas": 7,
+      "canceladas": 1,
+      "perdidas": 7,
+      "total": 15,
+      "observacao": "✅ FONTE PRINCIPAL - Dados da tabela rides_data"
+    },
+    "performance_detailed": {
+      "url": "/api/analytics/performance/detailed-metrics",
+      "motoristas": 20,
+      "total_rides": 0,
+      "completed_rides": 0,
+      "observacao": "Agregação por motorista"
+    }
+  },
+  "conclusao": {
+    "corridas_hoje": 15,
+    "endpoint_recomendado": "/api/metrics/overview",
+    "inconsistencias": [
+      "Passengers Analytics: 2 vs Metrics Overview: 15",
+      "Passengers List soma histórica: 585 (não é apenas hoje)"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Passengers KPIs",
+  "url": "http://localhost:8000/api/passengers/kpis",
+  "params": {
+    "period": "today",
+    "city": "all"
+  },
+  "data_type": "dict",
+  "keys": [
+    "total_passengers",
+    "active_passengers",
+    "total_rides",
+    "total_revenue",
+    "avg_rides_per_passenger",
+    "avg_revenue_per_passenger",
+    "avg_rating",
+    "cities_count",
+    "registered_this_month",
+    "blocked_passengers"
+  ],
+  "field_total_rides": 2
+}

@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "period": "today",
+  "data": {
+    "total_drivers": 43,
+    "active_drivers": 2,
+    "performance_score": 96.9,
+    "efficiency_score": 100.0,
+    "quality_score": 93.8,
+    "speed_score": 78,
+    "satisfaction_score": 4.69,
+    "performance_distribution": {
+      "excellent": 16,
+      "good": 3,
+      "average": 0,
+      "poor": 1
+    }
+  }
+}

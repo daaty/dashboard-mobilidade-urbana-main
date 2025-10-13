@@ -1,0 +1,13 @@
+{
+  "name": "Drivers KPIs",
+  "url": "http://localhost:8000/api/drivers/kpis",
+  "params": {
+    "period": "today",
+    "city": "all"
+  },
+  "data_type": "dict",
+  "keys": [
+    "success",
+    "data"
+  ]
+}

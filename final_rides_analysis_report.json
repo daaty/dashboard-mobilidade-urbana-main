@@ -1,0 +1,147 @@
+{
+  "timestamp": "2025-10-12T18:44:08.334339",
+  "date": "2025-10-12",
+  "analyses": [
+    {
+      "name": "Passengers Analytics",
+      "url": "http://localhost:8000/api/passengers/analytics",
+      "params": {
+        "period": "today",
+        "city": "all"
+      },
+      "data_type": "dict",
+      "keys": [
+        "summary",
+        "payment_methods",
+        "device_types",
+        "ratings_distribution",
+        "distance_ranges",
+        "revenue_ranges"
+      ],
+      "summary": {
+        "total_rides": 2,
+        "total_revenue": 28.45,
+        "avg_revenue_per_ride": 14.225,
+        "period": "today",
+        "city": "all"
+      },
+      "count": 2,
+      "structure": "Dict com summary.total_rides"
+    },
+    {
+      "name": "Passengers KPIs",
+      "url": "http://localhost:8000/api/passengers/kpis",
+      "params": {
+        "period": "today",
+        "city": "all"
+      },
+      "data_type": "dict",
+      "keys": [
+        "total_passengers",
+        "active_passengers",
+        "total_rides",
+        "total_revenue",
+        "avg_rides_per_passenger",
+        "avg_revenue_per_passenger",
+        "avg_rating",
+        "cities_count",
+        "registered_this_month",
+        "blocked_passengers"
+      ],
+      "field_total_rides": 2
+    },
+    {
+      "name": "Passengers List",
+      "url": "http://localhost:8000/api/passengers/list",
+      "params": {
+        "period": "today",
+        "city": "all",
+        "limit": 1000
+      },
+      "data_type": "list",
+      "count": 303,
+      "structure": "Array direto de objetos",
+      "item_keys": [
+        "passenger_id",
+        "user_name",
+        "user_email",
+        "user_phone",
+        "city",
+        "total_rides",
+        "total_spent",
+        "avg_rating",
+        "date_registered",
+        "status",
+        "app_version",
+        "device_type"
+      ],
+      "total_rides_sum": 585,
+      "interpretation": "303 passageiros com 585 corridas no total"
+    },
+    {
+      "name": "Metrics Overview",
+      "url": "http://localhost:8000/api/metrics/overview",
+      "params": {
+        "periodo": "hoje"
+      },
+      "data_type": "dict",
+      "keys": [
+        "metricas_principais",
+        "concluidas",
+        "canceladas",
+        "perdidas",
+        "evolucao",
+        "distribuicao_status",
+        "motivos_cancelamento",
+        "motivos_perda",
+        "comparativo_cidades",
+        "comparativo_categorias",
+        "comparativo_horarios",
+        "tempos_operacionais",
+        "filtros_disponiveis",
+        "atividade_recente"
+      ],
+      "array_concluidas_length": 7,
+      "array_canceladas_length": 1,
+      "array_perdidas_length": 7,
+      "array_evolucao_length": 1,
+      "array_distribuicao_status_length": 3,
+      "array_motivos_cancelamento_length": 1,
+      "array_motivos_perda_length": 1,
+      "array_comparativo_cidades_length": 3,
+      "array_comparativo_categorias_length": 10,
+      "array_comparativo_horarios_length": 8
+    },
+    {
+      "name": "Performance Analytics Detailed",
+      "url": "http://localhost:8000/api/analytics/performance/detailed-metrics",
+      "params": {
+        "period": "today",
+        "city": "all"
+      },
+      "data_type": "dict",
+      "keys": [
+        "success",
+        "period",
+        "metrics"
+      ],
+      "array_metrics_length": 20
+    },
+    {
+      "name": "Drivers KPIs",
+      "url": "http://localhost:8000/api/drivers/kpis",
+      "params": {
+        "period": "today",
+        "city": "all"
+      },
+      "data_type": "dict",
+      "keys": [
+        "success",
+        "data"
+      ]
+    }
+  ],
+  "rides_counts": {
+    "Passengers Analytics": 2
+  }
+}

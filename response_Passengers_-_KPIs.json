@@ -1,0 +1,12 @@
+{
+  "total_passengers": 270,
+  "active_passengers": 247,
+  "total_rides": 2,
+  "total_revenue": 28.45,
+  "avg_rides_per_passenger": 0.007407407407407408,
+  "avg_revenue_per_passenger": 0.10537037037037036,
+  "avg_rating": 5.0,
+  "cities_count": 4,
+  "registered_this_month": 82,
+  "blocked_passengers": 1
+}

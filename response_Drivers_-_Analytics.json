@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "data": {
+    "status_distribution": {
+      "active": 1626,
+      "inactive": 2610
+    },
+    "performance_distribution": {
+      "excellent": 0,
+      "good": 0,
+      "medium": 4236,
+      "below": 0
+    },
+    "city_distribution": {
+      "Nova Monte Verde": 2165,
+      "Nova Bandeirantes": 1049,
+      "Matupá": 952,
+      "Guarantã do Norte": 12,
+      "N/A": 58
+    },
+    "period": "today",
+    "date_range": {
+      "start_date": "2025-10-12T00:00:00",
+      "end_date": "2025-10-12T18:42:31.118185"
+    }
+  }
+}

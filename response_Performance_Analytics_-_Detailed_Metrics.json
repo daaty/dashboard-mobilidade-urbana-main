@@ -1,0 +1,206 @@
+{
+  "success": true,
+  "period": "today",
+  "metrics": [
+    {
+      "driver_id": "12146346",
+      "name": "Márcio De Oliveira Cabral",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "16263441",
+      "name": "Bruno Silva",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "16359250",
+      "name": "Hrawany Garcia Zagonel",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "16629776",
+      "name": "Mateus Parra",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17079326",
+      "name": "Renatia Barroso Da Silva",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17089446",
+      "name": "Rogerio Oliveira Lima",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17093920",
+      "name": "Paula Oliveira De Almeida",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17101714",
+      "name": "Fabio Henrique Farias Oliveira",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17109343",
+      "name": "Isaac Almeida Silva Almeida",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17116809",
+      "name": "Weslei Martins de souza",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17120373",
+      "name": "Uarlen Lima Figueiredo",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17147322",
+      "name": "Halef Herbert Galvani De Souza",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17157368",
+      "name": "Jandui Pereira Lima",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17166153",
+      "name": "Anderson Meneguzzi",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17168907",
+      "name": "Juscelino França Ventura Da Rocha",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17174024",
+      "name": "Rogério Gelcivan",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17177070",
+      "name": "Gisiana Kuffel",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17177142",
+      "name": "Elindo Juliao Severino",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17180944",
+      "name": "Alex Sandro",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    },
+    {
+      "driver_id": "17207660",
+      "name": "Miguel Vitorino Dos Santos Filho",
+      "total_rides": 0,
+      "completed_rides": 0,
+      "cancelled_rides": 0,
+      "completion_rate": 0,
+      "rating": 0,
+      "performance_category": "poor"
+    }
+  ]
+}

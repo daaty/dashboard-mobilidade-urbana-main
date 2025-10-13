@@ -1,0 +1,44 @@
+{
+  "success": true,
+  "data": {
+    "summary": {
+      "total_rides": 586,
+      "total_drivers": 24,
+      "total_revenue": 11244.31,
+      "avg_ticket": 19.19,
+      "total_duration_hours": 57.77,
+      "avg_duration_minutes": 5.9,
+      "total_distance_km": 1795.86,
+      "avg_distance_km": 3.06,
+      "active_drivers_period": 24
+    },
+    "rides_distribution": [
+      {
+        "faixa": "1-4 corridas",
+        "quantidade": 11
+      },
+      {
+        "faixa": "50+ corridas",
+        "quantidade": 6
+      },
+      {
+        "faixa": "10-19 corridas",
+        "quantidade": 4
+      },
+      {
+        "faixa": "5-9 corridas",
+        "quantidade": 3
+      }
+    ],
+    "period_distribution": [
+      {
+        "periodo": "Tarde/Noite (PM)",
+        "quantidade": 414
+      },
+      {
+        "periodo": "Manhã (AM)",
+        "quantidade": 172
+      }
+    ]
+  }
+}

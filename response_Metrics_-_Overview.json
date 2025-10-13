@@ -1,0 +1,579 @@
+{
+  "metricas_principais": {
+    "corridas_concluidas": 7,
+    "corridas_canceladas": 1,
+    "corridas_perdidas": 7,
+    "variacao_concluidas": -68.18,
+    "variacao_canceladas": -75.0,
+    "variacao_perdidas": 600.0
+  },
+  "concluidas": [
+    {
+      "id_corrida": "618804111",
+      "usuario_id": null,
+      "nome": "User",
+      "avatar": "https://ui-avatars.com/api/?name=User&background=random",
+      "hora": "2025-10-12 18:35:37",
+      "dt_corrida": "2025-10-12T18:35:37",
+      "grupo": "+5518988003038",
+      "local": "Casa, Nova Bandeirantes, Nova Bandeirantes, Brasil, Rua franboan rua das araras",
+      "destino": "Travessa Alvorada Do Sul SN, Nova Bandeirantes",
+      "telefone": "+5518988003038",
+      "cidade": "NOVA BANDEIRANTES",
+      "tempo": null
+    },
+    {
+      "id_corrida": "618797108",
+      "usuario_id": null,
+      "nome": "User",
+      "avatar": "https://ui-avatars.com/api/?name=User&background=random",
+      "hora": "2025-10-12 17:53:54",
+      "dt_corrida": "2025-10-12T17:53:54",
+      "grupo": "+55669974001591",
+      "local": "Avenida Arlindo Nossol SN, Nova Monte Verde",
+      "destino": "Avenida Jesse Rodrigues Baracho SN, Nova Monte Verde",
+      "telefone": "+55669974001591",
+      "cidade": "NOVA MONTE VERDE",
+      "tempo": null
+    },
+    {
+      "id_corrida": "618772113",
+      "usuario_id": null,
+      "nome": "User",
+      "avatar": "https://ui-avatars.com/api/?name=User&background=random",
+      "hora": "2025-10-12 12:34:24",
+      "dt_corrida": "2025-10-12T12:34:24",
+      "grupo": "+55984186385",
+      "local": "Rua Joao Florentino De Mello 58, Nova Bandeirantes",
+      "destino": "Estrada Pranauto 10 KM",
+      "telefone": "+55984186385",
+      "cidade": "NOVA BANDEIRANTES",
+      "tempo": null
+    },
+    {
+      "id_corrida": "618761299",
+      "usuario_id": null,
+      "nome": "Juliana De Oliveira Lima Lima",
+      "avatar": "https://ui-avatars.com/api/?name=Juliana+De+Oliveira+Lima+Lima&background=random",
+      "hora": "2025-10-12 12:11:26",
+      "dt_corrida": "2025-10-12T12:11:26",
+      "grupo": "+5566992006810",
+      "local": "Av. José Joaquim Vieira, Nova Monte Verde - State of Mato Grosso, Brazil",
+      "destino": "Avenida Senador Jonas Pinheiro SN, Nova Monte Verde",
+      "telefone": "+5566992006810",
+      "cidade": "NOVA MONTE VERDE",
+      "tempo": null
+    },
+    {
+      "id_corrida": "618757526",
+      "usuario_id": null,
+      "nome": "User",
+      "avatar": "https://ui-avatars.com/api/?name=User&background=random",
+      "hora": "2025-10-12 10:49:47",
+      "dt_corrida": "2025-10-12T10:49:47",
+      "grupo": "+5518988003038",
+      "local": "R. Goiás, 1056-1180 - Nova Bandeirantes, MT",
+      "destino": "Travessa Rio Branco 109 S, Nova Bandeirantes",
+      "telefone": "+5518988003038",
+      "cidade": "NOVA BANDEIRANTES",
+      "tempo": null
+    },
+    {
+      "id_corrida": "618753122",
+      "usuario_id": null,
+      "nome": "User",
+      "avatar": "https://ui-avatars.com/api/?name=User&background=random",
+      "hora": "2025-10-12 10:22:57",
+      "dt_corrida": "2025-10-12T10:22:57",
+      "grupo": "+5566981294880",
+      "local": "Travessa Matinhos 105 W, Nova Bandeirantes",
+      "destino": "Avenida Jose Francisco Otenio 92, Nova Bandeirantes",
+      "telefone": "+5566981294880",
+      "cidade": "NOVA BANDEIRANTES",
+      "tempo": null
+    },
+    {
+      "id_corrida": "618689421",
+      "usuario_id": null,
+      "nome": "Tatiane Deoti Pelissari",
+      "avatar": "https://ui-avatars.com/api/?name=Tatiane+Deoti+Pelissari&background=random",
+      "hora": "2025-10-12 07:42:49",
+      "dt_corrida": "2025-10-12T07:42:49",
+      "grupo": "+5565999925409",
+      "local": "Avenida Genesio Alves Fonseca SN,  Nova Monte Verde,  Mato Grosso,  Brazil",
+      "destino": "Nova Monte Verde, State of Mato Grosso, Brazil",
+      "telefone": "+5565999925409",
+      "cidade": "NOVA MONTE VERDE",
+      "tempo": null
+    }
+  ],
+  "canceladas": [
+    {
+      "id_corrida": "618781691",
+      "usuario_id": null,
+      "nome": "Jucilene Pereira",
+      "avatar": "https://ui-avatars.com/api/?name=Jucilene+Pereira&background=random",
+      "hora": "2025-10-12 14:37:56",
+      "dt_corrida": "2025-10-12T14:37:56",
+      "grupo": "+5548999493460",
+      "local": "Avenida Mato Grosso SN, Nova Monte Verde, Mato Grosso, Brazil",
+      "destino": "Rua Paulo Watanuki, 722, Nova Monte Verde, Mato Grosso",
+      "telefone": "+5548999493460",
+      "cidade": "NOVA MONTE VERDE",
+      "tempo": null,
+      "motivo": "fui local nao tinha ninguém lá"
+    }
+  ],
+  "perdidas": [
+    {
+      "id_corrida": "189770563",
+      "nome": "Jucilene Pereira",
+      "avatar": "https://ui-avatars.com/api/?name=Jucilene+Pereira&background=random",
+      "hora": "2025-10-12 13:02:08",
+      "dt_corrida": "2025-10-12T13:02:08",
+      "grupo": "+5548999493460",
+      "local": "Avenida Mato Grosso SN, Nova Monte Verde, Mato Grosso, Brazil",
+      "destino": null,
+      "cidade": "NOVA MONTE VERDE",
+      "tempo": null,
+      "motivo": "Timeout Ride"
+    },
+    {
+      "id_corrida": "189770508",
+      "nome": "Jucilene Pereira",
+      "avatar": "https://ui-avatars.com/api/?name=Jucilene+Pereira&background=random",
+      "hora": "2025-10-12 13:00:24",
+      "dt_corrida": "2025-10-12T13:00:24",
+      "grupo": "+5548999493460",
+      "local": "Avenida Mato Grosso SN, Nova Monte Verde, Mato Grosso, Brazil",
+      "destino": null,
+      "cidade": "NOVA MONTE VERDE",
+      "tempo": null,
+      "motivo": "Timeout Ride"
+    },
+    {
+      "id_corrida": "189769632",
+      "nome": "Kethelen Bianca",
+      "avatar": "https://ui-avatars.com/api/?name=Kethelen+Bianca&background=random",
+      "hora": "2025-10-12 12:33:54",
+      "dt_corrida": "2025-10-12T12:33:54",
+      "grupo": "+5566984713021",
+      "local": "Bairro almeida prado Rua rondonopolis, Nova Monte Verde, Nova Monte Verde, Brasil, Última casa do lado esquerdo",
+      "destino": null,
+      "cidade": "NOVA MONTE VERDE",
+      "tempo": null,
+      "motivo": "Timeout Ride"
+    },
+    {
+      "id_corrida": "189769526",
+      "nome": "Andressa Caldas",
+      "avatar": "https://ui-avatars.com/api/?name=Andressa+Caldas&background=random",
+      "hora": "2025-10-12 12:30:17",
+      "dt_corrida": "2025-10-12T12:30:17",
+      "grupo": "+5586995125038",
+      "local": "Rodovia Rodovia Mt 208 A 14",
+      "destino": null,
+      "cidade": "Rodovia",
+      "tempo": null,
+      "motivo": "Timeout Ride"
+    },
+    {
+      "id_corrida": "189769437",
+      "nome": "Kethelen Bianca",
+      "avatar": "https://ui-avatars.com/api/?name=Kethelen+Bianca&background=random",
+      "hora": "2025-10-12 12:27:16",
+      "dt_corrida": "2025-10-12T12:27:16",
+      "grupo": "+5566984713021",
+      "local": "Bairro almeida prado Rua rondonopolis, Nova Monte Verde, Nova Monte Verde, Brasil, Última casa do lado esquerdo",
+      "destino": null,
+      "cidade": "NOVA MONTE VERDE",
+      "tempo": null,
+      "motivo": "Timeout Ride"
+    },
+    {
+      "id_corrida": "189769246",
+      "nome": "Kethelen Bianca",
+      "avatar": "https://ui-avatars.com/api/?name=Kethelen+Bianca&background=random",
+      "hora": "2025-10-12 12:21:40",
+      "dt_corrida": "2025-10-12T12:21:40",
+      "grupo": "+5566984713021",
+      "local": "Bairro almeida prado Rua rondonopolis, Nova Monte Verde, Nova Monte Verde, Brasil, Última casa do lado esquerdo",
+      "destino": null,
+      "cidade": "NOVA MONTE VERDE",
+      "tempo": null,
+      "motivo": "Timeout Ride"
+    },
+    {
+      "id_corrida": "189770427",
+      "nome": "Julia Aires Da Silva",
+      "avatar": "https://ui-avatars.com/api/?name=Julia+Aires+Da+Silva&background=random",
+      "hora": "2025-10-12 11:57:52",
+      "dt_corrida": "2025-10-12T11:57:52",
+      "grupo": "+5566981292377",
+      "local": "Travessa Caceres SN, Nova Bandeirantes, Mato Grosso, Brazil",
+      "destino": null,
+      "cidade": "NOVA BANDEIRANTES",
+      "tempo": null,
+      "motivo": "Timeout Ride"
+    }
+  ],
+  "evolucao": [
+    {
+      "data": "2025-10-12",
+      "concluidas": 7,
+      "canceladas": 1,
+      "perdidas": 7,
+      "taxa_conclusao": 46.666666666666664,
+      "taxa_cancelamento": 6.666666666666667,
+      "taxa_perda": 46.666666666666664
+    }
+  ],
+  "distribuicao_status": [
+    {
+      "status": "concluida",
+      "quantidade": 7
+    },
+    {
+      "status": "cancelada",
+      "quantidade": 1
+    },
+    {
+      "status": "perdida",
+      "quantidade": 7
+    }
+  ],
+  "motivos_cancelamento": [
+    {
+      "motivo": "fui local nao tinha ninguém lá",
+      "quantidade": 1
+    }
+  ],
+  "motivos_perda": [
+    {
+      "motivo": "Timeout Ride",
+      "quantidade": 7
+    }
+  ],
+  "comparativo_cidades": [
+    {
+      "cidade": "NOVA MONTE VERDE",
+      "concluidas": 3,
+      "canceladas": 1,
+      "perdidas": 5,
+      "taxa_conclusao": 33.33333333333333,
+      "taxa_cancelamento": 11.11111111111111,
+      "taxa_perda": 55.55555555555556
+    },
+    {
+      "cidade": "NOVA BANDEIRANTES",
+      "concluidas": 4,
+      "canceladas": 0,
+      "perdidas": 1,
+      "taxa_conclusao": 80.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 20.0
+    },
+    {
+      "cidade": "Rodovia",
+      "concluidas": 0,
+      "canceladas": 0,
+      "perdidas": 1,
+      "taxa_conclusao": 0.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 100.0
+    }
+  ],
+  "comparativo_categorias": [
+    {
+      "categoria": "+5565999925409",
+      "concluidas": 1,
+      "canceladas": 0,
+      "perdidas": 0,
+      "taxa_conclusao": 100.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 0.0
+    },
+    {
+      "categoria": "+5566992006810",
+      "concluidas": 1,
+      "canceladas": 0,
+      "perdidas": 0,
+      "taxa_conclusao": 100.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 0.0
+    },
+    {
+      "categoria": "+5566981292377",
+      "concluidas": 0,
+      "canceladas": 0,
+      "perdidas": 1,
+      "taxa_conclusao": 0.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 100.0
+    },
+    {
+      "categoria": "+5566984713021",
+      "concluidas": 0,
+      "canceladas": 0,
+      "perdidas": 3,
+      "taxa_conclusao": 0.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 100.0
+    },
+    {
+      "categoria": "+5586995125038",
+      "concluidas": 0,
+      "canceladas": 0,
+      "perdidas": 1,
+      "taxa_conclusao": 0.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 100.0
+    },
+    {
+      "categoria": "+55984186385",
+      "concluidas": 1,
+      "canceladas": 0,
+      "perdidas": 0,
+      "taxa_conclusao": 100.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 0.0
+    },
+    {
+      "categoria": "+5548999493460",
+      "concluidas": 0,
+      "canceladas": 1,
+      "perdidas": 2,
+      "taxa_conclusao": 0.0,
+      "taxa_cancelamento": 33.33333333333333,
+      "taxa_perda": 66.66666666666666
+    },
+    {
+      "categoria": "+55669974001591",
+      "concluidas": 1,
+      "canceladas": 0,
+      "perdidas": 0,
+      "taxa_conclusao": 100.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 0.0
+    },
+    {
+      "categoria": "+5518988003038",
+      "concluidas": 2,
+      "canceladas": 0,
+      "perdidas": 0,
+      "taxa_conclusao": 100.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 0.0
+    },
+    {
+      "categoria": "+5566981294880",
+      "concluidas": 1,
+      "canceladas": 0,
+      "perdidas": 0,
+      "taxa_conclusao": 100.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 0.0
+    }
+  ],
+  "comparativo_horarios": [
+    {
+      "hora": "07",
+      "concluidas": 1,
+      "canceladas": 0,
+      "perdidas": 0,
+      "taxa_conclusao": 100.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 0.0
+    },
+    {
+      "hora": "10",
+      "concluidas": 2,
+      "canceladas": 0,
+      "perdidas": 0,
+      "taxa_conclusao": 100.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 0.0
+    },
+    {
+      "hora": "11",
+      "concluidas": 0,
+      "canceladas": 0,
+      "perdidas": 1,
+      "taxa_conclusao": 0.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 100.0
+    },
+    {
+      "hora": "12",
+      "concluidas": 2,
+      "canceladas": 0,
+      "perdidas": 4,
+      "taxa_conclusao": 33.33333333333333,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 66.66666666666666
+    },
+    {
+      "hora": "13",
+      "concluidas": 0,
+      "canceladas": 0,
+      "perdidas": 2,
+      "taxa_conclusao": 0.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 100.0
+    },
+    {
+      "hora": "14",
+      "concluidas": 0,
+      "canceladas": 1,
+      "perdidas": 0,
+      "taxa_conclusao": 0.0,
+      "taxa_cancelamento": 100.0,
+      "taxa_perda": 0.0
+    },
+    {
+      "hora": "17",
+      "concluidas": 1,
+      "canceladas": 0,
+      "perdidas": 0,
+      "taxa_conclusao": 100.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 0.0
+    },
+    {
+      "hora": "18",
+      "concluidas": 1,
+      "canceladas": 0,
+      "perdidas": 0,
+      "taxa_conclusao": 100.0,
+      "taxa_cancelamento": 0.0,
+      "taxa_perda": 0.0
+    }
+  ],
+  "tempos_operacionais": {
+    "tempo_medio_espera": null,
+    "tempo_medio_chegada": null
+  },
+  "filtros_disponiveis": {
+    "cidades": [
+      "NOVA BANDEIRANTES",
+      "NOVA MONTE VERDE",
+      "Rodovia"
+    ],
+    "categorias": [
+      "+5518988003038",
+      "+5548999493460",
+      "+5565999925409",
+      "+5566981292377",
+      "+5566981294880",
+      "+5566984713021",
+      "+5566992006810",
+      "+55669974001591",
+      "+5586995125038",
+      "+55984186385"
+    ]
+  },
+  "atividade_recente": {
+    "concluidas": [
+      {
+        "id_corrida": "618804111",
+        "usuario_id": null,
+        "nome": "User",
+        "avatar": "https://ui-avatars.com/api/?name=User&background=random",
+        "hora": "2025-10-12 18:35:37",
+        "dt_corrida": "2025-10-12T18:35:37",
+        "grupo": "+5518988003038",
+        "local": "Casa, Nova Bandeirantes, Nova Bandeirantes, Brasil, Rua franboan rua das araras",
+        "destino": "Travessa Alvorada Do Sul SN, Nova Bandeirantes",
+        "telefone": "+5518988003038",
+        "cidade": "NOVA BANDEIRANTES",
+        "tempo": null
+      },
+      {
+        "id_corrida": "618797108",
+        "usuario_id": null,
+        "nome": "User",
+        "avatar": "https://ui-avatars.com/api/?name=User&background=random",
+        "hora": "2025-10-12 17:53:54",
+        "dt_corrida": "2025-10-12T17:53:54",
+        "grupo": "+55669974001591",
+        "local": "Avenida Arlindo Nossol SN, Nova Monte Verde",
+        "destino": "Avenida Jesse Rodrigues Baracho SN, Nova Monte Verde",
+        "telefone": "+55669974001591",
+        "cidade": "NOVA MONTE VERDE",
+        "tempo": null
+      },
+      {
+        "id_corrida": "618772113",
+        "usuario_id": null,
+        "nome": "User",
+        "avatar": "https://ui-avatars.com/api/?name=User&background=random",
+        "hora": "2025-10-12 12:34:24",
+        "dt_corrida": "2025-10-12T12:34:24",
+        "grupo": "+55984186385",
+        "local": "Rua Joao Florentino De Mello 58, Nova Bandeirantes",
+        "destino": "Estrada Pranauto 10 KM",
+        "telefone": "+55984186385",
+        "cidade": "NOVA BANDEIRANTES",
+        "tempo": null
+      }
+    ],
+    "canceladas": [
+      {
+        "id_corrida": "618781691",
+        "usuario_id": null,
+        "nome": "Jucilene Pereira",
+        "avatar": "https://ui-avatars.com/api/?name=Jucilene+Pereira&background=random",
+        "hora": "2025-10-12 14:37:56",
+        "dt_corrida": "2025-10-12T14:37:56",
+        "grupo": "+5548999493460",
+        "local": "Avenida Mato Grosso SN, Nova Monte Verde, Mato Grosso, Brazil",
+        "destino": "Rua Paulo Watanuki, 722, Nova Monte Verde, Mato Grosso",
+        "telefone": "+5548999493460",
+        "cidade": "NOVA MONTE VERDE",
+        "tempo": null,
+        "motivo": "fui local nao tinha ninguém lá"
+      }
+    ],
+    "perdidas": [
+      {
+        "id_corrida": "189770563",
+        "nome": "Jucilene Pereira",
+        "avatar": "https://ui-avatars.com/api/?name=Jucilene+Pereira&background=random",
+        "hora": "2025-10-12 13:02:08",
+        "dt_corrida": "2025-10-12T13:02:08",
+        "grupo": "+5548999493460",
+        "local": "Avenida Mato Grosso SN, Nova Monte Verde, Mato Grosso, Brazil",
+        "destino": null,
+        "cidade": "NOVA MONTE VERDE",
+        "tempo": null,
+        "motivo": "Timeout Ride"
+      },
+      {
+        "id_corrida": "189770508",
+        "nome": "Jucilene Pereira",
+        "avatar": "https://ui-avatars.com/api/?name=Jucilene+Pereira&background=random",
+        "hora": "2025-10-12 13:00:24",
+        "dt_corrida": "2025-10-12T13:00:24",
+        "grupo": "+5548999493460",
+        "local": "Avenida Mato Grosso SN, Nova Monte Verde, Mato Grosso, Brazil",
+        "destino": null,
+        "cidade": "NOVA MONTE VERDE",
+        "tempo": null,
+        "motivo": "Timeout Ride"
+      },
+      {
+        "id_corrida": "189769632",
+        "nome": "Kethelen Bianca",
+        "avatar": "https://ui-avatars.com/api/?name=Kethelen+Bianca&background=random",
+        "hora": "2025-10-12 12:33:54",
+        "dt_corrida": "2025-10-12T12:33:54",
+        "grupo": "+5566984713021",
+        "local": "Bairro almeida prado Rua rondonopolis, Nova Monte Verde, Nova Monte Verde, Brasil, Última casa do lado esquerdo",
+        "destino": null,
+        "cidade": "NOVA MONTE VERDE",
+        "tempo": null,
+        "motivo": "Timeout Ride"
+      }
+    ]
+  }
+}

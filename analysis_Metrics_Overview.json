@@ -1,0 +1,34 @@
+{
+  "name": "Metrics Overview",
+  "url": "http://localhost:8000/api/metrics/overview",
+  "params": {
+    "periodo": "hoje"
+  },
+  "data_type": "dict",
+  "keys": [
+    "metricas_principais",
+    "concluidas",
+    "canceladas",
+    "perdidas",
+    "evolucao",
+    "distribuicao_status",
+    "motivos_cancelamento",
+    "motivos_perda",
+    "comparativo_cidades",
+    "comparativo_categorias",
+    "comparativo_horarios",
+    "tempos_operacionais",
+    "filtros_disponiveis",
+    "atividade_recente"
+  ],
+  "array_concluidas_length": 7,
+  "array_canceladas_length": 1,
+  "array_perdidas_length": 7,
+  "array_evolucao_length": 1,
+  "array_distribuicao_status_length": 3,
+  "array_motivos_cancelamento_length": 1,
+  "array_motivos_perda_length": 1,
+  "array_comparativo_cidades_length": 3,
+  "array_comparativo_categorias_length": 10,
+  "array_comparativo_horarios_length": 8
+}

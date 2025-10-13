@@ -1,0 +1,36 @@
+{
+  "summary": {
+    "total_rides": 2,
+    "total_revenue": 28.45,
+    "avg_revenue_per_ride": 14.225,
+    "period": "today",
+    "city": "all"
+  },
+  "payment_methods": {
+    "": 1,
+    "Wallet": 1
+  },
+  "device_types": {
+    "motorolamotorola edge 50 fusion": 1,
+    "N/A": 1
+  },
+  "ratings_distribution": {
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 2
+  },
+  "distance_ranges": {
+    "0-5km": 2,
+    "5-10km": 0,
+    "10-20km": 0,
+    "20km+": 0
+  },
+  "revenue_ranges": {
+    "0-50": 2,
+    "50-100": 0,
+    "100-200": 0,
+    "200+": 0
+  }
+}

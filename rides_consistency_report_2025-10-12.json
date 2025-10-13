@@ -1,0 +1,87 @@
+{
+  "test_date": "2025-10-12",
+  "test_timestamp": "2025-10-12T18:42:52.254070",
+  "base_url": "http://localhost:8000",
+  "results": {
+    "Passengers - Analytics": {
+      "status": "SUCCESS",
+      "status_code": 200,
+      "rides_count": 2,
+      "data_structure": "Dict - Keys: ['summary', 'payment_methods', 'device_types', 'ratings_distribution', 'distance_ranges', 'revenue_ranges']",
+      "response_file": "response_Passengers_-_Analytics.json"
+    },
+    "Passengers - KPIs": {
+      "status": "SUCCESS",
+      "status_code": 200,
+      "rides_count": 2,
+      "data_structure": "Dict - Keys: ['total_passengers', 'active_passengers', 'total_rides', 'total_revenue', 'avg_rides_per_passenger', 'avg_revenue_per_passenger', 'avg_rating', 'cities_count', 'registered_this_month', 'blocked_passengers']",
+      "response_file": "response_Passengers_-_KPIs.json"
+    },
+    "Passengers - List": {
+      "status": "SUCCESS",
+      "status_code": 200,
+      "rides_count": 303,
+      "data_structure": "Array[303] - Primeiro item keys: ['passenger_id', 'user_name', 'user_email', 'user_phone', 'city', 'total_rides', 'total_spent', 'avg_rating', 'date_registered', 'status', 'app_version', 'device_type']",
+      "response_file": "response_Passengers_-_List.json"
+    },
+    "Drivers - KPIs": {
+      "status": "SUCCESS",
+      "status_code": 200,
+      "rides_count": 0,
+      "data_structure": "Dict - Keys: ['success', 'data']",
+      "response_file": "response_Drivers_-_KPIs.json"
+    },
+    "Drivers - Analytics": {
+      "status": "SUCCESS",
+      "status_code": 200,
+      "rides_count": 0,
+      "data_structure": "Dict - Keys: ['success', 'data']",
+      "response_file": "response_Drivers_-_Analytics.json"
+    },
+    "Drivers Analytics - Performance Metrics": {
+      "status": "SUCCESS",
+      "status_code": 200,
+      "rides_count": 0,
+      "data_structure": "Dict - Keys: ['success', 'data']",
+      "response_file": "response_Drivers_Analytics_-_Performance_Metrics.json"
+    },
+    "Metrics - Overview": {
+      "status": "SUCCESS",
+      "status_code": 200,
+      "rides_count": 7,
+      "data_structure": "Dict - Keys: ['metricas_principais', 'concluidas', 'canceladas', 'perdidas', 'evolucao', 'distribuicao_status', 'motivos_cancelamento', 'motivos_perda', 'comparativo_cidades', 'comparativo_categorias', 'comparativo_horarios', 'tempos_operacionais', 'filtros_disponiveis', 'atividade_recente']",
+      "response_file": "response_Metrics_-_Overview.json"
+    },
+    "Performance Analytics - Overview": {
+      "status": "SUCCESS",
+      "status_code": 200,
+      "rides_count": 0,
+      "data_structure": "Dict - Keys: ['success', 'period', 'data']",
+      "response_file": "response_Performance_Analytics_-_Overview.json"
+    },
+    "Performance Analytics - Detailed Metrics": {
+      "status": "SUCCESS",
+      "status_code": 200,
+      "rides_count": 20,
+      "data_structure": "Dict - Keys: ['success', 'period', 'metrics']",
+      "response_file": "response_Performance_Analytics_-_Detailed_Metrics.json"
+    }
+  },
+  "summary": {
+    "total_endpoints": 9,
+    "successful": 9,
+    "failed": 0,
+    "rides_counts": {
+      "Passengers - Analytics": 2,
+      "Passengers - KPIs": 2,
+      "Passengers - List": 303,
+      "Drivers - KPIs": 0,
+      "Drivers - Analytics": 0,
+      "Drivers Analytics - Performance Metrics": 0,
+      "Metrics - Overview": 7,
+      "Performance Analytics - Overview": 0,
+      "Performance Analytics - Detailed Metrics": 20
+    },
+    "is_consistent": false
+  }
+}
